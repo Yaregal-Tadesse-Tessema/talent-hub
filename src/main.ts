@@ -20,13 +20,13 @@ async function bootstrap() {
     scheme: 'basic',
   })
   .addBearerAuth()
-  .setTitle('LM APIs')
+  .setTitle('TH APIs')
   .setDescription('LM API Documentation')
   .setVersion('1.0')
   .setContact(
-    'Tria Trading PLc',
-    'http://triatrading.com/',
-    'info@triatrading.com',
+    'Elit Talent Plc',
+    'http://talentHub.com/',
+    'info@talentHub.com',
   )
   .build();
   const document = SwaggerModule.createDocument(app, config, {
