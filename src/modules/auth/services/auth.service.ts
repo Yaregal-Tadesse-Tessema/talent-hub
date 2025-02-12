@@ -1,12 +1,10 @@
 /* eslint-disable prettier/prettier */
 import {
-  BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { LoginDto, LogoutDto } from '../dto/login.dto';
+import { LoginDto } from '../dto/login.dto';
 import { AccountStatusEnums, AccountTypeEnums } from '../constants';
 import { AccountQueryService } from 'src/modules/account/service/account-query.service';
 import { InjectRepository } from '@nestjs/typeorm';
