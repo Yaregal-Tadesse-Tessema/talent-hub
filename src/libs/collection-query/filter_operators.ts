@@ -1,0 +1,20 @@
+/* eslint-disable prettier/prettier */
+export const FilterOperators = {
+  EqualTo: '=',
+  Between: 'BETWEEN',
+  LessThan: '<',
+  LessThanOrEqualTo: '<=',
+  GreaterThan: '>',
+  GreaterThanOrEqualTo: '>=',
+  In: 'IN',
+  NotIn: 'NotIn',
+  Any: 'ANY',
+  NotNull: 'NotNull',
+  IsNotNull: 'IsNotNull',
+  IsNull: 'IsNull',
+  NotEqualTo: '!=',
+  Like: 'LIKE',
+  ILike: 'ILIKE',
+  All: 'All',
+  NotEqual: 'NotEqual',
+};
