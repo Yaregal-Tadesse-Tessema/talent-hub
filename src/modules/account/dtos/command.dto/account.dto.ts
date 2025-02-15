@@ -113,9 +113,7 @@ export class CreateAccountCommand {
     userAcountEntity.email = CreateAccountCommand.email;
     userAcountEntity.status = CreateAccountCommand.status;
     userAcountEntity.phone = CreateAccountCommand.phone;
-   
     userAcountEntity.password = CreateAccountCommand.Password;
-
     userAcountEntity.createdAt = CreateAccountCommand.createdAt;
     userAcountEntity.createdBy = CreateAccountCommand.createdBy;
     userAcountEntity.updatedAt = CreateAccountCommand.updatedAt;
