@@ -61,10 +61,6 @@ export class AccountCommandService {
         employeeEntity.registrationNumber = registrationNumber;
         employeeEntity.gender = command.gender;
         employeeEntity.employmentPositionId = command.employmentPositionId;
-        employeeEntity.serviceCategoryId = command.serviceCategoryId;
-        employeeEntity.serviceDepartmentId = command.serviceDepartmentId;
-        employeeEntity.organizationTypeId = command?.organizationTypeId;
-        employeeEntity.institutionTypeId = command?.institutionTypeId;
 
         if (command.cityId) {
           employeeEntity.cityId = command.cityId;
@@ -80,7 +76,6 @@ export class AccountCommandService {
           relations: ['account'],
         });
         userInfo = savedEmp;
-      delete userInfo?.account?.password;
       // return { ...AccountResponse.fromEntity(result), userEntity };
       return { ...command, status: result.status, userInfo };
     } catch (error) {
