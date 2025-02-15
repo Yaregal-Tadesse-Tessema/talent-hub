@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
 import { JobPostingModule } from './modules/job-posting/job-posting.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -17,7 +18,7 @@ import { JobPostingModule } from './modules/job-posting/job-posting.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
-
+    EventEmitterModule.forRoot(),
     JwtModule.register({
       secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',
       signOptions: { expiresIn: '1h' },

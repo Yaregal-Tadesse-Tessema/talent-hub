@@ -3,15 +3,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { Account } from '../../domain/account';
 import { AccountEntity } from '../../persistances/account.entity';
+import { OrganizationResponse } from 'src/modules/organization/usecase/organization.response';
 
 export class AccountResponse {
-  // @ApiProperty()
+  @ApiProperty()
   // @IsNotEmpty()
   // @IsUUID()
   id: string;
-  @ApiProperty()
-  @IsUUID()
-  categoryId: string;
   @ApiProperty()
   @IsNotEmpty()
   userName: string;
@@ -24,12 +22,6 @@ export class AccountResponse {
   @ApiProperty()
   @IsNotEmpty()
   email: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  accountType: string;
-  @ApiProperty()
-  @IsNotEmpty()
-  accountUserType: string;
   @ApiProperty()
   createAt: Date;
   @ApiProperty()
@@ -47,42 +39,27 @@ export class AccountResponse {
   @IsNotEmpty()
   phone: string;
 
+  
   @ApiProperty()
-  organizationName: string;
-
-  @ApiProperty()
-  organizationTin: string;
-
-  @ApiProperty()
-  category: any;
+  organization: OrganizationResponse;
 
   static fromEntity(accountEntity: AccountEntity): AccountResponse {
-    // console.log('llllllllllllllllllllllllllllll')
     const accountResponse: AccountResponse = new AccountResponse();
     accountResponse.id = accountEntity?.id;
-    // accountResponse.userId = accountEntity.userId;
     accountResponse.userName = accountEntity?.userName;
     accountResponse.status = accountEntity?.status;
     accountResponse.Password = accountEntity?.password;
-    accountResponse.Password = accountEntity?.password;
     accountResponse.email = accountEntity?.email;
-    accountResponse.categoryId = accountEntity?.categoryId;
-    // accountResponse.questionnaires = accountEntity?.questionnaires;
-    accountResponse.accountType = accountEntity?.accountType;
-    accountResponse.accountUserType = accountEntity?.accountUserType;
-    // console.log('llllllllllllllllllllllllllllll')
     accountResponse.phone = accountEntity?.phone;
-
     accountResponse.createAt = accountEntity?.createdAt;
     accountResponse.createdBy = accountEntity?.createdBy;
     accountResponse.updatedAt = accountEntity?.updatedAt;
     accountResponse.updatedBy = accountEntity?.updatedBy;
     accountResponse.deletedAt = accountEntity?.deletedAt;
     accountResponse.deletedBy = accountEntity?.deletedBy;
-
-    accountResponse.organizationTin = accountEntity?.organizationTin;
-    accountResponse.organizationName = accountEntity?.organizationName;
-
+    if(accountEntity?.organization){
+      accountResponse.organization=OrganizationResponse.toResponse(accountEntity.organization)
+    }
     return accountResponse;
   }
   static fromDomain(userAccount: Account): AccountResponse {
@@ -93,11 +70,6 @@ export class AccountResponse {
     accountResponse.userName = userAccount.userName;
     accountResponse.status = userAccount.status;
     accountResponse.email = userAccount.email;
-    accountResponse.accountType = userAccount.accountType;
-    accountResponse.accountUserType = userAccount.accountUserType;
-    accountResponse.categoryId = userAccount.categoryId;
-    accountResponse.organizationTin = userAccount?.organizationTin;
-    accountResponse.organizationName = userAccount?.organizationName;
 
     accountResponse.createAt = userAccount.createdAt;
     accountResponse.createdBy = userAccount.createdBy;
