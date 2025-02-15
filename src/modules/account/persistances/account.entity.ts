@@ -29,6 +29,7 @@ export class AccountEntity extends CommonEntity {
   email: string;
   @Column({ unique: true })
   phone: string;
+
   @Column({ unique: true, nullable: true })
   newEmail: string;
   @Column({ unique: true, nullable: true })
