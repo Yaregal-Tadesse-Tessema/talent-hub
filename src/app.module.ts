@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
+import { JobPostingModule } from './modules/job-posting/job-posting.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     // AccountModule,
     AuthModule,
+    JobPostingModule
   ],
   controllers: [],
   providers: [

@@ -28,6 +28,9 @@ async function bootstrap() {
     'info@talentHub.com',
   )
   .build();
+  app.enableCors({
+    origin: '*',
+  });
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
