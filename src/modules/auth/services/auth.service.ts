@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SessionEntity } from '../persistances/session.entity';
 import { JwtService } from '@nestjs/jwt';
+import { AccountEntity } from 'src/modules/account/persistances/account.entity';
 @Injectable()
 export class AuthService {
   constructor(
@@ -21,16 +22,14 @@ export class AuthService {
     @InjectRepository(SessionEntity)
     private sessionRepository: Repository<SessionEntity>,
   ) {}
-  
 
- 
-  async validateEmployeeCredential(email: string,password:string) {
-    const account = await this.accountQueryService.getAccountByEmail(email);
-    if (!account || account.accountType !== AccountTypeEnums.EMPLOYEE)
-      throw new UnauthorizedException('Incorrect Account!');
-    if (account.status !== AccountStatusEnums.ACTIVE)
-      throw new NotFoundException(`user account not activated`);
-  }
+  // async validateEmployeeCredential(email: string,password:string) {
+  //   const account = await this.accountQueryService.getAccountByEmail(email);
+  //   if (!account)
+  //     throw new UnauthorizedException(`Account doesn't exist!`);
+  //   if (account.status !== AccountStatusEnums.ACTIVE)
+  //     throw new NotFoundException(`user account not activated`);
+  // }
 
   // async generateTokenForUser(user: any) {
   //   const account = await this.accountQueryService.getAccountById(
@@ -97,99 +96,50 @@ export class AuthService {
   //     throw new BadRequestException('Invalid Request!');
   //   }
   // }
-  async generateTokenForEmployee(employee: any) {
-      const [accessToken, refreshToken] = await Promise.all([
-        this.jwtService.signAsync(
-          {
-            name: employee?.userName,
-            firstName: employee?.firstName,
-            middleName: employee?.middleName,
-            lastName: employee.lastName,
-            accountType: employee?.type,
-            accountId: employee?.accountId,
-            employeeId: employee?.id,
-            sub: employee?.id,
-            userName: employee?.account?.email,
-            // permissions: employee?.permissions,
-            roles: employee?.roles,
-            sex: employee.gender,
-            cityId: employee?.cityId,
-            woredaId: employee?.woredaId,
-            subCityId: employee?.subCityId,
-            categoryId: employee?.account?.categoryId,
-          },
-          {
-            secret: process.env.TOKEN_SECRET,
-            expiresIn: '1h',
-          },
-        ),
-        this.jwtService.signAsync(
-          {
-            firstName: employee?.firstName,
-            middleName: employee?.middleName,
-            accountType: employee?.type,
-            accountId: employee?.accountId,
-            employeeId: employee?.id,
-            sub: employee?.id,
-          },
-          {
-            secret: process.env.TOKEN_SECRET,
-            expiresIn: '7d',
-          },
-        ),
-      ]);
-      await this.sessionRepository.save({
-        accountId: employee.id,
-        accessToken,
-        refreshToken,
-      });
-      return {
-        accessToken,
-        refreshToken,
-      };
-    
+  async generateTokenForEmployee(account: AccountEntity) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          name: account?.userName,
+          email: account?.email,
+          organizationId: account?.organizationId,
+          phone: account?.phone,
+          status: account?.status,
+          id: account?.id,
+          sub: account?.id,
+        },
+        {
+          secret: process.env.TOKEN_SECRET,
+          expiresIn: '1h',
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          accountId: account?.id,
+          sub: account?.id,
+        },
+        {
+          secret: process.env.TOKEN_SECRET,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+    await this.sessionRepository.save({
+      accountId: account.id,
+      accessToken,
+      refreshToken,
+    });
+    return {
+      accessToken,
+      refreshToken,
+      organization: account.organization,
+    };
   }
   async login({ username, password }: LoginDto) {
     const user = await this.accountQueryService.getAccountByEmail(username);
-    if(!user)throw new UnauthorizedException(`invalid user name${username}`)
-      if(password!==user.password)
-    throw new UnauthorizedException(`Incorrect Password`)
-      return await this.generateTokenForEmployee(user);
+    if (!user) throw new UnauthorizedException(`invalid user name${username}`);
+    if (password !== user.password)
+      throw new UnauthorizedException(`Incorrect Password`);
+    return await this.generateTokenForEmployee(user);
   }
-
-  // async employeeLogin({ username, password }: LoginDto) {
-  //   const employee = await this.validateEmployeeCredential(username,password);
-  //   // if (!employee) throw new UnauthorizedException('invalid_credential');
-  //   return this.generateTokenForEmployee(employee);
-  // }
-  // async employeeLogout(command: LogoutDto) {
-  //   const decodedToken = this.jwtService.verify(command.token, {
-  //     ignoreExpiration: true,
-  //     secret: process.env.TOKEN_SECRET,
-  //   });
-  //   const oldToken = await this.sessionRepository.findOne({
-  //     where: { accountId: decodedToken.accountId, accessToken: command.token },
-  //   });
-  //   if (oldToken) {
-  //     await this.sessionRepository.delete({
-  //       refreshToken: oldToken.refreshToken,
-  //     });
-  //   }
-  //   // if (!decodedToken || isExpired) {
-  //   //   throw new UnauthorizedException('Invalid refresh token');
-  //   // }
-  //   // const employee = await this.employeeQueryService.getEmployeeByAccountId(
-  //   //   decodedToken.accountId,
-  //   // );
-  //   // if (!employee) throw new NotFoundException();
-  //   // const result = await this.employeeCommandService.updateEmployeeStatus(
-  //   //   employee.id,
-  //   //   EmployeeStatusEnum.INACTIVE,
-  //   // );
-  //   // if (!result) {
-  //   //   throw new BadRequestException('employee status update failed');
-  //   // }
-  //   return {};
-  // }
-
 }

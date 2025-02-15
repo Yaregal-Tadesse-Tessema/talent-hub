@@ -52,11 +52,8 @@ export class AccountQueryService {
   }
   async getAccountByEmail(userName: string): Promise<AccountEntity> {
     const result = await this.accountRepository.findOne({
-      where: [
-        { email: userName },
-        { phone: userName },
-        { organizationTin: userName },
-      ],
+      where: [{ email: userName }, { phone: userName }],
+      relations: { organization: true },
     });
     if (!result) return null;
     return result;
