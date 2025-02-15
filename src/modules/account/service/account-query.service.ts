@@ -5,8 +5,8 @@ import { Repository } from 'typeorm';
 
 import { AccountResponse } from '../dtos/response.dto/account.response.dto';
 import { AccountEntity } from '../persistances/account.entity';
-import { CollectionQuery } from 'src/libs/collection-query/query';
-import { QueryConstructor } from 'src/libs/collection-query/query-constructor';
+// import { CollectionQuery } from 'src/libs/collection-query/query';
+// import { QueryConstructor } from 'src/libs/collection-query/query-constructor';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 @Injectable()
 export class AccountQueryService {
@@ -14,30 +14,30 @@ export class AccountQueryService {
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>, 
   ) {}
-  async getAll(query: CollectionQuery): Promise<any> {
-    if (query.orderBy.length == 0) {
-      query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
-    }
-    const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
-      this.accountRepository,
-      query,
-    );
-    const data = await dataQuery.getManyAndCount();
-    return data;
-  }
-  async fetch(query: CollectionQuery): Promise<DataResponseFormat<any>> {
-    if (query.orderBy.length == 0) {
-      query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
-    }
-    const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
-      this.accountRepository,
-      query,
-    );
-    const items = await dataQuery.getMany();
-    const result = await this.accountRepository.find();
-    console.log('result result result result result result result', result);
-    return { items: items, total: items.length };
-  }
+  // async getAll(query: CollectionQuery): Promise<any> {
+  //   if (query.orderBy.length == 0) {
+  //     query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
+  //   }
+  //   const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
+  //     this.accountRepository,
+  //     query,
+  //   );
+  //   const data = await dataQuery.getManyAndCount();
+  //   return data;
+  // }
+  // async fetch(query: CollectionQuery): Promise<DataResponseFormat<any>> {
+  //   if (query.orderBy.length == 0) {
+  //     query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
+  //   }
+  //   const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
+  //     this.accountRepository,
+  //     query,
+  //   );
+  //   const items = await dataQuery.getMany();
+  //   const result = await this.accountRepository.find();
+  //   console.log('result result result result result result result', result);
+  //   return { items: items, total: items.length };
+  // }
 
   async getAccountById(id: string) {
     const res = await this.accountRepository.findOne({
@@ -52,11 +52,8 @@ export class AccountQueryService {
   }
   async getAccountByEmail(userName: string): Promise<AccountEntity> {
     const result = await this.accountRepository.findOne({
-      where: [
-        { email: userName },
-        { phone: userName },
-        { organizationTin: userName },
-      ],
+      where: [{ email: userName }, { phone: userName }],
+      relations: { organization: true },
     });
     if (!result) return null;
     return result;

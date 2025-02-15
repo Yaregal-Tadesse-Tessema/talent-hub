@@ -6,9 +6,10 @@ import {
   Column,
   OneToOne,
   PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
-import { EmployeeEntity } from './employee.entity';
-
+import { OrganizationEntity } from 'src/modules/organization/persistencies/organization.entity';
 
 export enum AccountTypeEnums {
   ORGANIZATION = 'Organization',
@@ -20,8 +21,8 @@ export enum AccountTypeEnums {
 export class AccountEntity extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column({ nullable: true })
-  categoryId: string;
+  @Column()
+  organizationId: string;
   @Column({ nullable: true })
   userName: string;
   @Column({ unique: true })
@@ -34,37 +35,31 @@ export class AccountEntity extends CommonEntity {
   newPhone: string;
   @Column()
   password: string;
-  @Column({ default: 'user' })
-  accountType: string;
-  @Column({ nullable: true })
-  accountUserType: string;
   @Column({
     type: 'enum',
     enum: AccountStatusEnums,
     default: AccountStatusEnums.DRAFT,
   })
-  status: string;
-
-  @Column({nullable:true})
-  registerBy: string;
-
-  @Column({ nullable: true, type: 'jsonb' })
-  organizationName: string;
+  status: AccountStatusEnums;
 
   @Column({ nullable: true })
-  organizationTin: string;
+  registerBy: string;
 
   @Column({ default: 0 })
   loginAttempts: number;
 
- 
-  @OneToOne(() => EmployeeEntity, (employee) => employee.account, {
-    onDelete: 'RESTRICT',
-  })
-  employee: EmployeeEntity;
+  @ManyToOne(
+    () => OrganizationEntity,
+    (organizationEntity) => organizationEntity.accounts,
+    {
+      onDelete: 'RESTRICT',
+    },
+  )
+  @JoinColumn({ name: 'organizationId' })
+  organization: OrganizationEntity;
+
   @Column({ nullable: true })
   refreshToken: string;
   @Column({ nullable: true })
   accountToken: string;
-
 }

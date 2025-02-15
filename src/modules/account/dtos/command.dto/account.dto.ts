@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { AccountEntity } from '../../persistances/account.entity';
+import { AccountStatusEnums } from 'src/modules/auth/constants';
 
 
 export class CreateAccountCommand {
@@ -12,8 +13,8 @@ export class CreateAccountCommand {
   categoryId: string;
   @ApiProperty()
   userName?: string;
-  @ApiProperty()
-  status?: string;
+  @ApiProperty({default:AccountStatusEnums.ACTIVE})
+  status?: AccountStatusEnums;
   @ApiProperty()
   middleName?: string;
   @ApiProperty()
@@ -112,13 +113,7 @@ export class CreateAccountCommand {
     userAcountEntity.email = CreateAccountCommand.email;
     userAcountEntity.status = CreateAccountCommand.status;
     userAcountEntity.phone = CreateAccountCommand.phone;
-    userAcountEntity.categoryId = CreateAccountCommand.categoryId;
-    // userAcountEntity.questionnaires =
-    //   UpdateSecurityQuestionnairesCommand?.toEntities(
-    //     CreateAccountCommand?.questionnaires,
-    //   );
-    userAcountEntity.accountType = CreateAccountCommand.accountType;
-    userAcountEntity.accountUserType = CreateAccountCommand.accountUserType;
+   
     userAcountEntity.password = CreateAccountCommand.Password;
 
     userAcountEntity.createdAt = CreateAccountCommand.createdAt;
@@ -128,8 +123,6 @@ export class CreateAccountCommand {
     userAcountEntity.deletedAt = CreateAccountCommand.deletedAt;
     userAcountEntity.deletedBy = CreateAccountCommand.deletedBy;
 
-    userAcountEntity.organizationName = CreateAccountCommand.organizationName;
-    userAcountEntity.organizationTin = CreateAccountCommand.organizationTin;
 
     return userAcountEntity;
   }

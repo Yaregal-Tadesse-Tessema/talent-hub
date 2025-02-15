@@ -1,13 +1,12 @@
-/* eslint-disable prettier/prettier */
+import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { SelectQueryBuilder } from 'typeorm';
-import { CollectionQuery } from './query';
-import { DataResponseFormat } from '../response-format/data-response-format';
+import { CollectionQuery } from '../collection-query/query';
 
-export async function responseQuery<T>(
+export async function commonResponse<T>(
   query: CollectionQuery,
   dataQuery: SelectQueryBuilder<T>,
-): Promise<DataResponseFormat<any>> {
-  const response = new DataResponseFormat<any>();
+): Promise<DataResponseFormat<T>> {
+  const response = new DataResponseFormat<T>();
 
   if (query.count) {
     response.total = await dataQuery.getCount();

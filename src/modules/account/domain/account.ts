@@ -2,15 +2,10 @@
 
 export class Account {
   id: string;
-  categoryId: string;
   userName: string;
   password: string;
   email: string;
   status: string;
-  accountType: string;
-  organizationName?: string;
-  organizationTin?: string;
-  accountUserType: string;
 
   createdAt: Date;
   createdBy: string;

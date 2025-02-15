@@ -4,8 +4,11 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   DeleteDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 export class CommonEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
   @Column({ nullable: true })
   createdBy?: string;
   @Column({ nullable: true })

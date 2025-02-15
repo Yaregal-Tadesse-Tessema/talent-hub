@@ -16,7 +16,7 @@ import {
 } from '../../dtos/command.dto/account.dto';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { AccountResponse } from '../../dtos/response.dto/account.response.dto';
-import { decodeCollectionQuery } from 'src/libs/collection-query/query-converter';
+// import { decodeCollectionQuery } from 'src/libs/collection-query/query-converter';
 
 @Controller('accounts')
 @ApiTags('Accounts')
@@ -25,22 +25,22 @@ export class AccountController {
     private commands: AccountCommandService,
     private queries: AccountQueryService,
   ) {}
-  @Get('get-all-accounts')
-  @ApiOkResponse({ type: AccountResponse })
-  async getAllAcount(@Query('q') q?: string) {
-    const query = decodeCollectionQuery(q);
-    return await this.queries.getAll(query);
-  }
+  // @Get('get-all-accounts')
+  // @ApiOkResponse({ type: AccountResponse })
+  // async getAllAcount(@Query('q') q?: string) {
+  //   const query = decodeCollectionQuery(q);
+  //   return await this.queries.getAll(query);
+  // }
 
-  @Get()
-  @ApiQuery({
-    name: 'q',
-    required: false,
-  })
-  async getEmployee(@Query('q') q: string) {
-    const query = decodeCollectionQuery(q);
-    return await this.queries.fetch(query);
-  }
+  // @Get()
+  // @ApiQuery({
+  //   name: 'q',
+  //   required: false,
+  // })
+  // async getEmployee(@Query('q') q: string) {
+  //   const query = decodeCollectionQuery(q);
+  //   return await this.queries.fetch(query);
+  // }
 
   @Get('get-archived-account/:user-id')
   @ApiOkResponse({ type: AccountResponse })

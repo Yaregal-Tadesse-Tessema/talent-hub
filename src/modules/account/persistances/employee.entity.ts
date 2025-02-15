@@ -49,32 +49,16 @@ export class EmployeeEntity extends CommonEntity {
   @Column({ nullable: true })
   profilePicture: string;
 
-  @Column({ nullable: true })
-  teeter: string;
 
-  @Column({ nullable: true })
-  employmentLevel: string; //city, branch, woreda
-
-  @Column({ nullable: true })
-  clusterId: string;
-
-  @Column({ type: 'uuid' })
-  serviceDepartmentId: string;
-
-  @Column({ type: 'uuid' })
-  serviceCategoryId: string;
-
-  @Column({ type: 'uuid', nullable: true })
-  institutionTypeId: string;
-
-  @Column({ type: 'uuid', nullable: true })
-  organizationTypeId: string;
+ 
 
 
-  @JoinColumn({ name: 'accountId' })
-  @OneToOne(() => AccountEntity, (account) => account.employee, {
-    cascade: true,
-  })
-  account: AccountEntity;
+
+
+  // @JoinColumn({ name: 'accountId' })
+  // @OneToOne(() => AccountEntity, (account) => account.employee, {
+  //   cascade: true,
+  // })
+  // account: AccountEntity;
  
 }
