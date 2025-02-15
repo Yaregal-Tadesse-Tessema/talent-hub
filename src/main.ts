@@ -2,10 +2,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerCustomOptions, SwaggerModule } from '@nestjs/swagger';
-
+import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new GlobalExceptionFilter(app.get(EventEmitter2)));
   const customOptions: SwaggerCustomOptions = {
     swaggerOptions: {
       persistAuthorization: false,
@@ -20,15 +22,18 @@ async function bootstrap() {
     scheme: 'basic',
   })
   .addBearerAuth()
-  .setTitle('LM APIs')
+  .setTitle('TH APIs')
   .setDescription('LM API Documentation')
   .setVersion('1.0')
   .setContact(
-    'Tria Trading PLc',
-    'http://triatrading.com/',
-    'info@triatrading.com',
+    'Elit Talent Plc',
+    'http://talentHub.com/',
+    'info@talentHub.com',
   )
   .build();
+  app.enableCors({
+    origin: '*',
+  });
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
