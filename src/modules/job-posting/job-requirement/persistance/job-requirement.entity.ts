@@ -16,7 +16,7 @@ export class JobRequirementEntity extends CommonEntity {
   fieldOfStudy: string;
   @Column()
   educationLevel: string;
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'decimal' })
   gpa: number;
 
   @OneToMany(
