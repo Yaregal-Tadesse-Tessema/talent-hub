@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
 import { JobPostingModule } from './modules/job-posting/job-posting.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -25,10 +26,10 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     }),
     // AccountModule,
     AuthModule,
-    JobPostingModule
+    JobPostingModule,
+    UserModule,
   ],
   controllers: [],
-  providers: [
-  ],
+  providers: [],
 })
 export class AppModule {}

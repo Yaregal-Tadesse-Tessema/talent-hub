@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Repository, DeepPartial, ObjectLiteral } from 'typeorm';
 import { Inject, Injectable, NotFoundException, Req } from '@nestjs/common';
 
@@ -161,5 +162,18 @@ export class CommonCrudService<T extends ObjectLiteral> {
       throw new NotFoundException(`not_found`);
     }
     return item;
+  }
+  // newly added
+  async getOneByCriteria(
+    criteria: object,
+    relations = [],
+    withDeleted = false,
+  ): Promise<T> {
+    const response = await this.repository.findOne({
+      where: criteria,
+      relations,
+      withDeleted,
+    });
+    return response;
   }
 }

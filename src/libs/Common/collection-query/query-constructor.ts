@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   ObjectLiteral,
   Repository,
@@ -181,8 +182,6 @@ const applyWhereConditions = <T>(
       queryBuilder.expressionMap.wheres.filter((f) => f.condition);
   }
 };
-
-
 
 const applyOrderBy = <T>(
   aggregate: string,
