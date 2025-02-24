@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JobPostingEntity } from './job/persistencies/job-posting.entity';
@@ -7,11 +8,9 @@ import { JobRequirementService } from './job-requirement/usecase/job-requirement
 import { JobPostingController } from './job/controller/job-posting.controller';
 
 @Module({
-    imports: [
-      TypeOrmModule.forFeature([JobPostingEntity, JobRequirementEntity]),
-    ],
-    providers: [JobPostingService, JobRequirementService],
-    controllers: [JobPostingController],
-    exports: [],
-  })
+  imports: [TypeOrmModule.forFeature([JobPostingEntity, JobRequirementEntity])],
+  providers: [JobPostingService, JobRequirementService],
+  controllers: [JobPostingController],
+  exports: [],
+})
 export class JobPostingModule {}

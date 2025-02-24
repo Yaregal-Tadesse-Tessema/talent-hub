@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { JobRequirementEntity } from '../persistance/job-requirement.entity';
 export class JobRequirementResponse {
@@ -10,10 +11,8 @@ export class JobRequirementResponse {
   educationLevel: string;
   @ApiProperty()
   gpa: number;
- 
-  static toResponse(
-    dto: JobRequirementEntity,
-  ): JobRequirementResponse {
+
+  static toResponse(dto: JobRequirementEntity): JobRequirementResponse {
     const entity = new JobRequirementResponse();
     if (!dto) {
       return null;
@@ -26,4 +25,3 @@ export class JobRequirementResponse {
     return entity;
   }
 }
-

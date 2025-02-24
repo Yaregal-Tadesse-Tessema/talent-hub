@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
 import {
   Entity,
   Column,

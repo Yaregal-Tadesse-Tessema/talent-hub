@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { JobRequirementEntity } from '../persistance/job-requirement.entity';
@@ -11,10 +12,8 @@ export class CreateJobRequirementCommand {
   educationLevel: string;
   @ApiProperty()
   gpa: number;
- 
-  static fromDto(
-    dto: CreateJobRequirementCommand,
-  ): JobRequirementEntity {
+
+  static fromDto(dto: CreateJobRequirementCommand): JobRequirementEntity {
     const entity = new JobRequirementEntity();
     if (!dto) {
       return null;
@@ -31,12 +30,8 @@ export class CreateJobRequirementCommand {
    * Transfer list of DTO object to Entity  list
    *
    */
-  static fromDtos(
-    dto: CreateJobRequirementCommand[],
-  ): JobRequirementEntity[] {
-    return dto?.map((d) =>
-        CreateJobRequirementCommand.fromDto(d),
-    );
+  static fromDtos(dto: CreateJobRequirementCommand[]): JobRequirementEntity[] {
+    return dto?.map((d) => CreateJobRequirementCommand.fromDto(d));
   }
 }
 export class UpdateJobRequirementCommand extends CreateJobRequirementCommand {
@@ -45,4 +40,3 @@ export class UpdateJobRequirementCommand extends CreateJobRequirementCommand {
   @IsNotEmpty()
   id: string;
 }
-

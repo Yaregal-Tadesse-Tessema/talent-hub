@@ -1,14 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
-import {
-  Entity,
-  Column,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { EmploymentTypeEnums, JobPostingStatusEnums, WorkLocationEnums } from '../../constants';
 import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
 
