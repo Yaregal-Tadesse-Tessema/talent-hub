@@ -24,9 +24,10 @@ export class ApplicationController extends CommonCrudController<ApplicationEntit
   constructor(private readonly applicationService: ApplicationService) {
     super(applicationService);
   }
-//   @Post('create-application')
-//   async createJobPosting(@Body() command: CreateApplicationCommand) {
-//     const result = await this.applicationService.createJobPosting(command);
-//     return result;
-//   }
+  //   temporarly commented
+  //   @Post('create-application')
+  //   async createJobPosting(@Body() command: CreateApplicationCommand) {
+  //     const result = await this.applicationService.createJobPosting(command);
+  //     return result;
+  //   }
 }
