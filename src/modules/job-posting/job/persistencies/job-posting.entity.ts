@@ -1,8 +1,13 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { EmploymentTypeEnums, JobPostingStatusEnums, WorkLocationEnums } from '../../constants';
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  EmploymentTypeEnums,
+  JobPostingStatusEnums,
+  WorkLocationEnums,
+} from '../../constants';
 import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
+import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 
 @Entity({ name: 'job_postings' })
 export class JobPostingEntity extends CommonEntity {
@@ -14,17 +19,17 @@ export class JobPostingEntity extends CommonEntity {
   position: string;
   @Column({ default: WorkLocationEnums.ON_SITE })
   workLocation: WorkLocationEnums;
-  @Column({ default:EmploymentTypeEnums.FULL_TIME })
+  @Column({ default: EmploymentTypeEnums.FULL_TIME })
   employmentType: EmploymentTypeEnums;
-  @Column({ type:'decimal',nullable:true })
+  @Column({ type: 'decimal', nullable: true })
   salary: number;
   @Column()
   organizationId: string;
   @Column()
   requirementId: string;
-  @Column("text",{array:true})
+  @Column('text', { array: true })
   skill: string[];
-  @Column({default:JobPostingStatusEnums.DRAFT})
+  @Column({ default: JobPostingStatusEnums.DRAFT })
   status: JobPostingStatusEnums;
   @ManyToOne(
     () => JobRequirementEntity,
@@ -32,4 +37,10 @@ export class JobPostingEntity extends CommonEntity {
   )
   @JoinColumn({ name: 'requirementId' })
   requirement: JobRequirementEntity;
+
+  @OneToMany(
+    () => ApplicationEntity,
+    (applicationEntity) => applicationEntity.JobPost,
+  )
+  applications: ApplicationEntity[];
 }

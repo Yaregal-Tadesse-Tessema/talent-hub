@@ -1,6 +1,11 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
-import { EmploymentTypeEnums, JobPostingStatusEnums, WorkLocationEnums } from '../../constants';
+import {
+  EmploymentTypeEnums,
+  JobPostingStatusEnums,
+  WorkLocationEnums,
+} from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 export class CreateJobPostingCommand {
   id: string;
@@ -28,17 +33,14 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   gpa: number;
 
-
   @ApiProperty()
   requirementId: string;
   @ApiProperty()
   skill: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
-  
-  static fromDto(
-    dto: CreateJobPostingCommand,
-  ): JobPostingEntity {
+
+  static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
     const entity = new JobPostingEntity();
     if (!dto) {
       return null;
@@ -61,12 +63,8 @@ export class CreateJobPostingCommand {
    * Transfer list of DTO object to Entity  list
    *
    */
-  static fromDtos(
-    dto: CreateJobPostingCommand[],
-  ): JobPostingEntity[] {
-    return dto?.map((d) =>
-      CreateJobPostingCommand.fromDto(d),
-    );
+  static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {
+    return dto?.map((d) => CreateJobPostingCommand.fromDto(d));
   }
 }
 export class UpdateJobPostingCommand extends CreateJobPostingCommand {
@@ -75,4 +73,3 @@ export class UpdateJobPostingCommand extends CreateJobPostingCommand {
   @IsNotEmpty()
   id: string;
 }
-

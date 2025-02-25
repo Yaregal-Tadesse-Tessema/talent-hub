@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,24 +12,26 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   constructor(
     @InjectRepository(JobPostingEntity)
     private readonly jobPostingRepository: Repository<JobPostingEntity>,
-    private readonly jobRequirementService:JobRequirementService
+    private readonly jobRequirementService: JobRequirementService,
   ) {
     super(jobPostingRepository);
   }
 
-  async createJobPosting(command:CreateJobPostingCommand){
-    const jobRequirementCommand:CreateJobRequirementCommand={
-      educationLevel:command.educationLevel,
-      experienceLevel:command.experienceLevel,
-      fieldOfStudy:command.fieldOfStudy,
-      gpa:command.gpa
-    }
-    const jobRequirementEntity=CreateJobRequirementCommand.fromDto(jobRequirementCommand)
-    const jobRequirementResult=await this.jobRequirementService.create(jobRequirementEntity)
-    command.requirementId=jobRequirementResult.id
+  async createJobPosting(command: CreateJobPostingCommand) {
+    const jobRequirementCommand: CreateJobRequirementCommand = {
+      educationLevel: command.educationLevel,
+      experienceLevel: command.experienceLevel,
+      fieldOfStudy: command.fieldOfStudy,
+      gpa: command.gpa,
+    };
+    const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
+      jobRequirementCommand,
+    );
+    const jobRequirementResult =
+      await this.jobRequirementService.create(jobRequirementEntity);
+    command.requirementId = jobRequirementResult.id;
 
-    const jobPostingEntity=CreateJobPostingCommand.fromDto(command)
-    return await this.jobPostingRepository.save(jobPostingEntity)
-    
+    const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
+    return await this.jobPostingRepository.save(jobPostingEntity);
   }
 }
