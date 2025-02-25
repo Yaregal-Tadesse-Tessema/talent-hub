@@ -6,6 +6,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { JobPostingModule } from './modules/job-posting/job-posting.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserModule } from './modules/user/user.module';
+import { FileModule } from './modules/file/file.module';
+import { ApplicationModule } from './modules/application/application.module';
 
 @Module({
   imports: [
@@ -28,6 +30,8 @@ import { UserModule } from './modules/user/user.module';
     AuthModule,
     JobPostingModule,
     UserModule,
+    FileModule,
+    ApplicationModule,
   ],
   controllers: [],
   providers: [],
