@@ -23,11 +23,10 @@ export class FileService {
   private readonly minioClient: Minio.Client;
   private storage: Storage;
 
-  constructor(
-  ) {
-    this.bucketName =  process.env.MINIO_BUCKET_NAME;
+  constructor() {
+    this.bucketName = process.env.MINIO_BUCKET_NAME;
     this.minioClient = new Minio.Client({
-      endPoint:process.env.MINIO_HOST,
+      endPoint: process.env.MINIO_HOST,
       port: +process.env.MINIO_PORT,
       useSSL: false,
       accessKey: process.env.MINIO_ACCESS_KEY,
@@ -77,7 +76,7 @@ export class FileService {
   async uploadAttachment(
     fileId: string,
     file: Express.Multer.File,
-  ) {
+  ): Promise<FileDto> {
     try {
       const metaData = {
         'Content-Type': file.mimetype,
@@ -93,7 +92,10 @@ export class FileService {
           },
         ],
       };
-      await this.minioClient.setBucketPolicy(this.bucketName, JSON.stringify(policy));
+      await this.minioClient.setBucketPolicy(
+        this.bucketName,
+        JSON.stringify(policy),
+      );
 
       // Upload the file to Minio
       const resultData = await this.minioClient.putObject(
@@ -103,7 +105,7 @@ export class FileService {
         file.size,
         metaData,
       );
-  
+
       // If upload fails, throw an error
       if (!resultData) throw new HttpException('File upload failed', 500);
       // Set the file to be publicly accessible
@@ -118,7 +120,7 @@ export class FileService {
         bucketName: this.bucketName,
         size: file.size,
       };
-  
+
       return response;
     } catch (error) {
       console.log(error);
@@ -137,11 +139,7 @@ export class FileService {
     }
   }
   async uploadFile(
-    {
-      userId,
-      fileCategory,
-      metaData: meta,
-    },
+    { userId, fileCategory, metaData: meta },
     file: Express.Multer.File,
   ) {
     try {
@@ -173,22 +171,27 @@ export class FileService {
   async getFile(fileName: string): Promise<any> {
     try {
       // Retrieve the file as a stream from Minio
-      const fileStream = await this.minioClient.getObject(this.bucketName, fileName);
-      
+      const fileStream = await this.minioClient.getObject(
+        this.bucketName,
+        fileName,
+      );
+
       // Check if the file exists by attempting to fetch it
       const fileExists = fileStream !== null;
       if (!fileExists) {
         throw new NotFoundException(`File ${fileName} does not exist.`);
       }
-  
+
       // Return the file stream
       return fileStream;
     } catch (error) {
       console.error(`Error fetching file ${fileName}:`, error);
-      throw new NotFoundException(`File ${fileName} not found or could not be retrieved.`);
+      throw new NotFoundException(
+        `File ${fileName} not found or could not be retrieved.`,
+      );
     }
   }
- 
+
   async isFileExist(fileName: string, option = {}) {
     return await this.minioClient
       .statObject(this.bucketName, fileName, option)
@@ -253,9 +256,7 @@ export class FileService {
     }
     return fileData;
   }
-  async mergeFiles(
-    files: Express.Multer.File[],
-  ): Promise<Uint8Array> {
+  async mergeFiles(files: Express.Multer.File[]): Promise<Uint8Array> {
     const mergedPdf = await PDFDocument.create();
     for (const file of files) {
       if (file.mimetype === 'application/pdf') {

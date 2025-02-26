@@ -1,5 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
@@ -9,6 +15,8 @@ import { ApplicationService } from '../usecase/application.usecase.service';
 import { CreateApplicationCommand } from '../usecase/application.command';
 import { UpdateAccountCommand } from 'src/modules/account/dtos/command.dto/account.dto';
 import { ApplicationResponse } from '../usecase/application.response';
+import { FileService } from 'src/modules/file/services/file.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 const options: EntityCrudOptions = {
   createDto: CreateApplicationCommand,
@@ -21,13 +29,22 @@ const options: EntityCrudOptions = {
 export class ApplicationController extends CommonCrudController<ApplicationEntity>(
   options,
 ) {
-  constructor(private readonly applicationService: ApplicationService) {
+  constructor(
+    private readonly applicationService: ApplicationService,
+    private readonly fileService: FileService,
+  ) {
     super(applicationService);
   }
-  //   temporarly commented
-  //   @Post('create-application')
-  //   async createJobPosting(@Body() command: CreateApplicationCommand) {
-  //     const result = await this.applicationService.createJobPosting(command);
-  //     return result;
-  //   }
+  @Post('create-application')
+  @UseInterceptors(FileInterceptor('file'))
+  async createJobPosting(
+    @Body() command: CreateApplicationCommand,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.applicationService.createApplication(
+      command,
+      file,
+    );
+    return result;
+  }
 }

@@ -3,6 +3,7 @@ import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Entity, Column, OneToMany } from 'typeorm';
 import { UserStatusEnums } from '../constants';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
+import { FileDto } from 'src/libs/Common/dtos/file.dto';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -21,6 +22,8 @@ export class UserEntity extends CommonEntity {
   status: UserStatusEnums;
   @Column({ nullable: true })
   password: string;
+  @Column({ nullable: true, type: 'jsonb' })
+  profile: FileDto;
 
   @OneToMany(
     () => ApplicationEntity,

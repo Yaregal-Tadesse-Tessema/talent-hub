@@ -21,9 +21,9 @@ export class UserResponse {
   status: UserStatusEnums;
   @ApiProperty()
   password: string;
-  static toResponse(
-    entity: UserEntity,
-  ): UserResponse {
+  @ApiProperty()
+  profile: any;
+  static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
       return null;
@@ -36,7 +36,8 @@ export class UserResponse {
     response.lastName = entity?.lastName;
     response.gender = entity?.gender;
     response.status = entity?.status;
-    response.password = entity?.password;
+    // response.password = entity?.password;
+    response.profile = entity?.profile;
     return response;
   }
 }

@@ -17,13 +17,13 @@ export class CreateUserCommand {
   lastName: string;
   @ApiProperty()
   gender: string;
-  @ApiProperty({default:UserStatusEnums.ACTIVE})
+  @ApiProperty({ default: UserStatusEnums.ACTIVE })
   status: UserStatusEnums;
   @ApiProperty()
   password: string;
-  static fromDto(
-    dto: CreateUserCommand,
-  ): UserEntity {
+  @ApiProperty()
+  profile: any;
+  static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
       return null;
@@ -37,14 +37,11 @@ export class CreateUserCommand {
     entity.gender = dto?.gender;
     entity.status = dto?.status;
     entity.password = dto?.password;
+    entity.profile = dto?.profile;
     return entity;
   }
-  static fromDtos(
-    dto: CreateUserCommand[],
-  ): UserEntity[] {
-    return dto?.map((d) =>
-        CreateUserCommand.fromDto(d),
-    );
+  static fromDtos(dto: CreateUserCommand[]): UserEntity[] {
+    return dto?.map((d) => CreateUserCommand.fromDto(d));
   }
 }
 export class UpdateUserCommand extends CreateUserCommand {
