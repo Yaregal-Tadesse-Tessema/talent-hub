@@ -20,7 +20,24 @@ export class UserResponse {
   @ApiProperty()
   status: UserStatusEnums;
   @ApiProperty()
-  password: string;
+  birthDate: Date;
+  @ApiProperty()
+  linkedinUrl: string;
+  @ApiProperty()
+  portfolioUrl: string;
+  @ApiProperty()
+  yearOfExperience: number;
+  @ApiProperty()
+  industry: string[];
+  @ApiProperty()
+  preferredJobLocation: string[];
+  @ApiProperty()
+  highestLevelOfEducation: string;
+  @ApiProperty()
+  salaryExpectations: number;
+  @ApiProperty()
+  aiGeneratedJobFitScore: number;
+
   @ApiProperty()
   profile: any;
   static toResponse(entity: UserEntity): UserResponse {
@@ -36,7 +53,15 @@ export class UserResponse {
     response.lastName = entity?.lastName;
     response.gender = entity?.gender;
     response.status = entity?.status;
-    // response.password = entity?.password;
+    response.birthDate = entity?.birthDate;
+    response.linkedinUrl = entity?.linkedinUrl;
+    response.portfolioUrl = entity?.portfolioUrl;
+    response.yearOfExperience = entity?.yearOfExperience;
+    response.industry = entity?.industry;
+    response.preferredJobLocation = entity?.preferredJobLocation;
+    response.highestLevelOfEducation = entity?.highestLevelOfEducation;
+    response.salaryExpectations = entity?.salaryExpectations;
+    response.aiGeneratedJobFitScore = entity?.aiGeneratedJobFitScore;
     response.profile = entity?.profile;
     return response;
   }

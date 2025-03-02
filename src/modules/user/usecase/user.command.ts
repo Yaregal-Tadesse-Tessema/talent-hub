@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { UserEntity } from '../persistence/users.entity';
-import { UserStatusEnums } from '../constants';
+import { EducationLevelEnums, UserStatusEnums } from '../constants';
 export class CreateUserCommand {
   id?: string;
   @ApiProperty()
@@ -21,6 +21,26 @@ export class CreateUserCommand {
   status: UserStatusEnums;
   @ApiProperty()
   password: string;
+
+  @ApiProperty()
+  birthDate: Date;
+  @ApiProperty()
+  linkedinUrl: string;
+  @ApiProperty()
+  portfolioUrl: string;
+  @ApiProperty()
+  yearOfExperience: number;
+  @ApiProperty()
+  industry: string[];
+  @ApiProperty()
+  preferredJobLocation: string[];
+  @ApiProperty({ default: EducationLevelEnums.DIPLOMA })
+  highestLevelOfEducation: EducationLevelEnums;
+  @ApiProperty()
+  salaryExpectations: number;
+  @ApiProperty()
+  aiGeneratedJobFitScore: number;
+
   @ApiProperty()
   profile: any;
   static fromDto(dto: CreateUserCommand): UserEntity {
@@ -36,7 +56,15 @@ export class CreateUserCommand {
     entity.lastName = dto?.lastName;
     entity.gender = dto?.gender;
     entity.status = dto?.status;
-    entity.password = dto?.password;
+    entity.birthDate = dto?.birthDate;
+    entity.linkedinUrl = dto?.linkedinUrl;
+    entity.portfolioUrl = dto?.portfolioUrl;
+    entity.yearOfExperience = dto?.yearOfExperience;
+    entity.industry = dto?.industry;
+    entity.preferredJobLocation = dto?.preferredJobLocation;
+    entity.highestLevelOfEducation = dto?.highestLevelOfEducation;
+    entity.salaryExpectations = dto?.salaryExpectations;
+    entity.aiGeneratedJobFitScore = dto?.aiGeneratedJobFitScore;
     entity.profile = dto?.profile;
     return entity;
   }

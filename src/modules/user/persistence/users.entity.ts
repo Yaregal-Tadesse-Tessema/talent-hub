@@ -22,6 +22,26 @@ export class UserEntity extends CommonEntity {
   status: UserStatusEnums;
   @Column({ nullable: true })
   password: string;
+  @Column({ nullable: true, type: 'decimal' })
+  gpa: number;
+  @Column({ nullable: true })
+  birthDate: Date;
+  @Column({ nullable: true })
+  linkedinUrl: string;
+  @Column({ nullable: true })
+  portfolioUrl: string;
+  @Column({ nullable: true, type: 'decimal' })
+  yearOfExperience: number;
+  @Column({ type: 'text', array: true, nullable: true })
+  industry: string[];
+  @Column({ type: 'text', array: true, nullable: true })
+  preferredJobLocation: string[];
+  @Column({ nullable: true })
+  highestLevelOfEducation: string;
+  @Column({ nullable: true, type: 'decimal' })
+  salaryExpectations: number;
+  @Column({ nullable: true, type: 'decimal' })
+  aiGeneratedJobFitScore: number;
   @Column({ nullable: true, type: 'jsonb' })
   profile: FileDto;
 
