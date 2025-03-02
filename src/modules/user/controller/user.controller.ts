@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   Controller,
+  Get,
   Param,
   Post,
   UploadedFile,
@@ -35,6 +36,12 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const result = await this.userService.uploadProfile(file, userId);
+    return result;
+  }
+
+  @Get('get-profile-completeness/:userId')
+  async getProfileCompleteness(@Param('userId') userId: string) {
+    const result = await this.userService.getProfileCompleteness(userId);
     return result;
   }
 }

@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import {
   EmploymentTypeEnums,
+  JobIndustryEnums,
   JobPostingStatusEnums,
   WorkLocationEnums,
 } from '../../constants';
@@ -13,6 +14,8 @@ export class CreateJobPostingCommand {
   title: string;
   @ApiProperty()
   description: string;
+  @ApiProperty({ default: JobIndustryEnums.INFORMATION_TECHNOLOGY })
+  industry: JobIndustryEnums;
   @ApiProperty()
   position: string;
   @ApiProperty()

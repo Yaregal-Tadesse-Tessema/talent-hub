@@ -17,6 +17,8 @@ export class JobPostingEntity extends CommonEntity {
   description: string;
   @Column()
   position: string;
+  @Column({ nullable: true })
+  industry: string;
   @Column({ default: WorkLocationEnums.ON_SITE })
   workLocation: WorkLocationEnums;
   @Column({ default: EmploymentTypeEnums.FULL_TIME })
