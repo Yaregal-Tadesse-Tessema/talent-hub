@@ -53,7 +53,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      organization: account.organization,
+      organization: account,
     };
   }
   async login({ username, password }: LoginDto) {
@@ -62,7 +62,7 @@ export class AuthService {
       throw new UnauthorizedException(`invalid user name : ${username}`);
     if (password !== user.password)
       throw new UnauthorizedException(`Incorrect Password`);
-    return await this.generateTokenForEmployee(user);
+    return await this.generateTokenForEmployee(user.organization);
   }
   async employeeLogin({ username, password }: LoginDto) {
     const employee = await this.userService.getOneByCriteria([
