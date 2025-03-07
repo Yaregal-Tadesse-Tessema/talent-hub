@@ -91,3 +91,15 @@ export enum JobIndustryEnums {
   'WHOLESALE_DISTRIBUTION' = 'WholesaleDistribution',
   'OTHER' = 'Other',
 }
+export enum ProfessionEnums {
+  TechnologyAndIT = 'Technology And IT',
+  HealthcareAndMedicine = 'Healthcare And Medicine',
+  EngineeringConstruction = 'Engineering Construction',
+  FinanceAndBusiness = 'Finance And Business',
+  EducationAndResearch = 'Education And Research',
+  LawAndGovernment = 'Law And Government',
+  CreativeAndMedia = 'Creative & Media',
+  HospitalityAndTourism = 'HospitalityAndTourism',
+  ScienceAndEnvironment = 'ScienceAndEnvironment',
+  SkilledTrades = 'Skilled Trades',
+}

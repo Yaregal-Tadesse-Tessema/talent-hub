@@ -33,6 +33,8 @@ export class CreateUserCommand {
   @ApiProperty()
   industry: string[];
   @ApiProperty()
+  telegramUserId: string;
+  @ApiProperty()
   preferredJobLocation: string[];
   @ApiProperty({ default: EducationLevelEnums.DIPLOMA })
   highestLevelOfEducation: EducationLevelEnums;
@@ -40,9 +42,12 @@ export class CreateUserCommand {
   salaryExpectations: number;
   @ApiProperty()
   aiGeneratedJobFitScore: number;
-
+  @ApiProperty()
+  skills: string[];
   @ApiProperty()
   profile: any;
+  @ApiProperty()
+  resume: any;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -65,7 +70,10 @@ export class CreateUserCommand {
     entity.highestLevelOfEducation = dto?.highestLevelOfEducation;
     entity.salaryExpectations = dto?.salaryExpectations;
     entity.aiGeneratedJobFitScore = dto?.aiGeneratedJobFitScore;
+    entity.telegramUserId = dto?.telegramUserId;
     entity.profile = dto?.profile;
+    entity.resume = dto?.resume;
+    entity.skills = dto?.skills;
     return entity;
   }
   static fromDtos(dto: CreateUserCommand[]): UserEntity[] {

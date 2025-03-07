@@ -16,6 +16,8 @@ export class UserEntity extends CommonEntity {
   middleName: string;
   @Column({ nullable: true })
   lastName: string;
+  @Column({ nullable: true, type: 'text', array: true })
+  skills: string[];
   @Column({ nullable: true })
   gender: string;
   @Column({ default: UserStatusEnums.ACTIVE })
@@ -42,9 +44,12 @@ export class UserEntity extends CommonEntity {
   salaryExpectations: number;
   @Column({ nullable: true, type: 'decimal' })
   aiGeneratedJobFitScore: number;
+  @Column({ nullable: true })
+  telegramUserId: string;
   @Column({ nullable: true, type: 'jsonb' })
   profile: FileDto;
-
+  @Column({ nullable: true, type: 'jsonb' })
+  resume: FileDto;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

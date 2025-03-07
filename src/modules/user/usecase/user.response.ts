@@ -28,6 +28,8 @@ export class UserResponse {
   @ApiProperty()
   yearOfExperience: number;
   @ApiProperty()
+  telegramUserId: string;
+  @ApiProperty()
   industry: string[];
   @ApiProperty()
   preferredJobLocation: string[];
@@ -40,6 +42,11 @@ export class UserResponse {
 
   @ApiProperty()
   profile: any;
+
+  @ApiProperty()
+  resume: any;
+  @ApiProperty()
+  skills: string[];
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -58,11 +65,14 @@ export class UserResponse {
     response.portfolioUrl = entity?.portfolioUrl;
     response.yearOfExperience = entity?.yearOfExperience;
     response.industry = entity?.industry;
+    response.telegramUserId = entity?.telegramUserId;
     response.preferredJobLocation = entity?.preferredJobLocation;
     response.highestLevelOfEducation = entity?.highestLevelOfEducation;
     response.salaryExpectations = entity?.salaryExpectations;
     response.aiGeneratedJobFitScore = entity?.aiGeneratedJobFitScore;
     response.profile = entity?.profile;
+    response.resume = entity?.resume;
+    response.skills = entity?.skills;
     return response;
   }
 }

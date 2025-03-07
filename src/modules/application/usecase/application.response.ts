@@ -16,12 +16,10 @@ export class ApplicationResponse {
   @ApiProperty()
   applicationInformation: any;
   @ApiProperty()
-  user:UserResponse
-  @ApiProperty()
-  jobPost:JobPostingResponse
-  static toResponse(
-    entity: ApplicationEntity,
-  ):  ApplicationResponse{
+  user: UserResponse;
+  @ApiProperty({ type: () => [JobPostingResponse] })
+  jobPost: JobPostingResponse;
+  static toResponse(entity: ApplicationEntity): ApplicationResponse {
     const response = new ApplicationResponse();
     if (!entity) {
       return null;
@@ -31,15 +29,14 @@ export class ApplicationResponse {
     response.JobPostId = entity.JobPostId;
     response.cv = entity?.cv;
     response.applicationInformation = entity?.applicationInformation;
-    if(entity?.user){
-        response.user=UserResponse.toResponse(entity.user)
+    if (entity?.user) {
+      response.user = UserResponse.toResponse(entity.user);
     }
-    if(entity.JobPost){
-        response.jobPost=JobPostingResponse.toResponse(entity.JobPost)
+    if (entity.JobPost) {
+      response.jobPost = JobPostingResponse.toResponse(entity.JobPost);
     }
     return response;
   }
-
 }
 
 

@@ -2,13 +2,7 @@
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { AccountEntity } from 'src/modules/account/persistances/account.entity';
-import {
-  Entity,
-  Column,
-  OneToOne,
-  PrimaryGeneratedColumn,
-  OneToMany,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 export enum AccountTypeEnums {
   ORGANIZATION = 'Organization',
   EMPLOYEE = 'employee',
@@ -17,7 +11,7 @@ export enum AccountTypeEnums {
 
 @Entity({ name: 'organizations' })
 export class OrganizationEntity extends CommonEntity {
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   tinNumber: string;
   @Column()
   companyName: string;

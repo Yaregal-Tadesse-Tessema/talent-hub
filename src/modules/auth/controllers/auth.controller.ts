@@ -3,8 +3,10 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { LoginDto } from '../dto/login.dto';
+import { AllowAnonymous } from '../allow-anonymous.decorator';
 @Controller('auth')
 @ApiTags('Auth')
+@AllowAnonymous()
 export class AuthController {
   constructor(private authService: AuthService) {}
 

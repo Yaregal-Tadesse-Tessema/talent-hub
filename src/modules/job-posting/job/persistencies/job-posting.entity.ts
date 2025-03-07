@@ -41,7 +41,7 @@ export class JobPostingEntity extends CommonEntity {
   requirement: JobRequirementEntity;
 
   @OneToMany(
-    () => ApplicationEntity,
+    (type) => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,
   )
   applications: ApplicationEntity[];

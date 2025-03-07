@@ -42,6 +42,7 @@ export class CreateJobPostingCommand {
   skill: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
+  currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
     const entity = new JobPostingEntity();

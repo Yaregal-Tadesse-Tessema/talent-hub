@@ -75,4 +75,22 @@ export class UserService extends CommonCrudService<UserEntity> {
     const response = await this.userRepository.save(user);
     return UserResponse.toResponse(response);
   }
+  async uploadResume(file: Express.Multer.File, telegramUserId: string) {
+    const user = await this.userRepository.findOne({
+      where: { telegramUserId: telegramUserId },
+    });
+    if (!user)
+      throw new BadRequestException(
+        `User with id ${telegramUserId} doesn't exist`,
+      );
+
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    const fileName = file.originalname;
+    const fileId = `${user.id}/Resume/${randomNumber}_${fileName}`;
+    const res = await this.fileService.uploadAttachment(fileId, file);
+    if (!res) throw new BadRequestException('file upload failed');
+    user.resume = res;
+    const response = await this.userRepository.save(user);
+    return UserResponse.toResponse(response);
+  }
 }

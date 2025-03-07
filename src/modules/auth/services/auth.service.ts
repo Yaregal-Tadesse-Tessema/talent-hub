@@ -26,6 +26,7 @@ export class AuthService {
           organizationId: account?.organizationId,
           phone: account?.phone,
           status: account?.status,
+          skills: account?.skills,
           id: account?.id,
           sub: account?.id,
         },

@@ -1,7 +1,12 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
-import { EmploymentTypeEnums, JobPostingStatusEnums, WorkLocationEnums } from '../../constants';
+import {
+  EmploymentTypeEnums,
+  JobPostingStatusEnums,
+  WorkLocationEnums,
+} from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
+import { ApplicationResponse } from 'src/modules/application/usecase/application.response';
 export class JobPostingResponse {
   id: string;
   @ApiProperty()
@@ -24,10 +29,9 @@ export class JobPostingResponse {
   skill: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
-  
-  static toResponse(
-    entity: JobPostingEntity
-  ): JobPostingResponse {
+  @ApiProperty({ type: () => [ApplicationResponse] })
+  applications: ApplicationResponse[];
+  static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
       return null;
@@ -43,7 +47,13 @@ export class JobPostingResponse {
     response.requirementId = entity?.requirementId;
     response.skill = entity?.skill;
     response.status = entity?.status;
+    if (entity.applications && entity.applications.length > 0) {
+      response.applications = entity.applications.map((item) =>
+        ApplicationResponse.toResponse(item),
+      );
+    } else {
+      response.applications = []; // Ensure it's always an array
+    }
     return response;
   }
 }
-
