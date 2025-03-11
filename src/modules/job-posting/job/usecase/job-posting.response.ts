@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
-  WorkLocationEnums,
+  WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { ApplicationResponse } from 'src/modules/application/usecase/application.response';
@@ -16,15 +16,23 @@ export class JobPostingResponse {
   @ApiProperty()
   position: string;
   @ApiProperty()
-  workLocation: WorkLocationEnums;
+  workLocation: string;
+  @ApiProperty()
+  workCity: string;
+  @ApiProperty()
+  workType: WorkTypeEnums;
+  @ApiProperty()
+  deadline: Date;
   @ApiProperty()
   employmentType: EmploymentTypeEnums;
   @ApiProperty()
-  salary: number;
+  salary: string;
   @ApiProperty()
   organizationId: string;
   @ApiProperty()
   requirementId: string;
+  @ApiProperty()
+  applicationLink: string;
   @ApiProperty()
   skill: string[];
   @ApiProperty()
@@ -42,11 +50,16 @@ export class JobPostingResponse {
     response.position = entity?.position;
     response.workLocation = entity?.workLocation;
     response.employmentType = entity?.employmentType;
+    response.workCity = entity?.workCity;
+    response.workType = entity?.workType;
+    response.workType = entity?.workType;
+    response.deadline = entity?.deadline;
     response.salary = entity?.salary;
     response.organizationId = entity?.organizationId;
     response.requirementId = entity?.requirementId;
     response.skill = entity?.skill;
     response.status = entity?.status;
+    response.applicationLink = entity?.applicationLink;
     if (entity.applications && entity.applications.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),

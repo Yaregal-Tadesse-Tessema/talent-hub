@@ -4,7 +4,7 @@ import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
-  WorkLocationEnums,
+  WorkTypeEnums,
 } from '../../constants';
 import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
@@ -18,15 +18,26 @@ export class JobPostingEntity extends CommonEntity {
   @Column()
   position: string;
   @Column({ nullable: true })
+  applicationLink: string;
+  @Column({ nullable: true })
   industry: string;
-  @Column({ default: WorkLocationEnums.ON_SITE })
-  workLocation: WorkLocationEnums;
+  @Column({ default: WorkTypeEnums.ON_SITE })
+  workType: WorkTypeEnums;
+  @Column({ default: 'Addis Abeba' })
+  workCity: string;
+  @Column({ nullable: true })
+  workLocation: string;
   @Column({ default: EmploymentTypeEnums.FULL_TIME })
   employmentType: EmploymentTypeEnums;
-  @Column({ type: 'decimal', nullable: true })
-  salary: number;
+  @Column({ nullable: true })
+  salary: string;
   @Column()
   organizationId: string;
+  @Column({
+    default: () => `CURRENT_DATE + INTERVAL '1 month'`,
+    nullable: false,
+  })
+  deadline: Date;
   @Column()
   requirementId: string;
   @Column('text', { array: true })
@@ -41,7 +52,7 @@ export class JobPostingEntity extends CommonEntity {
   requirement: JobRequirementEntity;
 
   @OneToMany(
-    (type) => ApplicationEntity,
+    () => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,
   )
   applications: ApplicationEntity[];

@@ -4,7 +4,6 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import {
   Entity,
   Column,
-  OneToOne,
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
@@ -29,11 +28,6 @@ export class AccountEntity extends CommonEntity {
   email: string;
   @Column({ unique: true })
   phone: string;
-
-  @Column({ unique: true, nullable: true })
-  newEmail: string;
-  @Column({ unique: true, nullable: true })
-  newPhone: string;
   @Column()
   password: string;
   @Column({

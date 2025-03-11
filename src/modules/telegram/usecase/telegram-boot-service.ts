@@ -1,5 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectBot } from 'nestjs-telegraf';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
@@ -7,11 +12,17 @@ import { Telegraf } from 'telegraf';
 import { Markup } from 'telegraf';
 import axios from 'axios';
 import { ProfessionEnums } from 'src/modules/job-posting/constants';
+import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
+import { CreateApplicationCommand } from 'src/modules/application/usecase/application.command';
+import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
 @Injectable()
 export class TelegramBotService {
   constructor(
     @InjectBot() private readonly bot: Telegraf,
     private readonly user: UserService,
+    @Inject(forwardRef(() => JobPostingService))
+    private readonly jobPostingService: JobPostingService,
+    private readonly applicationService: ApplicationService,
   ) {
     this.setupListeners();
   }
@@ -204,9 +215,7 @@ export class TelegramBotService {
         Fashion Designer
         Animator
         UX/UI Designer`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.EducationAndResearch, (ctx) => {
       ctx.reply(
@@ -222,9 +231,7 @@ export class TelegramBotService {
         Librarian
         Tutor
         Academic Advisor`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.EngineeringConstruction, (ctx) => {
       ctx.reply(
@@ -241,9 +248,7 @@ export class TelegramBotService {
         Construction Manager
         HVAC Technician
         Environmental Engineer`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.FinanceAndBusiness, (ctx) => {
       ctx.reply(
@@ -260,9 +265,7 @@ export class TelegramBotService {
         Project Manager
         Supply Chain Manager
         Human Resources Manager`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.HealthcareAndMedicine, (ctx) => {
       ctx.reply(
@@ -279,9 +282,7 @@ export class TelegramBotService {
         Paramedic
         Psychologist
         Veterinarian`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.HospitalityAndTourism, (ctx) => {
       ctx.reply(
@@ -294,9 +295,7 @@ export class TelegramBotService {
         Event Planner
         Bartender
         Travel Agent`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.LawAndGovernment, (ctx) => {
       ctx.reply(
@@ -312,9 +311,7 @@ export class TelegramBotService {
         Military Officer
         Customs Officer
         Intelligence Analyst`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.ScienceAndEnvironment, (ctx) => {
       ctx.reply(
@@ -326,9 +323,7 @@ export class TelegramBotService {
         Environmental Scientist
         Meteorologist
         Geologist`);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
     this.bot.action(ProfessionEnums.TechnologyAndIT, (ctx) => {
       ctx.reply(
@@ -347,9 +342,7 @@ export class TelegramBotService {
         Front End Developer,
         BackEnd Developer
         AI/ML Engineer and more`);
-        ctx.reply(
-          `📤 Remember You can change this any time \n`,
-        );
+      ctx.reply(`📤 Remember You can change this any time \n`);
     });
     this.bot.action(ProfessionEnums.SkilledTrades, (ctx) => {
       ctx.reply(
@@ -362,16 +355,59 @@ export class TelegramBotService {
         Carpenter
         Welder and more
         `);
-        ctx.reply(
-          `📤 Remember You can change this any time`,
-        );
+      ctx.reply(`📤 Remember You can change this any time`);
     });
-    
-    
+
     this.bot.action('profile', (ctx) => {
-      ctx.reply('📤 Please attach a file in PDF or DOCX format (Max: 2MB).',
-      )
+      ctx.reply('📤 Please attach a file in PDF or DOCX format (Max: 2MB).');
+    });
+
+    this.bot.action(/^apply_(.+)$/, async (ctx) => {
+      const userId = ctx.from.id;
+      const jobId = ctx.match[1]; // Extract the job ID from callback_data
+
+      const user = await this.user.getOneByCriteria({ telegramUserId: userId });
+      if (user) {
+        const alreadyApplied = await this.applicationService.getOneByCriteria({
+          JobPostId: jobId,
+          userId: user.id,
+        });
+        if (alreadyApplied)
+          await ctx.reply(`✅You have already applied for this job`);
+        const jonPost = await this.jobPostingService.getOneByCriteria({
+          id: jobId,
+        });
+        if (jonPost) {
+          const jobApplicationCommand: CreateApplicationCommand = {
+            JobPostId: jonPost.id,
+            userId: user.id,
+            applicationInformation: { description: '' },
+          };
+          const response = await this.applicationService.create(
+            jobApplicationCommand,
+          );
+          await ctx.reply(
+            `✅ You have successfully applied for job ID: ${jonPost.position}.`,
+          );
+        }
+      }
     });
     console.log('🤖 Telegram bot is running...');
+  }
+  async sendMessage(chatId: string, message: string, JobPostId: string) {
+    try {
+      const options = {
+        parse_mode: 'Markdown' as 'Markdown' | 'HTML' | 'MarkdownV2',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: '📝 Apply Now', callback_data: `apply_${JobPostId}` }],
+          ],
+        },
+      };
+
+      await this.bot.telegram.sendMessage(chatId, message, options);
+    } catch (error) {
+      throw error;
+    }
   }
 }

@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 import {
   EmploymentTypeEnums,
   JobIndustryEnums,
   JobPostingStatusEnums,
-  WorkLocationEnums,
+  WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 export class CreateJobPostingCommand {
@@ -19,14 +19,19 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   position: string;
   @ApiProperty()
-  workLocation: WorkLocationEnums;
+  workType: WorkTypeEnums;
+  @ApiProperty({ example: 'Addis Abeba' })
+  workCity: string;
+  @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
+  workLocation: string;
   @ApiProperty()
   employmentType: EmploymentTypeEnums;
   @ApiProperty()
-  salary: number;
+  salary: string;
+  @ApiProperty()
+  deadline: Date;
   // @ApiProperty()
   organizationId: string;
-
   @ApiProperty()
   experienceLevel: string;
   @ApiProperty()
@@ -42,6 +47,8 @@ export class CreateJobPostingCommand {
   skill: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
+  @ApiProperty()
+  applicationLink: string;
   currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
@@ -54,12 +61,16 @@ export class CreateJobPostingCommand {
     entity.description = dto.description;
     entity.position = dto?.position;
     entity.workLocation = dto?.workLocation;
+    entity.workCity = dto?.workCity;
+    entity.workType = dto?.workType;
     entity.employmentType = dto?.employmentType;
     entity.salary = dto?.salary;
     entity.organizationId = dto?.organizationId;
     entity.requirementId = dto?.requirementId;
     entity.skill = dto?.skill;
     entity.status = dto?.status;
+    entity.deadline = dto?.deadline;
+    entity.applicationLink = dto?.applicationLink;
     return entity;
   }
 
@@ -75,5 +86,31 @@ export class UpdateJobPostingCommand extends CreateJobPostingCommand {
   @ApiProperty()
   @IsUUID()
   @IsNotEmpty()
+  id: string;
+}
+export class JobPostTelegramNotificationCommand {
+  @ApiProperty()
+  jobTitle: string;
+  @ApiProperty()
+  jobType: string;
+  @ApiProperty()
+  workLocation: string;
+  @ApiProperty()
+  Salary: string;
+  @ApiProperty()
+  deadline: Date;
+  @ApiProperty()
+  jobDescription: string;
+  @ApiProperty()
+  applicationLink: string;
+}
+export class ChangeJobPostStatusCommand {
+  @ApiProperty({ enum: JobPostingStatusEnums })
+  @IsEnum(JobPostingStatusEnums, {
+    message: 'Status must be one of: Draft, Pending, Posted,Expired',
+  })
+  status: JobPostingStatusEnums;
+  @ApiProperty()
+  @IsNotEmpty({ message: 'id can not be empty' })
   id: string;
 }

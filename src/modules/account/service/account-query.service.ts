@@ -1,55 +1,60 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { AccountResponse } from '../dtos/response.dto/account.response.dto';
 import { AccountEntity } from '../persistances/account.entity';
-// import { CollectionQuery } from 'src/libs/collection-query/query';
-// import { QueryConstructor } from 'src/libs/collection-query/query-constructor';
+import axios from 'axios';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
+import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
 @Injectable()
 export class AccountQueryService {
   constructor(
     @InjectRepository(AccountEntity)
-    private readonly accountRepository: Repository<AccountEntity>, 
+    private readonly accountRepository: Repository<AccountEntity>,
   ) {}
-  // async getAll(query: CollectionQuery): Promise<any> {
-  //   if (query.orderBy.length == 0) {
-  //     query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
-  //   }
-  //   const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
-  //     this.accountRepository,
-  //     query,
-  //   );
-  //   const data = await dataQuery.getManyAndCount();
-  //   return data;
-  // }
-  // async fetch(query: CollectionQuery): Promise<DataResponseFormat<any>> {
-  //   if (query.orderBy.length == 0) {
-  //     query.orderBy.push({ column: 'createdAt', direction: 'DESC' });
-  //   }
-  //   const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
-  //     this.accountRepository,
-  //     query,
-  //   );
-  //   const items = await dataQuery.getMany();
-  //   const result = await this.accountRepository.find();
-  //   console.log('result result result result result result result', result);
-  //   return { items: items, total: items.length };
-  // }
-
+  private readonly axiosInstance = axios.create({
+    baseURL: 'https://etrade.gov.et/api',
+    timeout: 5000,
+    headers: {
+      Referer: 'https://etrade.gov.et/business-license-checker',
+    },
+  });
   async getAccountById(id: string) {
     const res = await this.accountRepository.findOne({
       where: { id },
     });
     return res;
   }
+  async getBusinessLicenseFromEtrade(
+    LicenseNo: string,
+    tin: string,
+  ): Promise<{ status: number; data: any }> {
+    try {
+      const response = await this.axiosInstance.get(
+        `/BusinessMain/GetBusinessByLicenseNo?LicenseNo=${LicenseNo}&Tin=${tin}&Lang=en`,
+      );
+      return { status: response.status, data: response.data };
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(
+        'Unable to verify Business License. Please try again',
+      );
+    }
+  }
+
   async getAccountByIdWithServiceCategory(id: string): Promise<any> {
     return this.accountRepository.findOne({
       where: { id },
     });
   }
+
   async getAccountByEmail(userName: string): Promise<AccountEntity> {
     const result = await this.accountRepository.findOne({
       where: [{ email: userName }, { phone: userName }],
@@ -87,6 +92,17 @@ export class AccountQueryService {
     }
     return AccountResponse.fromEntity(result);
   }
+  async getAccounts(
+    query: CollectionQuery,
+  ): Promise<DataResponseFormat<AccountResponse>> {
+    const dataQuery = QueryConstructor.constructQuery<AccountEntity>(
+      this.accountRepository,
+      query,
+    );
+    const [items, total] = await dataQuery.getManyAndCount();
+    const data = items.map((item) => AccountResponse.fromEntity(item));
+    return { items: data, total: total };
+  }
   async getUserIdBycredentials(
     userName: string,
     password: string,
@@ -97,39 +113,4 @@ export class AccountQueryService {
     if (result.length == 0) return null;
     return result ? AccountResponse.fromEntity(result[0]) : null;
   }
-  // async isPhoneRegistered(email: string, phone: string): Promise<any> {
-  //   const response = {
-  //     email: false,
-  //     phone: false,
-  //     emailStatus: null,
-  //     phoneStatus: null,
-  //   };
-
-  //   email = email.toLowerCase();
-  //   const standardPhone = Util.standardizePhoneNumber(phone);
-  //   const removedPlus = standardPhone.replace('+', '');
-
-  //   const [emailAccount, phoneAccount] = await Promise.all([
-  //     this.accountRepository.findOne({
-  //       where: { email },
-  //       select: ['status'],
-  //     }),
-  //     this.accountRepository.findOne({
-  //       where: [{ phone }, { phone: standardPhone }, { phone: removedPlus }],
-  //       select: ['status'],
-  //     }),
-  //   ]);
-
-  //   if (emailAccount) {
-  //     response.email = true;
-  //     response.emailStatus = emailAccount.status;
-  //   }
-
-  //   if (phoneAccount) {
-  //     response.phone = true;
-  //     response.phoneStatus = phoneAccount.status;
-  //   }
-
-  //   return response;
-  // }
 }

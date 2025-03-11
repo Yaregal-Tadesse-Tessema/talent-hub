@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApplicationEntity } from '../persistences/application.entity';
 export class CreateApplicationCommand {
-  id: string;
+  id?: string;
   @ApiProperty()
   userId: string;
   @ApiProperty()

@@ -8,18 +8,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AccountEntity } from './persistances/account.entity';
 import { AuthModule } from '../auth/auth.module';
 import { EmployeeEntity } from './persistances/employee.entity';
+import { OrganizationEntity } from '../organization/persistencies/organization.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      AccountEntity,EmployeeEntity
+      AccountEntity,
+      EmployeeEntity,
+      OrganizationEntity,
     ]),
     forwardRef(() => AuthModule),
   ],
-  providers: [
-    AccountQueryService,
-    AccountCommandService,
-  ],
-  controllers: [AccountController,],
+  providers: [AccountQueryService, AccountCommandService],
+  controllers: [AccountController],
   exports: [AccountQueryService, AccountCommandService],
 })
 export class AccountModule {}

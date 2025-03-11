@@ -1,12 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import {
-  Entity,
-  Column,
-  OneToOne,
-  JoinColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { AccountEntity } from './account.entity';
 
 

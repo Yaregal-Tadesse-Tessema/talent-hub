@@ -13,8 +13,16 @@ export enum AccountTypeEnums {
 export class OrganizationEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
   tinNumber: string;
+  @Column({ nullable: true, unique: true })
+  licenseNumber: string;
+  @Column({ nullable: true, unique: true })
+  organizationNumber: string;
   @Column()
   companyName: string;
+  @Column({ nullable: true, unique: true })
+  email: string;
+  @Column({ nullable: true, unique: true })
+  phone: string;
   @Column()
   industry: string;
   @Column({ nullable: true })
@@ -27,6 +35,8 @@ export class OrganizationEntity extends CommonEntity {
   description: string;
   @Column({ type: 'jsonb', nullable: true })
   companyLogo: FileDto;
+  @Column({ type: 'jsonb', nullable: true })
+  address: any;
   @Column({ default: false })
   verified: boolean;
 

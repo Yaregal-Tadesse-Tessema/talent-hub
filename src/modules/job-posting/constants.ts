@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-export enum WorkLocationEnums {
+export enum WorkTypeEnums {
   ON_SITE = 'On Site',
   REMOTE = 'Remote',
   HYBRID = 'Hybrid',

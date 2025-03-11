@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { OrganizationEntity } from '../persistencies/organization.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
@@ -23,6 +24,8 @@ export class OrganizationResponse {
   companyLogo: FileDto;
   @ApiProperty()
   verified: boolean;
+  @ApiProperty()
+  organizationNumber: string;
   accounts: AccountResponse[];
   static toResponse(entity: OrganizationEntity): OrganizationResponse {
     const response = new OrganizationResponse();
@@ -39,6 +42,7 @@ export class OrganizationResponse {
     response.description = entity.description;
     response.companyLogo = entity.companyLogo;
     response.verified = entity.verified;
+    response.organizationNumber = entity.organizationNumber;
     if (response.accounts.length > 0) {
       response.accounts = entity.accounts.map((item) =>
         AccountResponse.fromEntity(item),

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { OrganizationEntity } from '../persistencies/organization.entity';
@@ -8,24 +9,27 @@ export class CreateOrganizationCommand {
   tinNumber: string;
   @ApiProperty()
   companyName: string;
+  organizationNumber: string;
   @ApiProperty()
-  industry: string;
+  industry?: string;
   @ApiProperty()
-  companySize: string;
+  email?: string;
   @ApiProperty()
-  headquarters: string;
+  phone?: string;
   @ApiProperty()
-  website: string;
+  companySize?: string;
+  headquarters?: string;
   @ApiProperty()
-  description: string;
+  website?: string;
   @ApiProperty()
-  companyLogo: FileDto;
+  description?: string;
   @ApiProperty()
-  verified: boolean;
- 
-  static fromDto(
-    dto: CreateOrganizationCommand,
-  ): OrganizationEntity {
+  companyLogo?: FileDto;
+  verified?: boolean;
+  @ApiProperty()
+  address?: any;
+  licenseNumber?: string;
+  static fromDto(dto: CreateOrganizationCommand): OrganizationEntity {
     const entity = new OrganizationEntity();
     if (!dto) {
       return null;
@@ -40,18 +44,18 @@ export class CreateOrganizationCommand {
     entity.description = dto?.description;
     entity.companyLogo = dto?.companyLogo;
     entity.verified = dto?.verified;
+    entity.address = dto?.address;
+    entity.licenseNumber = dto?.licenseNumber;
+    entity.email = dto?.email;
+    entity.phone = dto?.phone;
   }
 
   /**
    * Transfer list of DTO object to Entity  list
    *
    */
-  static fromDtos(
-    dto: CreateOrganizationCommand[],
-  ): OrganizationEntity[] {
-    return dto?.map((d) =>
-        CreateOrganizationCommand.fromDto(d),
-    );
+  static fromDtos(dto: CreateOrganizationCommand[]): OrganizationEntity[] {
+    return dto?.map((d) => CreateOrganizationCommand.fromDto(d));
   }
 }
 export class UpdateOrganizationCommand extends CreateOrganizationCommand {
@@ -60,4 +64,3 @@ export class UpdateOrganizationCommand extends CreateOrganizationCommand {
   @IsNotEmpty()
   id: string;
 }
-

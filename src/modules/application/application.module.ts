@@ -10,6 +10,6 @@ import { FileModule } from '../file/file.module';
   imports: [TypeOrmModule.forFeature([ApplicationEntity]), FileModule],
   controllers: [ApplicationController],
   providers: [ApplicationService],
-  exports: [],
+  exports: [ApplicationService],
 })
 export class ApplicationModule {}

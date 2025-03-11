@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
 import {
+  ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
   UpdateJobPostingCommand,
 } from '../usecase/job-posting.command';
@@ -52,10 +53,18 @@ export class JobPostingController extends CommonCrudController<JobPostingEntity>
   @Get('get-all-job-postings-by-skills')
   async getAllJobPostingBySkills(
     @userInfo() userInfo: any,
-    @Query('q') q?: string
+    @Query('q') q?: string,
   ) {
     const query = decodeCollectionQuery(q);
-    const result = await this.jobPostingService.getJobPostingsBySkill(query,userInfo);
+    const result = await this.jobPostingService.getJobPostingsBySkill(
+      query,
+      userInfo,
+    );
+    return result;
+  }
+  @Put('change-job-post-status')
+  async changeJobPostStatus(@Body() command: ChangeJobPostStatusCommand) {
+    const result = await this.jobPostingService.changeJobPostStatus(command);
     return result;
   }
 }

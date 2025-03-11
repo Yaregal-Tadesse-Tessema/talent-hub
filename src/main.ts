@@ -7,14 +7,14 @@ import {
   SwaggerModule,
 } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
-  app.useGlobalFilters(new GlobalExceptionFilter(app.get(EventEmitter2)));
+  // app.useGlobalFilters(new GlobalExceptionFilter(app.get(EventEmitter2)));
+  app.useGlobalFilters(new GlobalExceptionFilter());
   const customOptions: SwaggerCustomOptions = {
     swaggerOptions: {
       persistAuthorization: false,
