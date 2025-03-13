@@ -16,6 +16,7 @@ import { UserResponse } from '../usecase/user.response';
 import { UserEntity } from '../persistence/users.entity';
 import { UserService } from '../usecase/user.usecase.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 
 const options: EntityCrudOptions = {
   createDto: CreateUserCommand,
@@ -24,6 +25,7 @@ const options: EntityCrudOptions = {
 };
 @Controller('users')
 @ApiTags('users')
+@AllowAnonymous()
 @ApiExtraModels(DataResponseFormat)
 export class UserController extends CommonCrudController<UserEntity>(options) {
   constructor(private readonly userService: UserService) {

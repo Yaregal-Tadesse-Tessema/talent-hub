@@ -37,7 +37,7 @@ export class AccountCommandService {
     if (!command.phone && !command.email) {
       throw new BadRequestException(`Phone or email is mandatory`);
     }
-    const alreadyExist = await this.accountRepository.find({
+    const alreadyExist = await this.accountRepository.findOne({
       where: {
         email: command.email,
         phone: command.phone,

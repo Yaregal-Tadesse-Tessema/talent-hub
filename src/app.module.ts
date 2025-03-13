@@ -9,6 +9,7 @@ import { UserModule } from './modules/user/user.module';
 import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
+import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
     FileModule,
     ApplicationModule,
     TelegramModule,
+    NotificationModule,
   ],
   controllers: [],
   providers: [],

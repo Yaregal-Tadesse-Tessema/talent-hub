@@ -99,7 +99,7 @@ export enum ProfessionEnums {
   EducationAndResearch = 'Education And Research',
   LawAndGovernment = 'Law And Government',
   CreativeAndMedia = 'Creative & Media',
-  HospitalityAndTourism = 'HospitalityAndTourism',
-  ScienceAndEnvironment = 'ScienceAndEnvironment',
+  HospitalityAndTourism = 'Hospitality And Tourism',
+  ScienceAndEnvironment = 'Science And Environment',
   SkilledTrades = 'Skilled Trades',
 }

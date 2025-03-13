@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Param, Post, Req } from '@nestjs/common';
+import { Controller, Param, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { InjectBot } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';

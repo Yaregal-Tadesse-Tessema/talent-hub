@@ -1,10 +1,5 @@
 /* eslint-disable prettier/prettier */
-import {
-  ConflictException,
-  forwardRef,
-  Inject,
-  Injectable,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectBot } from 'nestjs-telegraf';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
@@ -386,6 +381,7 @@ export class TelegramBotService {
           const response = await this.applicationService.create(
             jobApplicationCommand,
           );
+          await ctx.answerCbQuery();
           await ctx.reply(
             `✅ You have successfully applied for job ID: ${jonPost.position}.`,
           );
