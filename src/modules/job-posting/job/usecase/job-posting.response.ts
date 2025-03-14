@@ -37,6 +37,8 @@ export class JobPostingResponse {
   skill: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
+  @ApiProperty()
+  gender: string;
   @ApiProperty({ type: () => [ApplicationResponse] })
   applications: ApplicationResponse[];
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
@@ -54,6 +56,7 @@ export class JobPostingResponse {
     response.workType = entity?.workType;
     response.workType = entity?.workType;
     response.deadline = entity?.deadline;
+    response.gender = entity?.gender;
     response.salary = entity?.salary;
     response.organizationId = entity?.organizationId;
     response.requirementId = entity?.requirementId;

@@ -122,8 +122,8 @@ export class TelegramBotService {
         return ctx.reply('❌ Please upload a valid resume (PDF or DOCX only).');
       }
 
-      ctx.reply(`✅ Resume received: \n you do not need to upload file  every time you apply we will send this resume for you 
-        \n if you want to change upload a new One!`);
+      ctx.reply(`✅ Resume received: \n you do not need to upload file  every time you apply  
+        \n know you can Apply for Job`);
 
       // Get the file link (for downloading)
       // const fileLink = await ctx.telegram.getFileLink(fileId);
@@ -362,6 +362,14 @@ export class TelegramBotService {
       const jobId = ctx.match[1]; // Extract the job ID from callback_data
 
       const user = await this.user.getOneByCriteria({ telegramUserId: userId });
+      if (!user.resume) {
+        await ctx.reply(
+          `✅You have already applied for this job`,
+          Markup.inlineKeyboard([
+            [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
+          ]),
+        );
+      }
       if (user) {
         const alreadyApplied = await this.applicationService.getOneByCriteria({
           JobPostId: jobId,

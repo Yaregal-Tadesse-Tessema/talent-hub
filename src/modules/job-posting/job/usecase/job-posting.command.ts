@@ -30,6 +30,8 @@ export class CreateJobPostingCommand {
   salary: string;
   @ApiProperty()
   deadline: Date;
+  @ApiProperty()
+  gender: string;
   // @ApiProperty()
   organizationId: string;
   @ApiProperty()
@@ -70,6 +72,7 @@ export class CreateJobPostingCommand {
     entity.skill = dto?.skill;
     entity.status = dto?.status;
     entity.deadline = dto?.deadline;
+    entity.gender = dto?.gender;
     entity.applicationLink = dto?.applicationLink;
     return entity;
   }

@@ -6,6 +6,7 @@ import { CommonCrudService } from 'src/libs/Common/common-services/common.servic
 import { UserEntity } from '../persistence/users.entity';
 import { FileService } from 'src/modules/file/services/file.service';
 import { UserResponse } from './user.response';
+import { use } from 'passport';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -65,7 +66,9 @@ export class UserService extends CommonCrudService<UserEntity> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
-
+    if (user.resume) {
+      const res = await this.fileService.deleteBucketFile(user.resume.path);
+    }
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
     const fileName = file.originalname;
     const fileId = `${userId}/${randomNumber}_${fileName}`;

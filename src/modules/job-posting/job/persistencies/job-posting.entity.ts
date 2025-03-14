@@ -44,6 +44,9 @@ export class JobPostingEntity extends CommonEntity {
   skill: string[];
   @Column({ default: JobPostingStatusEnums.DRAFT })
   status: JobPostingStatusEnums;
+  @Column({ nullable: true })
+  gender: string;
+
   @ManyToOne(
     () => JobRequirementEntity,
     (institutionEntity) => institutionEntity.jobPostings,
