@@ -4,12 +4,14 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApplicationEntity } from '../persistences/application.entity';
 export class CreateApplicationCommand {
   id?: string;
-  @ApiProperty()
+  @ApiProperty({ nullable: false })
+  @IsNotEmpty()
   userId: string;
-  @ApiProperty()
+  @ApiProperty({ nullable: false })
+  @IsNotEmpty()
   JobPostId: string;
-  // @ApiProperty()
-  // cv: FileDto;
+  @ApiProperty()
+  coverLetter: string;
   @ApiProperty()
   applicationInformation: any;
 
@@ -21,7 +23,7 @@ export class CreateApplicationCommand {
     entity.id = dto?.id;
     entity.userId = dto.userId;
     entity.JobPostId = dto.JobPostId;
-    // entity.cv = dto?.cv;
+    entity.coverLetter = dto?.coverLetter;
     entity.applicationInformation = dto?.applicationInformation;
     return entity;
   }

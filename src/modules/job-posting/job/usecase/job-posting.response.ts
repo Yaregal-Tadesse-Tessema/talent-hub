@@ -2,12 +2,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   EmploymentTypeEnums,
+  JobIndustryEnums,
   JobPostingStatusEnums,
   WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { ApplicationResponse } from 'src/modules/application/usecase/application.response';
+import { FileDto } from 'src/libs/Common/dtos/file.dto';
+import { SavedJobsResponse } from './saved-jobs.response';
 export class JobPostingResponse {
+  @ApiProperty()
   id: string;
   @ApiProperty()
   title: string;
@@ -15,32 +19,64 @@ export class JobPostingResponse {
   description: string;
   @ApiProperty()
   position: string;
+  @ApiProperty({ default: JobIndustryEnums.INFORMATION_TECHNOLOGY })
+  industry: string;
+
   @ApiProperty()
-  workLocation: string;
-  @ApiProperty()
-  workCity: string;
-  @ApiProperty()
-  workType: WorkTypeEnums;
-  @ApiProperty()
-  deadline: Date;
+  type: WorkTypeEnums;
+  @ApiProperty({ example: 'Addis Abeba' })
+  city: string;
+  @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
+  location: string;
   @ApiProperty()
   employmentType: EmploymentTypeEnums;
   @ApiProperty()
-  salary: string;
+  salaryRange: any;
   @ApiProperty()
   organizationId: string;
   @ApiProperty()
+  deadline: Date;
+  @ApiProperty()
   requirementId: string;
   @ApiProperty()
-  applicationLink: string;
-  @ApiProperty()
   skill: string[];
+  @ApiProperty()
+  benefits: string[];
+  @ApiProperty()
+  responsibilities: string[];
   @ApiProperty()
   status: JobPostingStatusEnums;
   @ApiProperty()
   gender: string;
+  @ApiProperty()
+  minimumGPA: number;
+  @ApiProperty()
+  companyName: string;
+  @ApiProperty()
+  companyLogo: FileDto;
+  @ApiProperty()
+  postedDate: Date;
+  @ApiProperty()
+  applicationURL: string;
+  @ApiProperty()
+  experienceLevel: string;
+  @ApiProperty()
+  fieldOfStudy: string;
+  @ApiProperty()
+  educationLevel: string;
+  @ApiProperty()
+  howToApply: string;
+  @ApiProperty()
+  onHoldDate: Date;
+  @ApiProperty()
+  applicationCount: number;
+  currentUser?: any;
   @ApiProperty({ type: () => [ApplicationResponse] })
   applications: ApplicationResponse[];
+  @ApiProperty({ type: () => [ApplicationResponse] })
+  savedUsers: SavedJobsResponse[];
+  @ApiProperty()
+  isSaved: string;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -50,25 +86,42 @@ export class JobPostingResponse {
     response.title = entity.title;
     response.description = entity.description;
     response.position = entity?.position;
-    response.workLocation = entity?.workLocation;
+    response.industry = entity?.industry;
+    response.type = entity?.type;
+    response.city = entity?.city;
+    response.location = entity?.location;
     response.employmentType = entity?.employmentType;
-    response.workCity = entity?.workCity;
-    response.workType = entity?.workType;
-    response.workType = entity?.workType;
-    response.deadline = entity?.deadline;
-    response.gender = entity?.gender;
-    response.salary = entity?.salary;
+    response.salaryRange = entity?.salaryRange;
     response.organizationId = entity?.organizationId;
+    response.deadline = entity?.deadline;
     response.requirementId = entity?.requirementId;
     response.skill = entity?.skill;
+    response.benefits = entity?.benefits;
+    response.responsibilities = entity?.responsibilities;
     response.status = entity?.status;
-    response.applicationLink = entity?.applicationLink;
-    if (entity.applications && entity.applications.length > 0) {
+    response.gender = entity?.gender;
+    response.minimumGPA = entity?.minimumGPA;
+    response.companyName = entity?.companyName;
+    response.companyLogo = entity?.companyLogo;
+    response.postedDate = entity?.postedDate;
+    response.applicationURL = entity?.applicationURL;
+    response.experienceLevel = entity?.experienceLevel;
+    response.fieldOfStudy = entity?.fieldOfStudy;
+    response.educationLevel = entity?.educationLevel;
+    response.howToApply = entity?.howToApply;
+    response.onHoldDate = entity?.onHoldDate;
+    response.applicationCount = entity?.applicationCount;
+    if (response?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),
       );
     } else {
       response.applications = []; // Ensure it's always an array
+    }
+    if (response?.savedUsers.length > 0) {
+      response.savedUsers = entity.savedUsers.map((item) =>
+        SavedJobsResponse.toResponse(item),
+      );
     }
     return response;
   }

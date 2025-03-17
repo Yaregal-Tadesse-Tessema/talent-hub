@@ -20,8 +20,8 @@ const options: EntityCrudOptions = {
   updateDto: UpdateJobPostingCommand,
   responseFormat: JobPostingResponse,
 };
-@Controller('job-postings')
-@ApiTags('job-postings')
+@Controller('jobs')
+@ApiTags('jobs')
 @ApiExtraModels(DataResponseFormat)
 export class JobPostingController extends CommonCrudController<JobPostingEntity>(
   options,

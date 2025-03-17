@@ -2,7 +2,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { UserEntity } from '../persistence/users.entity';
-import { EducationLevelEnums, UserStatusEnums } from '../constants';
+import {
+  EducationLevelEnums,
+  SocialMediaLinks,
+  UserStatusEnums,
+} from '../constants';
 export class CreateUserCommand {
   id?: string;
   @ApiProperty()
@@ -43,11 +47,22 @@ export class CreateUserCommand {
   @ApiProperty()
   aiGeneratedJobFitScore: number;
   @ApiProperty()
-  skills: string[];
+  technicalSkills: string[];
+  @ApiProperty()
+  softSkills: string[];
   @ApiProperty()
   profile: any;
   @ApiProperty()
   resume: any;
+
+  @ApiProperty()
+  socialMediaLinks: SocialMediaLinks;
+  @ApiProperty()
+  profileHeadLine: string;
+  @ApiProperty()
+  coverLetter: string;
+  @ApiProperty()
+  professionalSummery: string;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -73,7 +88,14 @@ export class CreateUserCommand {
     entity.telegramUserId = dto?.telegramUserId;
     entity.profile = dto?.profile;
     entity.resume = dto?.resume;
-    entity.skills = dto?.skills;
+    entity.softSkills = dto?.softSkills;
+    entity.technicalSkills = dto?.technicalSkills;
+
+    entity.socialMediaLinks = dto?.socialMediaLinks;
+    entity.profileHeadLine = dto?.profileHeadLine;
+    entity.coverLetter = dto?.coverLetter;
+    entity.professionalSummery = dto?.professionalSummery;
+
     return entity;
   }
   static fromDtos(dto: CreateUserCommand[]): UserEntity[] {

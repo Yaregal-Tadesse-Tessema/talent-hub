@@ -385,6 +385,7 @@ export class TelegramBotService {
             JobPostId: jonPost.id,
             userId: user.id,
             applicationInformation: { description: '' },
+            coverLetter: '',
           };
           const response = await this.applicationService.create(
             jobApplicationCommand,

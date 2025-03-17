@@ -8,32 +8,57 @@ import {
   WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
+import { FileDto } from 'src/libs/Common/dtos/file.dto';
 export class CreateJobPostingCommand {
   id: string;
   @ApiProperty()
+  @IsNotEmpty()
   title: string;
   @ApiProperty()
   description: string;
-  @ApiProperty({ default: JobIndustryEnums.INFORMATION_TECHNOLOGY })
-  industry: JobIndustryEnums;
   @ApiProperty()
+  @IsNotEmpty()
   position: string;
+  @ApiProperty({ default: JobIndustryEnums.INFORMATION_TECHNOLOGY })
+  @IsNotEmpty()
+  industry: JobIndustryEnums;
+
   @ApiProperty()
-  workType: WorkTypeEnums;
+  type: WorkTypeEnums;
   @ApiProperty({ example: 'Addis Abeba' })
-  workCity: string;
+  city: string;
   @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
-  workLocation: string;
+  location: string;
   @ApiProperty()
   employmentType: EmploymentTypeEnums;
   @ApiProperty()
-  salary: string;
+  salaryRange: any;
+  // @ApiProperty()
+  organizationId: string;
   @ApiProperty()
   deadline: Date;
   @ApiProperty()
+  requirementId: string;
+  @ApiProperty()
+  skill: string[];
+  @ApiProperty()
+  benefits: string[];
+  @ApiProperty()
+  responsibilities: string[];
+  @ApiProperty()
+  status: JobPostingStatusEnums;
+  @ApiProperty()
   gender: string;
-  // @ApiProperty()
-  organizationId: string;
+  @ApiProperty()
+  minimumGPA: number;
+  @ApiProperty()
+  companyName: string;
+  @ApiProperty()
+  companyLogo: FileDto;
+  @ApiProperty()
+  postedDate: Date;
+  @ApiProperty()
+  applicationURL: string;
   @ApiProperty()
   experienceLevel: string;
   @ApiProperty()
@@ -41,18 +66,10 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   educationLevel: string;
   @ApiProperty()
-  gpa: number;
-
+  howToApply: string;
   @ApiProperty()
-  requirementId: string;
-  @ApiProperty()
-  skill: string[];
-  @ApiProperty()
-  status: JobPostingStatusEnums;
-  @ApiProperty()
-  applicationLink: string;
+  onHoldDate: Date;
   currentUser?: any;
-
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
     const entity = new JobPostingEntity();
     if (!dto) {
@@ -62,25 +79,32 @@ export class CreateJobPostingCommand {
     entity.title = dto.title;
     entity.description = dto.description;
     entity.position = dto?.position;
-    entity.workLocation = dto?.workLocation;
-    entity.workCity = dto?.workCity;
-    entity.workType = dto?.workType;
+    entity.industry = dto?.industry;
+    entity.type = dto?.type;
+    entity.city = dto?.city;
+    entity.location = dto?.location;
     entity.employmentType = dto?.employmentType;
-    entity.salary = dto?.salary;
+    entity.salaryRange = dto?.salaryRange;
     entity.organizationId = dto?.organizationId;
+    entity.deadline = dto?.deadline;
     entity.requirementId = dto?.requirementId;
     entity.skill = dto?.skill;
+    entity.benefits = dto?.benefits;
+    entity.responsibilities = dto?.responsibilities;
     entity.status = dto?.status;
-    entity.deadline = dto?.deadline;
     entity.gender = dto?.gender;
-    entity.applicationLink = dto?.applicationLink;
+    entity.minimumGPA = dto?.minimumGPA;
+    entity.companyName = dto?.companyName;
+    entity.companyLogo = dto?.companyLogo;
+    entity.postedDate = dto?.postedDate;
+    entity.applicationURL = dto?.applicationURL;
+    entity.experienceLevel = dto?.experienceLevel;
+    entity.fieldOfStudy = dto?.fieldOfStudy;
+    entity.educationLevel = dto?.educationLevel;
+    entity.howToApply = dto?.howToApply;
+    entity.onHoldDate = dto?.onHoldDate;
     return entity;
   }
-
-  /**
-   * Transfer list of DTO object to Entity  list
-   *
-   */
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {
     return dto?.map((d) => CreateJobPostingCommand.fromDto(d));
   }

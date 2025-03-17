@@ -6,7 +6,6 @@ import { CommonCrudService } from 'src/libs/Common/common-services/common.servic
 import { UserEntity } from '../persistence/users.entity';
 import { FileService } from 'src/modules/file/services/file.service';
 import { UserResponse } from './user.response';
-import { use } from 'passport';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(

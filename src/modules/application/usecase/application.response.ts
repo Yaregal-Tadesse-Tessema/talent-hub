@@ -14,6 +14,8 @@ export class ApplicationResponse {
   @ApiProperty()
   cv: FileDto;
   @ApiProperty()
+  coverLetter: string;
+  @ApiProperty()
   applicationInformation: any;
   @ApiProperty()
   user: UserResponse;
@@ -28,6 +30,7 @@ export class ApplicationResponse {
     response.userId = entity.userId;
     response.JobPostId = entity.JobPostId;
     response.cv = entity?.cv;
+    response.coverLetter = entity?.coverLetter;
     response.applicationInformation = entity?.applicationInformation;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);

@@ -42,7 +42,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       educationLevel: command.educationLevel,
       experienceLevel: command.experienceLevel,
       fieldOfStudy: command.fieldOfStudy,
-      gpa: command.gpa,
+      gpa: command.minimumGPA,
     };
     const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
       jobRequirementCommand,
@@ -98,12 +98,12 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
           deadline: response.deadline,
           jobTitle: response.title,
           jobDescription: response.description,
-          applicationLink: response.applicationLink,
-          Salary: response.salary
-            ? response.salary
+          applicationLink: response.applicationURL,
+          Salary: response.salaryRange
+            ? response.salaryRange
             : 'Based On Company Standard',
           jobType: response.employmentType,
-          workLocation: response.workLocation,
+          workLocation: response.location,
         };
         for (let index = 0; index < eligibleUsers?.length; index++) {
           const element = eligibleUsers[index];

@@ -1,9 +1,12 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Entity, Column, OneToMany } from 'typeorm';
-import { UserStatusEnums } from '../constants';
+import { SocialMediaLinks, UserStatusEnums } from '../constants';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
+import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
+import { ExperienceEntity } from './experience.entity';
+import { EducationEntity } from './education.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -17,7 +20,9 @@ export class UserEntity extends CommonEntity {
   @Column({ nullable: true })
   lastName: string;
   @Column({ nullable: true, type: 'text', array: true })
-  skills: string[];
+  softSkills: string[];
+  @Column({ nullable: true, type: 'text', array: true })
+  technicalSkills: string[];
   @Column({ nullable: true })
   gender: string;
   @Column({ default: UserStatusEnums.ACTIVE })
@@ -50,9 +55,29 @@ export class UserEntity extends CommonEntity {
   profile: FileDto;
   @Column({ nullable: true, type: 'jsonb' })
   resume: FileDto;
+  @Column({ nullable: true, type: 'jsonb' })
+  socialMediaLinks: SocialMediaLinks;
+  @Column({ nullable: true })
+  profileHeadLine: string;
+  @Column({ nullable: true })
+  coverLetter: string;
+  @Column({ nullable: true })
+  professionalSummery: string;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,
   )
   applications: ApplicationEntity[];
+
+  @OneToMany(() => SaveJobEntity, (applicationEntity) => applicationEntity.user)
+  savedJobs: SaveJobEntity[];
+
+  @OneToMany(() => EducationEntity, (educationEntity) => educationEntity.user)
+  educations: EducationEntity[];
+
+  @OneToMany(
+    () => ExperienceEntity,
+    (experienceEntity) => experienceEntity.user,
+  )
+  experiences: ExperienceEntity[];
 }

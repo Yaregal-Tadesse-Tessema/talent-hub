@@ -2,6 +2,11 @@
 export enum UserStatusEnums{
     ACTIVE='Active'
 }
+export interface SocialMediaLinks {
+  gitHub: string;
+  linkedIn: string;
+  portfolio: string;
+}
 export enum EducationLevelEnums {
   NO_FORMAL_EDUCATION = 'NoFormalEducation',
   PRIMARY_EDUCATION = 'PrimaryEducation',

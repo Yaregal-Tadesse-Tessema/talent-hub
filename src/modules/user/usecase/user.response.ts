@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../persistence/users.entity';
-import { UserStatusEnums } from '../constants';
+import { SocialMediaLinks, UserStatusEnums } from '../constants';
 export class UserResponse {
   @ApiProperty()
   id: string;
@@ -46,7 +46,17 @@ export class UserResponse {
   @ApiProperty()
   resume: any;
   @ApiProperty()
-  skills: string[];
+  technicalSkills: string[];
+  @ApiProperty()
+  softSkills: string[];
+  @ApiProperty()
+  socialMediaLinks: SocialMediaLinks;
+  @ApiProperty()
+  profileHeadLine: string;
+  @ApiProperty()
+  coverLetter: string;
+  @ApiProperty()
+  professionalSummery: string;
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -72,7 +82,12 @@ export class UserResponse {
     response.aiGeneratedJobFitScore = entity?.aiGeneratedJobFitScore;
     response.profile = entity?.profile;
     response.resume = entity?.resume;
-    response.skills = entity?.skills;
+    response.softSkills = entity?.softSkills;
+    response.technicalSkills = entity?.technicalSkills;
+    response.socialMediaLinks = entity?.socialMediaLinks;
+    response.profileHeadLine = entity?.profileHeadLine;
+    response.coverLetter = entity?.coverLetter;
+    response.professionalSummery = entity?.professionalSummery;
     return response;
   }
 }

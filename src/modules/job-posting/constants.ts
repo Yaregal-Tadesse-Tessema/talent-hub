@@ -9,11 +9,18 @@ export enum EmploymentTypeEnums {
   REMOTE = 'Part Time',
   HYBRID = 'Contract',
 }
+export enum SalaryRangeEnum {
+  MINIMUM = 'Minimum',
+  MAXIMUM = 'Maximum',
+}
 export enum JobPostingStatusEnums {
   DRAFT = 'Draft',
   PENDING = 'Pending',
   POSTED = 'Posted',
   EXPIRED = 'Expired',
+  ON_Hold = 'On Hold',
+  WITHDRAWN = 'Withdrawn',
+  CLOSED = 'Closed',
 }
 export enum JobIndustryEnums {
   'AGRICULTURE_FORESTRY_FISHING' = 'AgricultureForestryFishing',

@@ -1,5 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  forwardRef,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
@@ -8,11 +14,14 @@ import { CreateApplicationCommand } from './application.command';
 import { ApplicationResponse } from './application.response';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
+import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
 @Injectable()
 export class ApplicationService extends CommonCrudService<ApplicationEntity> {
   constructor(
     @InjectRepository(ApplicationEntity)
     private readonly applicationRepository: Repository<ApplicationEntity>,
+    @Inject(forwardRef(() => JobPostingService))
+    private jobPostingService: JobPostingService,
     private readonly fileService: FileService,
   ) {
     super(applicationRepository);
@@ -22,6 +31,16 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     command: CreateApplicationCommand,
     file?: Express.Multer.File,
   ) {
+    const jobPost = await this.jobPostingService.findOne(command.JobPostId);
+    if (!jobPost)
+      throw new ConflictException(`You already applied for this job`);
+    const count = jobPost.applicationCount + 1;
+    const applicationAlreadyExists = await this.applicationRepository.findOne({
+      where: { JobPostId: command.JobPostId, userId: command.userId },
+    });
+    if (applicationAlreadyExists)
+      throw new ConflictException(`You already applied for this job`);
+
     let res: FileDto = null;
     if (file) {
       const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
@@ -33,6 +52,9 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     const applicationEntity = CreateApplicationCommand.fromDto(command);
     applicationEntity.cv = res;
     const result = await this.applicationRepository.save(applicationEntity);
+    const respons = await this.jobPostingService.update(jobPost.id, {
+      applicationCount: count,
+    });
     const response = ApplicationResponse.toResponse(result);
     return response;
   }

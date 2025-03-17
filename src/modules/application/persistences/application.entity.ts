@@ -20,11 +20,13 @@ export class ApplicationEntity extends CommonEntity {
   JobPostId: string;
   @Column({ type: 'jsonb', nullable: true })
   cv: FileDto;
+  @Column({ nullable: true })
+  coverLetter: string;
   @Column({ nullable: true, type: 'jsonb' })
   applicationInformation: any;
 
   @ManyToOne(
-    (type) => JobPostingEntity,
+    () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,
   )
   @JoinColumn({ name: 'JobPostId' })
