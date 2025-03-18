@@ -42,12 +42,9 @@ export class JobPostingController extends CommonCrudController<JobPostingEntity>
     required: false,
   })
   @Get('get-all-job-postings')
-  async getAllJobPosting(
-    @Query('q') q?: string,
-    // @userInfo() userInfo: UserInfo
-  ) {
+  async getAllJobPosting(@userInfo() userInfo: any, @Query('q') q?: string) {
     const query = decodeCollectionQuery(q);
-    const result = await this.jobPostingService.getJobPostings(query);
+    const result = await this.jobPostingService.getJobPostings(query, userInfo);
     return result;
   }
   @Get('get-all-job-postings-by-skills')

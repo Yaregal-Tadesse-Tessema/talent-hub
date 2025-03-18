@@ -23,6 +23,7 @@ import { QueryConstructor } from 'src/libs/Common/collection-query/query-constru
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { userInfo } from 'src/modules/auth/local-auth.guard';
 @Injectable()
 export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   constructor(
@@ -57,19 +58,26 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
 
   async getJobPostings(
     query: CollectionQuery,
+    userInfo: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      query.includes.push('applications');
+      query.includes.push('savedUsers');
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
         this.jobPostingRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
       const data = items.map((item) => {
-        const applicationCount = item.applications.length;
+        let isSaved = false;
         const response = JobPostingResponse.toResponse(item);
-        delete response.applications;
-        return { ...response, applicationCount: applicationCount };
+        if (item.savedUsers?.length > 0) {
+          const userExists = item.savedUsers.some(
+            (user) => user.userId === userInfo.id,
+          );
+          isSaved = userExists ? true : false;
+        }
+        response.isSaved = isSaved;
+        return { ...response };
       });
       return { items: data, total: total };
     } catch (error) {

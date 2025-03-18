@@ -8,6 +8,9 @@ import { JobRequirementService } from './job-requirement/usecase/job-requirement
 import { JobPostingController } from './job/controller/job-posting.controller';
 import { TelegramModule } from '../telegram/telegram.module';
 import { UserEntity } from '../user/persistence/users.entity';
+import { SaveJobEntity } from './job/persistencies/save-job-post.entity';
+import { SavedJobsService } from './job/usecase/saved-jobs.usecase.service';
+import { SaveJobController } from './job/controller/saved-jobs.controller';
 
 @Module({
   imports: [
@@ -15,11 +18,12 @@ import { UserEntity } from '../user/persistence/users.entity';
       JobPostingEntity,
       JobRequirementEntity,
       UserEntity,
+      SaveJobEntity,
     ]),
     forwardRef(() => TelegramModule),
   ],
-  providers: [JobPostingService, JobRequirementService],
-  controllers: [JobPostingController],
+  providers: [JobPostingService, JobRequirementService, SavedJobsService],
+  controllers: [JobPostingController, SaveJobController],
   exports: [JobPostingService],
 })
 export class JobPostingModule {}

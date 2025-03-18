@@ -76,7 +76,7 @@ export class JobPostingResponse {
   @ApiProperty({ type: () => [ApplicationResponse] })
   savedUsers: SavedJobsResponse[];
   @ApiProperty()
-  isSaved: string;
+  isSaved: boolean;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -118,7 +118,7 @@ export class JobPostingResponse {
     } else {
       response.applications = []; // Ensure it's always an array
     }
-    if (response?.savedUsers.length > 0) {
+    if (response?.savedUsers?.length > 0) {
       response.savedUsers = entity.savedUsers.map((item) =>
         SavedJobsResponse.toResponse(item),
       );
