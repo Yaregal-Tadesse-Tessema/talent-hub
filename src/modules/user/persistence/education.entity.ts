@@ -7,7 +7,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 export class EducationEntity extends CommonEntity {
   @Column()
   institutionName: string;
-  @Column()
+  @Column({ nullable: true })
   userId: string;
   @Column({ nullable: true })
   typeOfDegree: string;

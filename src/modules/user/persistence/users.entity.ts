@@ -5,8 +5,6 @@ import { SocialMediaLinks, UserStatusEnums } from '../constants';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
-import { ExperienceEntity } from './experience.entity';
-import { EducationEntity } from './education.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -63,9 +61,9 @@ export class UserEntity extends CommonEntity {
   coverLetter: string;
   @Column({ nullable: true })
   professionalSummery: string;
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'jsonb' })
   educations: any;
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'jsonb' })
   experiences: any;
 
   @OneToMany(

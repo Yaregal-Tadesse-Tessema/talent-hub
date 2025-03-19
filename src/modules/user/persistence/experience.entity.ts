@@ -8,7 +8,7 @@ export class ExperienceEntity extends CommonEntity {
   companyName: string;
   @Column()
   jobTitle: string;
-  @Column()
+  @Column({ nullable: true })
   userId: string;
   @Column({ nullable: true })
   Industry: string;
