@@ -57,6 +57,12 @@ export class UserResponse {
   coverLetter: string;
   @ApiProperty()
   professionalSummery: string;
+
+  @ApiProperty()
+  educations: any;
+  @ApiProperty()
+  experiences: any;
+
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -88,6 +94,8 @@ export class UserResponse {
     response.profileHeadLine = entity?.profileHeadLine;
     response.coverLetter = entity?.coverLetter;
     response.professionalSummery = entity?.professionalSummery;
+    response.educations = entity?.educations;
+    response.experiences = entity?.experiences;
     return response;
   }
 }

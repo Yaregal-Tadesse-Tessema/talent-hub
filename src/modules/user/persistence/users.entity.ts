@@ -63,6 +63,11 @@ export class UserEntity extends CommonEntity {
   coverLetter: string;
   @Column({ nullable: true })
   professionalSummery: string;
+  @Column({ nullable: true })
+  educations: any;
+  @Column({ nullable: true })
+  experiences: any;
+
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,
@@ -72,12 +77,12 @@ export class UserEntity extends CommonEntity {
   @OneToMany(() => SaveJobEntity, (applicationEntity) => applicationEntity.user)
   savedJobs: SaveJobEntity[];
 
-  @OneToMany(() => EducationEntity, (educationEntity) => educationEntity.user)
-  educations: EducationEntity[];
+  // @OneToMany(() => EducationEntity, (educationEntity) => educationEntity.user)
+  // educations: EducationEntity[];
 
-  @OneToMany(
-    () => ExperienceEntity,
-    (experienceEntity) => experienceEntity.user,
-  )
-  experiences: ExperienceEntity[];
+  // @OneToMany(
+  //   () => ExperienceEntity,
+  //   (experienceEntity) => experienceEntity.user,
+  // )
+  // experiences: ExperienceEntity[];
 }

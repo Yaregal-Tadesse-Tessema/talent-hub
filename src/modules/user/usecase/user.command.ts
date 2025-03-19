@@ -54,7 +54,10 @@ export class CreateUserCommand {
   profile: any;
   @ApiProperty()
   resume: any;
-
+  @ApiProperty()
+  educations: any;
+  @ApiProperty()
+  experiences: any;
   @ApiProperty()
   socialMediaLinks: SocialMediaLinks;
   @ApiProperty()
@@ -90,6 +93,8 @@ export class CreateUserCommand {
     entity.resume = dto?.resume;
     entity.softSkills = dto?.softSkills;
     entity.technicalSkills = dto?.technicalSkills;
+    entity.educations = dto?.educations;
+    entity.experiences = dto?.experiences;
 
     entity.socialMediaLinks = dto?.socialMediaLinks;
     entity.profileHeadLine = dto?.profileHeadLine;
