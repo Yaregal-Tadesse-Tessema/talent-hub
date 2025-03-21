@@ -4,7 +4,7 @@ import { PreScreeningQuestionEntity } from '../../persistencies/pre-screening-qu
 export class PreScreeningQuestionResponse {
   id?: string;
   @ApiProperty()
-  jobPostId: number;
+  jobPostId: string;
   @ApiProperty()
   question: string;
   @ApiProperty()
@@ -24,7 +24,9 @@ export class PreScreeningQuestionResponse {
   @ApiProperty()
   score: number;
 
-  static fromDto(entity: PreScreeningQuestionEntity):  PreScreeningQuestionResponse{
+  static toResponse(
+    entity: PreScreeningQuestionEntity,
+  ): PreScreeningQuestionResponse {
     const response = new PreScreeningQuestionResponse();
     if (!entity) {
       return null;

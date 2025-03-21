@@ -10,6 +10,7 @@ import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { ApplicationResponse } from 'src/modules/application/usecase/application.response';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SavedJobsResponse } from './saved-jobs.response';
+import { PreScreeningQuestionResponse } from './pre-screening-question/pre-screening-question.response';
 export class JobPostingResponse {
   @ApiProperty()
   id: string;
@@ -75,6 +76,8 @@ export class JobPostingResponse {
   applications: ApplicationResponse[];
   @ApiProperty({ type: () => [ApplicationResponse] })
   savedUsers: SavedJobsResponse[];
+  @ApiProperty({ type: () => [ApplicationResponse] })
+  preScreeningQuestions: PreScreeningQuestionResponse[];
   @ApiProperty()
   isSaved: boolean;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
@@ -111,16 +114,19 @@ export class JobPostingResponse {
     response.howToApply = entity?.howToApply;
     response.onHoldDate = entity?.onHoldDate;
     response.applicationCount = entity?.applicationCount;
-    if (response?.applications && entity?.applications?.length > 0) {
+    if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),
       );
-    } else {
-      response.applications = []; // Ensure it's always an array
     }
-    if (response?.savedUsers?.length > 0) {
+    if (entity?.savedUsers?.length > 0) {
       response.savedUsers = entity.savedUsers.map((item) =>
         SavedJobsResponse.toResponse(item),
+      );
+    }
+    if (entity?.preScreeningQuestions?.length > 0) {
+      response.preScreeningQuestions = entity.preScreeningQuestions.map(
+        (item) => PreScreeningQuestionResponse.toResponse(item),
       );
     }
     return response;

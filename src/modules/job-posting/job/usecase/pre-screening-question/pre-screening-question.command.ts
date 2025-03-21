@@ -5,7 +5,7 @@ import { PreScreeningQuestionEntity } from '../../persistencies/pre-screening-qu
 export class CreatePreScreeningQuestionCommand {
   id?: string;
   @ApiProperty()
-  jobPostId: number;
+  jobPostId: string;
   @ApiProperty()
   question: string;
   @ApiProperty()
@@ -25,7 +25,9 @@ export class CreatePreScreeningQuestionCommand {
   @ApiProperty()
   score: number;
 
-  static fromDto(dto: CreatePreScreeningQuestionCommand): PreScreeningQuestionEntity {
+  static fromDto(
+    dto: CreatePreScreeningQuestionCommand,
+  ): PreScreeningQuestionEntity {
     const entity = new PreScreeningQuestionEntity();
     if (!dto) {
       return null;
@@ -43,7 +45,9 @@ export class CreatePreScreeningQuestionCommand {
     entity.score = dto.score;
     return entity;
   }
-  static fromDtos(dto: CreatePreScreeningQuestionCommand[]): PreScreeningQuestionEntity[] {
+  static fromDtos(
+    dto: CreatePreScreeningQuestionCommand[],
+  ): PreScreeningQuestionEntity[] {
     return dto?.map((d) => CreatePreScreeningQuestionCommand.fromDto(d));
   }
 }
