@@ -71,6 +71,8 @@ export class JobPostingResponse {
   onHoldDate: Date;
   @ApiProperty()
   applicationCount: number;
+  @ApiProperty()
+  jobPostRequirement: string[];
   currentUser?: any;
   @ApiProperty({ type: () => [ApplicationResponse] })
   applications: ApplicationResponse[];
@@ -80,6 +82,7 @@ export class JobPostingResponse {
   preScreeningQuestions: PreScreeningQuestionResponse[];
   @ApiProperty()
   isSaved: boolean;
+
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -113,6 +116,7 @@ export class JobPostingResponse {
     response.educationLevel = entity?.educationLevel;
     response.howToApply = entity?.howToApply;
     response.onHoldDate = entity?.onHoldDate;
+    response.jobPostRequirement = entity?.jobPostRequirement;
     response.applicationCount = entity?.applicationCount;
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
