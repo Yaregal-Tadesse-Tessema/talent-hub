@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { UserStatusEnums } from '../constants';
-import { LookUpEntity } from '../persistances/lookup.entity';
+import { LookupEntity } from '../persistances/lookup.entity';
 
 export class CreateLookupCommand {
   id?: string;
@@ -28,8 +28,8 @@ export class CreateLookupCommand {
   status: UserStatusEnums;
   currentUser?: any;
 
-  static fromCommand(command: CreateLookupCommand): LookUpEntity {
-    const lookUp = new LookUpEntity();
+  static fromCommand(command: CreateLookupCommand): LookupEntity {
+    const lookUp = new LookupEntity();
     lookUp.id = command?.id;
     lookUp.employeeId = command.employeeId;
     lookUp.fullName = `${command?.firstName} ${command?.middleName} ${command?.lastName}`;

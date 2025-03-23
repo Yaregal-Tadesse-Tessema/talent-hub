@@ -3,12 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
-import { LookUpEntity } from '../persistances/lookup.entity';
+import { LookupEntity } from '../persistances/lookup.entity';
 @Injectable()
-export class LookupService extends CommonCrudService<LookUpEntity> {
+export class LookupService extends CommonCrudService<LookupEntity> {
   constructor(
-    @InjectRepository(LookUpEntity)
-    private readonly lookupRepository: Repository<LookUpEntity>,
+    @InjectRepository(LookupEntity)
+    private readonly lookupRepository: Repository<LookupEntity>,
   ) {
     super(lookupRepository);
   }

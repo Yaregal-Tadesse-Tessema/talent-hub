@@ -1,14 +1,14 @@
-/* eslint-disable prettier/prettier */
-import { CommonEntity } from "src/libs/Common/common-entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { TenantEntity } from "./tenant.entity";
-import { LookupEntity } from './lookup.entity';
-
+import { CommonEntity } from '@libs/common/common.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { TenantEntity } from './tenat.entity';
+import { EntityMeta } from '@libs/common/decorators/entity-prefix';
+import { LookUpEntity } from './look-up-table.entity';
 @Entity({ name: 'employee_organizations' })
+@EntityMeta('eo')
 export class EmployeeOrganizationEntity extends CommonEntity {
   @Column({ name: 'tenant_id' })
   tenantId: number;
-  @Column({ name: 'employee_id', nullable: true })
+  @Column({ name: 'employee_id',nullable:true })
   employeeId: string;
   @Column({ name: 'lookup_id' })
   lookupId: string;
@@ -16,20 +16,18 @@ export class EmployeeOrganizationEntity extends CommonEntity {
   startDate: Date;
   @Column({ name: 'status', default: 'Draft' })
   status: string;
-
   @ManyToOne(() => TenantEntity, (tenant) => tenant.organizationEmployees, {
     orphanedRowAction: 'delete',
     onUpdate: 'CASCADE',
     onDelete: 'RESTRICT',
   })
   @JoinColumn({ name: 'tenant_id' })
-  tenant: TenantEntity;
-
-  @ManyToOne(() => LookupEntity, (tenant) => tenant.employeeOrganization, {
+  organization: TenantEntity;
+  @ManyToOne(() => LookUpEntity, (tenant) => tenant.employeeOrganization, {
     orphanedRowAction: 'delete',
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'lookup_id' })
-  lookup: LookupEntity;
+  lookup: LookUpEntity;
 }
