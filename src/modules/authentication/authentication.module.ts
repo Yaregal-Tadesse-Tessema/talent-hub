@@ -10,6 +10,7 @@ import { TenantController } from './controller/tenant.controller';
 import { LookupController } from './controller/lookup.controller';
 import { EmployeeOrganizationController } from './controller/employee-organization.controller';
 import { LookupEntity } from './persistances/lookup.entity';
+import { TenantDatabaseService } from './tenant-database.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -18,12 +19,17 @@ import { LookupEntity } from './persistances/lookup.entity';
       EmployeeOrganizationEntity,
     ]),
   ],
-  providers: [TenantService, LookupService, EmployeeOrganizationService],
+  providers: [
+    TenantService,
+    LookupService,
+    EmployeeOrganizationService,
+    TenantDatabaseService,
+  ],
   controllers: [
     TenantController,
     LookupController,
     EmployeeOrganizationController,
   ],
-  exports: [],
+  exports: [TenantService],
 })
 export class AuthenticationModule {}

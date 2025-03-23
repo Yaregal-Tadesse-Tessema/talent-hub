@@ -6,8 +6,9 @@ import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.e
 import { JobRequirementEntity } from '../job-posting/job-requirement/persistance/job-requirement.entity';
 import { SessionEntity } from '../auth/persistances/session.entity';
 import { TenantEntity } from './persistances/tenant.entity';
-import { LookUpEntity } from '../tenant-database/persistance/look-up-table.entity';
 import { EmployeeOrganizationEntity } from './persistances/employee-organization.entity';
+import { ApplicationEntity } from '../application/persistences/application.entity';
+import { LookupEntity } from './persistances/lookup.entity';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -24,11 +25,9 @@ export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
       password: process.env.PUBLIC_DATABASE_PASSWORD,
       database: process.env.PUBLIC_DATABASE_Name,
       schema: tenantSchema,
-      entities: [
-        JobPostingEntity,
-        JobRequirementEntity,
-      ],
-      synchronize: process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
+      entities: [JobPostingEntity, JobRequirementEntity, ApplicationEntity],
+      synchronize:
+        process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
     });
     await connection.initialize();
     this.connections.set(tenantSchema, connection);
@@ -46,7 +45,7 @@ export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
       entities: [
         SessionEntity,
         TenantEntity,
-        LookUpEntity,
+        LookupEntity,
         EmployeeOrganizationEntity,
       ],
       synchronize:

@@ -5,13 +5,17 @@ import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.t
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { LookupService } from '../services/look-up.service';
-import { CreateLookupCommand, UpdateLookUpCommand } from '../dtos/lookup.dto';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { LookupEntity } from '../persistances/lookup.entity';
+import {
+  CreateLookupCommand,
+  LookupResponse,
+  UpdateLookupCommand,
+} from '../dtos/lookup.dto';
 const options: EntityCrudOptions = {
   createDto: CreateLookupCommand,
-  updateDto: UpdateLookUpCommand,
-  //   responseFormat: Tenan,
+  updateDto: UpdateLookupCommand,
+  responseFormat: LookupResponse,
 };
 @Controller('lookups')
 @ApiTags('lookups')

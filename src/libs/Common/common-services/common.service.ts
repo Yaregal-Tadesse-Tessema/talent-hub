@@ -1,25 +1,31 @@
 /* eslint-disable prettier/prettier */
-import { Repository, DeepPartial, ObjectLiteral } from 'typeorm';
-import { Injectable, NotFoundException, Req } from '@nestjs/common';
-
-// import { AuditingService } from '../auditing/services/auditing.service';
-// import { CollectionQuery } from 'src/libs/collection-query/query';
-// import { QueryConstructor } from 'src/libs/collection-query/query-constructor';
+import { Repository, DeepPartial, ObjectLiteral, DataSource } from 'typeorm';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  Req,
+  Scope,
+} from '@nestjs/common';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { CollectionQuery } from '../collection-query/query';
 import { QueryConstructor } from '../collection-query/query-constructor';
-@Injectable()
+import { REQUEST } from '@nestjs/core';
+@Injectable({ scope: Scope.REQUEST })
 export class CommonCrudService<T extends ObjectLiteral> {
-  // @Inject(AuditingService)
-  // private readonly auditingService: AuditingService;
-  constructor(private readonly repository: Repository<T>) {}
+  constructor(
+    private readonly repository: Repository<T>,
+    @Inject(REQUEST) private request?: Request,
+  ) {}
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
     try {
+      const connection: DataSource = await this.request['CONNECTION_KEY'];
+      const repository = connection.getRepository(this.repository.target);
       if (req?.user?.organization) {
         itemData.organizationId = req.user.organization.id;
       }
-      const item = this.repository.create(itemData);
-      const res = (await this.repository.insert(item)) as any;
+      const item = repository.create(itemData);
+      const res = (await repository.insert(item)) as any;
       return item;
     } catch (error) {
       console.log(error);
@@ -28,10 +34,9 @@ export class CommonCrudService<T extends ObjectLiteral> {
   }
 
   async findAll(query: CollectionQuery) {
-    const dataQuery = QueryConstructor.constructQuery<T>(
-      this.repository,
-      query,
-    );
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
+    const dataQuery = QueryConstructor.constructQuery<T>(repository, query);
 
     const response = new DataResponseFormat<T>();
     if (query.count) {
@@ -49,7 +54,9 @@ export class CommonCrudService<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T | undefined> {
-    return await this.repository.findOne({
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
+    return await repository.findOne({
       where: { id },
       relations,
       withDeleted,
@@ -59,8 +66,10 @@ export class CommonCrudService<T extends ObjectLiteral> {
   }
 
   async update(id: string, itemData: any, req?: any): Promise<T | undefined> {
-    const existing = await this.findOneOrFail(id);
-    await this.repository.update(id, itemData);
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
+    await this.findOneOrFail(id);
+    await repository.update(id, itemData);
 
     const res = await this.findOne(id);
 
@@ -81,8 +90,10 @@ export class CommonCrudService<T extends ObjectLiteral> {
   }
 
   async softDelete(id: string, @Req() req?: any): Promise<any> {
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
     const item = await this.findOneOrFail(id);
-    const res = await this.repository.softRemove(item);
+    const res = await repository.softRemove(item);
 
     // this.auditingService.saveAudit({
     //   modelId: id ?? null,
@@ -100,11 +111,15 @@ export class CommonCrudService<T extends ObjectLiteral> {
   }
 
   async restore(id: string): Promise<void> {
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
     await this.findOneOrFailWithDeleted(id);
-    await this.repository.restore(id);
+    await repository.restore(id);
   }
 
   async findAllArchived(query: CollectionQuery) {
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
     if (!query.where) {
       query.where = [];
     }
@@ -112,10 +127,7 @@ export class CommonCrudService<T extends ObjectLiteral> {
       { column: 'deletedAt', value: '', operator: 'IsNotNull' },
     ]);
 
-    const dataQuery = QueryConstructor.constructQuery<T>(
-      this.repository,
-      query,
-    );
+    const dataQuery = QueryConstructor.constructQuery<T>(repository, query);
 
     dataQuery.withDeleted();
 
@@ -143,7 +155,9 @@ export class CommonCrudService<T extends ObjectLiteral> {
   }
 
   private async findOneOrFailWithDeleted(id: any): Promise<T> {
-    const item = await this.repository.findOne({
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
+    const item = await repository.findOne({
       where: {
         id,
       },
@@ -161,7 +175,9 @@ export class CommonCrudService<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T> {
-    const response = await this.repository.findOne({
+    const connection: DataSource = await this.request['CONNECTION_KEY'];
+    const repository = connection.getRepository(this.repository.target);
+    const response = await repository.findOne({
       where: criteria,
       relations,
       withDeleted,

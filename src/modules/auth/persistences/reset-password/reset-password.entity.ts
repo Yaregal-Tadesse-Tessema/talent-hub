@@ -1,8 +1,7 @@
-import { CommonEntity } from '@libs/common/common.entity';
-import { EntityMeta } from '@libs/common/decorators/entity-prefix';
+/* eslint-disable prettier/prettier */
+import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Column, Entity } from 'typeorm';
 @Entity('reset_password_tokens')
-@EntityMeta('rept')
 export class ResetPasswordTokenEntity extends CommonEntity {
   @Column({ type: 'text' })
   token: string;

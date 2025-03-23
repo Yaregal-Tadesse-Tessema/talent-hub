@@ -1,16 +1,14 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-
 @Entity('sessions')
 export class SessionEntity extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Index()
-  @Column()
+  @Column({ nullable: true })
   accountId: string;
-  @Index()
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   refreshToken: string;
   @Column({ nullable: true, type: 'text' })
   accessToken: string;

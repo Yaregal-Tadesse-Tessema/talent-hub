@@ -1,5 +1,13 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
@@ -14,6 +22,7 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+import { REQUEST } from '@nestjs/core';
 
 const options: EntityCrudOptions = {
   createDto: CreateJobPostingCommand,
@@ -26,7 +35,10 @@ const options: EntityCrudOptions = {
 export class JobPostingController extends CommonCrudController<JobPostingEntity>(
   options,
 ) {
-  constructor(private readonly jobPostingService: JobPostingService) {
+  constructor(
+    private readonly jobPostingService: JobPostingService,
+    @Inject(REQUEST) private request: Request,
+  ) {
     super(jobPostingService);
   }
   @Post('create-job-posting')

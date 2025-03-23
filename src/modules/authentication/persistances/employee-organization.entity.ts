@@ -7,15 +7,17 @@ import { LookupEntity } from './lookup.entity';
 @Entity({ name: 'employee_organizations' })
 export class EmployeeOrganizationEntity extends CommonEntity {
   @Column({ name: 'tenant_id' })
-  tenantId: number;
-  @Column({ name: 'employee_id', nullable: true })
-  employeeId: string;
+  tenantId: string;
   @Column({ name: 'lookup_id' })
   lookupId: string;
   @Column({ name: 'start_date', type: 'date', nullable: true })
   startDate: Date;
   @Column({ name: 'status', default: 'Draft' })
   status: string;
+  @Column({ name: 'job_title' })
+  jobTitle: string;
+  @Column({ name: 'tenant_name' })
+  tenantName: string;
 
   @ManyToOne(() => TenantEntity, (tenant) => tenant.organizationEmployees, {
     orphanedRowAction: 'delete',

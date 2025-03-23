@@ -4,8 +4,6 @@ import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
 import { FileService } from 'src/modules/file/services/file.service';
 import { ExperienceEntity } from '../persistence/experience.entity';
-import { Injectable } from '@nestjs/common';
-@Injectable()
 export class ExperienceService extends CommonCrudService<ExperienceEntity> {
   constructor(
     @InjectRepository(ExperienceEntity)
@@ -14,5 +12,4 @@ export class ExperienceService extends CommonCrudService<ExperienceEntity> {
   ) {
     super(experienceRepository);
   }
- 
 }

@@ -17,14 +17,32 @@ import { CreateOrganizationCommand } from 'src/modules/organization/usecase/orga
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import axios from 'axios';
 import { AccountQueryService } from './account-query.service';
+import { TenantService } from 'src/modules/authentication/services/tenant.service';
+import {
+  CreateTenantCommand,
+  TenantResponse,
+} from 'src/modules/authentication/dtos/tenant.dto';
+import {
+  TenantSubscriptionType,
+  UserStatusEnums,
+} from 'src/modules/authentication/constants';
+import { CreateLookupCommand } from 'src/modules/authentication/dtos/lookup.dto';
+import { LookupEntity } from 'src/modules/authentication/persistances/lookup.entity';
+import { CreateEmployeeOrganizationCommand } from 'src/modules/authentication/dtos/employee-organization';
+import { EmployeeOrganizationEntity } from 'src/modules/authentication/persistances/employee-organization.entity';
 @Injectable()
 export class AccountCommandService {
   constructor(
     @InjectRepository(AccountEntity)
     private readonly accountRepository: Repository<AccountEntity>,
+    @InjectRepository(LookupEntity)
+    private readonly lookupRepository: Repository<LookupEntity>,
+    @InjectRepository(EmployeeOrganizationEntity)
+    private readonly employeeOrganizationRepository: Repository<EmployeeOrganizationEntity>,
     @InjectRepository(OrganizationEntity)
     private readonly organizationRepository: Repository<OrganizationEntity>,
     private readonly accountQueryService: AccountQueryService,
+    private readonly tenantService: TenantService,
   ) {}
   private readonly axiosInstance = axios.create({
     baseURL: 'https://etrade.gov.et/api',
@@ -46,36 +64,43 @@ export class AccountCommandService {
     });
     if (alreadyExist)
       throw new ConflictException(`Organization already exists`);
-    const organizationEntity = new OrganizationEntity();
-    organizationEntity.tinNumber = command?.tinNumber;
-    organizationEntity.licenseNumber = command?.licenseNumber;
-    const registrationNumber = await this.generateRegistrationNumber(
-      'ET',
-      'ORG',
-    );
-    organizationEntity.organizationNumber = registrationNumber;
-    organizationEntity.companyName = command.companyName;
-    organizationEntity.industry = command.industry;
-    organizationEntity.companySize = command.companySize;
-    organizationEntity.description = command.description;
-    organizationEntity.email = command.email;
-    organizationEntity.phone = command.phone;
-    organizationEntity.address = command.address;
 
-    const organization =
-      await this.organizationRepository.save(organizationEntity);
-    const entity: CreateAccountCommand = {
-      password: 'C0mplex@123',
-      organizationId: organization.id,
+    const tenantCommand: CreateTenantCommand = {
+      name: command.companyName,
+      tin: command.tinNumber,
+      phoneNumber: command.phone,
       email: command.email,
-      phone: command.phone,
-      userName: command.phone ? command.phone : command.email,
-      organizationName: organization.companyName,
-      tinNumber: command.tinNumber,
-      createdAt: new Date(),
+      companySize: command.companySize,
+      industry: command.industry,
+      address: command.address,
+      isActive: true,
+      logo: command.companyLogo,
+      subscriptionType: TenantSubscriptionType.FREE,
     };
-    const account = await this.accountRepository.save(entity);
-    return { account, organization };
+    const tenantEntity: TenantResponse =
+      await this.tenantService.createTenant(tenantCommand);
+    const entity: CreateLookupCommand = {
+      password: 'C0mplex@123',
+      email: command.email,
+      phoneNumber: command.phone,
+      firstName: 'Root',
+      middleName: 'Administrator',
+      status: UserStatusEnums.ACTIVE,
+    };
+    const lookEntity = await this.lookupRepository.save(entity);
+    const employeeoRganizationCommand: CreateEmployeeOrganizationCommand = {
+      tenantId: tenantEntity.id,
+      lookupId: lookEntity.id,
+      startDate: new Date(),
+      status: UserStatusEnums.ACTIVE,
+      tenantName: tenantEntity.name,
+      jobTitle: 'Administrator',
+    };
+    const employeeORganizationEntity =
+      await this.employeeOrganizationRepository.save(
+        employeeoRganizationCommand,
+      );
+    return { tenantEntity, lookEntity, employeeORganizationEntity };
   }
   async updateAccountRefreshToken(accountId: string, refreshToken: string) {
     await this.accountRepository.update(

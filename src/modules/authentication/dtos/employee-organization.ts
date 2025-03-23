@@ -3,19 +3,20 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { EmployeeOrganizationEntity } from '../persistances/employee-organization.entity';
 export class CreateEmployeeOrganizationCommand {
-  id: string;
+  id?: string;
   @ApiProperty()
   @IsNotEmpty()
-  tenantId: number;
-  @ApiProperty()
-  employeeId: string;
+  tenantId: string;
   @ApiProperty()
   lookupId: string;
   @ApiProperty()
   startDate: Date;
   @ApiProperty()
   status: string;
-
+  @ApiProperty()
+  jobTitle: string;
+  @ApiProperty()
+  tenantName: string;
   currentUser?: any;
 
   static fromCommand(
@@ -24,10 +25,11 @@ export class CreateEmployeeOrganizationCommand {
     const entity = new EmployeeOrganizationEntity();
     entity.id = command?.id;
     entity.tenantId = command.tenantId;
-    entity.employeeId = command.employeeId;
     entity.lookupId = command.lookupId;
     entity.startDate = command.startDate;
     entity.status = command.status;
+    entity.jobTitle = command.jobTitle;
+    entity.tenantName = command.tenantName;
     return entity;
   }
 }
@@ -36,7 +38,11 @@ export class UpdateEmployeeOrganizationCommand extends CreateEmployeeOrganizatio
   @IsNotEmpty()
   id: string;
 }
-
+export class EmployeeOrganizationResponse extends CreateEmployeeOrganizationCommand {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+}
 export class ArchiveEmployeeOrganizationCommand {
   @ApiProperty({
     example: 'uuid',

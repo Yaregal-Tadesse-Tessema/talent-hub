@@ -6,47 +6,47 @@ import { CalenderTypeEnums, OrganizationStatusEnums } from '../constants';
 import { TenantEntity } from '../persistances/tenant.entity';
 export class CreateTenantCommand {
   @ApiProperty()
-  id: string;
+  id?: string;
   @ApiProperty()
   prefix?: string;
   @ApiProperty()
   name: string;
   @ApiProperty()
-  schemaName: string;
+  schemaName?: string;
   @ApiProperty()
-  type: string;
+  type?: string;
   @ApiProperty()
-  tradeName: string;
+  tradeName?: string;
   @ApiProperty()
   email: string;
   @ApiProperty()
-  code: string;
+  code?: string;
   @ApiProperty()
   phoneNumber: string;
   @ApiProperty()
-  address: any;
+  address?: any;
   @ApiProperty()
-  subscriptionType: string;
+  subscriptionType?: string;
   @ApiProperty()
-  isVerified: boolean;
+  isVerified?: boolean;
   @ApiProperty()
   tin: string;
   @ApiProperty()
-  isActive: boolean;
+  isActive?: boolean;
   @ApiProperty()
-  status: OrganizationStatusEnums;
+  status?: OrganizationStatusEnums;
   @ApiProperty()
-  logo: FileDto;
+  logo?: FileDto;
   @ApiProperty()
-  companySize: string;
+  companySize?: string;
   @ApiProperty()
-  industry: string;
+  industry?: string;
   @ApiProperty()
-  organizationType: string;
+  organizationType?: string;
   @ApiProperty()
-  selectedCalender: CalenderTypeEnums;
+  selectedCalender?: CalenderTypeEnums;
   @ApiProperty()
-  archiveReason: string;
+  archiveReason?: string;
   currentUser?: any;
 
   static fromCommand(command: CreateTenantCommand): TenantEntity {
@@ -79,7 +79,35 @@ export class UpdateTenantCommand extends CreateTenantCommand {
   @IsNotEmpty()
   id: string;
 }
-
+export class TenantResponse extends CreateTenantCommand {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  static toResponse(entity: TenantEntity): TenantResponse {
+    const response = new TenantResponse();
+    response.id = entity?.id;
+    response.prefix = entity.prefix;
+    response.name = entity.name;
+    response.schemaName = entity.schemaName;
+    response.type = entity.type;
+    response.tradeName = entity.tradeName;
+    response.email = entity.email;
+    response.code = entity.code;
+    response.phoneNumber = entity.phoneNumber;
+    response.address = entity.address;
+    response.subscriptionType = entity?.subscriptionType;
+    response.isVerified = entity.isVerified;
+    response.tin = entity.tin;
+    response.isActive = entity.isActive;
+    response.status = entity?.status;
+    response.logo = entity.logo;
+    response.companySize = entity.companySize;
+    response.industry = entity.industry;
+    response.organizationType = entity.organizationType;
+    response.selectedCalender = entity.selectedCalender;
+    return response;
+  }
+}
 export class ArchiveTenantCommand {
   @ApiProperty()
   @IsNotEmpty()
