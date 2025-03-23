@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Repository, DeepPartial, ObjectLiteral } from 'typeorm';
-import { Inject, Injectable, NotFoundException, Req } from '@nestjs/common';
+import { Injectable, NotFoundException, Req } from '@nestjs/common';
 
 // import { AuditingService } from '../auditing/services/auditing.service';
 // import { CollectionQuery } from 'src/libs/collection-query/query';
