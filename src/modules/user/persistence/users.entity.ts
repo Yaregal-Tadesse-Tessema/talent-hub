@@ -1,10 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column } from 'typeorm';
 import { SocialMediaLinks, UserStatusEnums } from '../constants';
-import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
-import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -66,14 +64,14 @@ export class UserEntity extends CommonEntity {
   @Column({ nullable: true, type: 'jsonb' })
   experiences: any;
 
-  @OneToMany(
-    () => ApplicationEntity,
-    (applicationEntity) => applicationEntity.user,
-  )
-  applications: ApplicationEntity[];
+  // @OneToMany(
+  //   () => ApplicationEntity,
+  //   (applicationEntity) => applicationEntity.user,
+  // )
+  // applications: ApplicationEntity[];
 
-  @OneToMany(() => SaveJobEntity, (applicationEntity) => applicationEntity.user)
-  savedJobs: SaveJobEntity[];
+  // @OneToMany(() => SaveJobEntity, (applicationEntity) => applicationEntity.user)
+  // savedJobs: SaveJobEntity[];
 
   // @OneToMany(() => EducationEntity, (educationEntity) => educationEntity.user)
   // educations: EducationEntity[];

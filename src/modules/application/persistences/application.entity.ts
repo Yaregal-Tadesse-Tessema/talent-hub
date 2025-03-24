@@ -8,7 +8,6 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
-import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
 
 @Entity({ name: 'applications' })
@@ -32,7 +31,7 @@ export class ApplicationEntity extends CommonEntity {
   @JoinColumn({ name: 'JobPostId' })
   JobPost: JobPostingEntity;
 
-  @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
-  @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+  // @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
+  // @JoinColumn({ name: 'userId' })
+  // user: UserEntity;
 }

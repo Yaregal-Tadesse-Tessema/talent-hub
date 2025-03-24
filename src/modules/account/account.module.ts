@@ -1,33 +1,33 @@
-/* eslint-disable prettier/prettier */
-import { Module, forwardRef } from '@nestjs/common';
-import { AccountController } from './controller/account/account.controller';
-import { AccountQueryService } from './service/account-query.service';
-import { AccountCommandService } from './service/account-command.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
+// /* eslint-disable prettier/prettier */
+// import { Module, forwardRef } from '@nestjs/common';
+// import { AccountController } from './controller/account/account.controller';
+// import { AccountQueryService } from './service/account-query.service';
+// import { AccountCommandService } from './service/account-command.service';
+// import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AccountEntity } from './persistances/account.entity';
-import { AuthModule } from '../auth/auth.module';
-import { EmployeeEntity } from './persistances/employee.entity';
-import { OrganizationEntity } from '../organization/persistencies/organization.entity';
-import { EmployeeOrganizationEntity } from '../authentication/persistances/employee-organization.entity';
-import { LookupEntity } from '../authentication/persistances/lookup.entity';
-import { TenantEntity } from '../authentication/persistances/tenant.entity';
-import { AuthenticationModule } from '../authentication/authentication.module';
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      AccountEntity,
-      EmployeeEntity,
-      OrganizationEntity,
-      EmployeeOrganizationEntity,
-      LookupEntity,
-      TenantEntity,
-    ]),
-    forwardRef(() => AuthModule),
-    AuthenticationModule,
-  ],
-  providers: [AccountQueryService, AccountCommandService],
-  controllers: [AccountController],
-  exports: [AccountQueryService, AccountCommandService],
-})
-export class AccountModule {}
+// import { AccountEntity } from './persistances/account.entity';
+// import { AuthModule } from '../auth/auth.module';
+// import { EmployeeEntity } from './persistances/employee.entity';
+// import { OrganizationEntity } from '../organization/persistencies/organization.entity';
+// import { EmployeeOrganizationEntity } from '../authentication/persistances/employee-organization.entity';
+// import { LookupEntity } from '../authentication/persistances/lookup.entity';
+// import { TenantEntity } from '../authentication/persistances/tenant.entity';
+// import { AuthenticationModule } from '../authentication/authentication.module';
+// @Module({
+//   imports: [
+//     TypeOrmModule.forFeature([
+//       AccountEntity,
+//       EmployeeEntity,
+//       OrganizationEntity,
+//       EmployeeOrganizationEntity,
+//       LookupEntity,
+//       TenantEntity,
+//     ]),
+//     forwardRef(() => AuthModule),
+//     AuthenticationModule,
+//   ],
+//   providers: [AccountQueryService, AccountCommandService],
+//   controllers: [AccountController],
+//   exports: [AccountQueryService, AccountCommandService],
+// })
+// export class AccountModule {}

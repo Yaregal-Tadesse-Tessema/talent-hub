@@ -1,18 +1,19 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from '../dto/login.dto';
-import { AccountQueryService } from 'src/modules/account/service/account-query.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SessionEntity } from '../persistances/session.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
+import { TenantDatabaseService } from 'src/modules/authentication/tenant-database.service';
+import { LookupEntity } from 'src/modules/authentication/persistances/lookup.entity';
 @Injectable()
 export class AuthService {
   constructor(
-    private accountQueryService: AccountQueryService,
     private userService: UserService,
     private jwtService: JwtService,
+    private tenantDatabaseService: TenantDatabaseService,
 
     @InjectRepository(SessionEntity)
     private sessionRepository: Repository<SessionEntity>,
@@ -54,16 +55,32 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      organization: account,
+      profile: account,
     };
   }
-  async login({ username, password }: LoginDto) {
-    const user = await this.accountQueryService.getAccountByEmail(username);
-    if (!user)
-      throw new UnauthorizedException(`invalid user name : ${username}`);
-    if (password !== user.password)
+  async login(command: LoginDto) {
+    const publicConnection =
+      await this.tenantDatabaseService.getPublicConnection();
+    const lookupRepository = publicConnection.getRepository(LookupEntity);
+    const lookup = await lookupRepository.findOne({
+      where: [{ phoneNumber: command.username }, { email: command.username }],
+      relations: { employeeOrganization: true },
+    });
+    if (!lookup)
+      throw new UnauthorizedException(
+        `invalid user name : ${command.username}`,
+      );
+    if (command.code) {
+      return await this.generateTokenForEmployee(lookup);
+    }
+
+    if (command.password !== lookup.password)
       throw new UnauthorizedException(`Incorrect Password`);
-    return await this.generateTokenForEmployee(user.organization);
+    if (lookup?.employeeOrganization?.length > 1) {
+      return lookup.employeeOrganization;
+    } else {
+      return await this.generateTokenForEmployee(lookup);
+    }
   }
   async employeeLogin({ username, password }: LoginDto) {
     const employee = await this.userService.getOneByCriteria([

@@ -10,6 +10,12 @@ import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import { TenantEntity } from './modules/authentication/persistances/tenant.entity';
+import { LookupEntity } from './modules/authentication/persistances/lookup.entity';
+import { SessionEntity } from './modules/auth/persistances/session.entity';
+import { EmployeeOrganizationEntity } from './modules/authentication/persistances/employee-organization.entity';
+import { UserEntity } from './modules/user/persistence/users.entity';
+import { AuthenticationModule } from './modules/authentication/authentication.module';
 
 @Module({
   imports: [
@@ -20,8 +26,16 @@ import { NotificationModule } from './modules/notification/notification.module';
       username: 'postgres',
       password: 'timewize@2024',
       database: 'talent_hub',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [
+        TenantEntity,
+        LookupEntity,
+        SessionEntity,
+        EmployeeOrganizationEntity,
+        UserEntity,
+        // AdminUserEntity,
+      ],
       synchronize: true,
+      schema: 'public',
     }),
     EventEmitterModule.forRoot(),
     JwtModule.register({
@@ -36,6 +50,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     ApplicationModule,
     TelegramModule,
     NotificationModule,
+    AuthenticationModule,
   ],
   controllers: [],
   providers: [],

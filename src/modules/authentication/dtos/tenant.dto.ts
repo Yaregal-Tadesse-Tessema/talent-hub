@@ -32,6 +32,10 @@ export class CreateTenantCommand {
   @ApiProperty()
   tin: string;
   @ApiProperty()
+  licenseNumber?: string;
+  @ApiProperty()
+  registrationNumber?: string;
+  @ApiProperty()
   isActive?: boolean;
   @ApiProperty()
   status?: OrganizationStatusEnums;
@@ -64,7 +68,9 @@ export class CreateTenantCommand {
     tenant.subscriptionType = command?.subscriptionType;
     tenant.isVerified = command.isVerified;
     tenant.tin = command.tin;
-    tenant.isActive = command.isActive;
+    tenant.tin = command.tin;
+    tenant.licenseNumber = command.licenseNumber;
+    tenant.registrationNumber = command.registrationNumber;
     tenant.status = command?.status;
     tenant.logo = command.logo;
     tenant.companySize = command.companySize;
@@ -98,6 +104,8 @@ export class TenantResponse extends CreateTenantCommand {
     response.subscriptionType = entity?.subscriptionType;
     response.isVerified = entity.isVerified;
     response.tin = entity.tin;
+    response.licenseNumber = entity.licenseNumber;
+    response.registrationNumber = entity.registrationNumber;
     response.isActive = entity.isActive;
     response.status = entity?.status;
     response.logo = entity.logo;
@@ -129,4 +137,10 @@ export class AddWifiLocation {
   reason: string;
 
   currentUser: any;
+}
+export class CheckOrganizationFromETrade {
+  @ApiProperty()
+  tin: string;
+  @ApiProperty()
+  licenseNumber: string;
 }

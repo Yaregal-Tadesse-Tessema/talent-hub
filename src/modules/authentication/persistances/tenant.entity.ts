@@ -6,7 +6,7 @@ import { EmployeeOrganizationEntity } from "./employee-organization.entity";
 import { CommonEntity } from "src/libs/Common/common-entity";
 
 @Entity({ name: 'tenants' })
-export class TenantEntity  extends CommonEntity{
+export class TenantEntity extends CommonEntity {
   @Column({ nullable: true, name: 'prefix' })
   prefix?: string;
   @Column({ name: 'name' })
@@ -31,6 +31,10 @@ export class TenantEntity  extends CommonEntity{
   isVerified: boolean;
   @Column()
   tin: string;
+  @Column({ nullable: true })
+  licenseNumber: string;
+  @Column({ nullable: true })
+  registrationNumber: string;
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
   @Column({ nullable: true })
@@ -45,13 +49,9 @@ export class TenantEntity  extends CommonEntity{
   organizationType: string;
   @Column({ name: 'selected_calender', default: CalenderTypeEnums.ET })
   selectedCalender: CalenderTypeEnums;
-  @OneToMany(
-    () => EmployeeOrganizationEntity,
-    (lookUp) => lookUp.tenant,
-    {
-      cascade: true,
-      onDelete: 'CASCADE',
-    },
-  )
+  @OneToMany(() => EmployeeOrganizationEntity, (lookUp) => lookUp.tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   organizationEmployees: EmployeeOrganizationEntity[];
 }

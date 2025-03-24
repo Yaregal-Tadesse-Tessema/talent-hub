@@ -13,14 +13,12 @@ import { CommonCrudController } from 'src/libs/Common/common-services/common.con
 import { ApplicationEntity } from '../persistences/application.entity';
 import { ApplicationService } from '../usecase/application.usecase.service';
 import { CreateApplicationCommand } from '../usecase/application.command';
-import { UpdateAccountCommand } from 'src/modules/account/dtos/command.dto/account.dto';
 import { ApplicationResponse } from '../usecase/application.response';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 
 const options: EntityCrudOptions = {
   createDto: CreateApplicationCommand,
-  updateDto: UpdateAccountCommand,
   responseFormat: ApplicationResponse,
 };
 @Controller('applications')

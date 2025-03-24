@@ -1,11 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { forwardRef, Global, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmployeeEntity } from '../account/persistances/employee.entity';
-import { AccountEntity } from '../account/persistances/account.entity';
 import { SessionEntity } from './persistances/session.entity';
 import { PassportModule } from '@nestjs/passport';
-import { AccountModule } from '../account/account.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './services/auth.service';
 import { RefreshTokenStrategy } from './refreshToken.strategy';
@@ -14,18 +11,14 @@ import { AuthController } from './controllers/auth.controller';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/usecase/user.usecase.service';
 import { UserEntity } from '../user/persistence/users.entity';
+import { AuthenticationModule } from '../authentication/authentication.module';
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      EmployeeEntity,
-      AccountEntity,
-      SessionEntity,
-      UserEntity,
-    ]),
+    TypeOrmModule.forFeature([SessionEntity, UserEntity]),
     PassportModule,
     UserModule,
-    forwardRef(() => AccountModule),
+    AuthenticationModule,
     JwtModule.register({
       global: true,
       secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',

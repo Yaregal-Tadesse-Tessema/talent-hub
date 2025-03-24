@@ -10,6 +10,8 @@ export class LoginDto {
   @ApiProperty()
   @IsNotEmpty()
   password: string;
+  @ApiProperty()
+  code?: string;
 }
 export class LogoutDto {
   @ApiProperty()

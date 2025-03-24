@@ -11,12 +11,16 @@ import { LookupController } from './controller/lookup.controller';
 import { EmployeeOrganizationController } from './controller/employee-organization.controller';
 import { LookupEntity } from './persistances/lookup.entity';
 import { TenantDatabaseService } from './tenant-database.service';
+import { AdminUserEntity } from './persistances/admin-user.entity';
+import { AdminUserService } from './services/admin-user.service';
+import { AdminUserController } from './controller/admin-user.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       TenantEntity,
       LookupEntity,
       EmployeeOrganizationEntity,
+      AdminUserEntity,
     ]),
   ],
   providers: [
@@ -24,12 +28,14 @@ import { TenantDatabaseService } from './tenant-database.service';
     LookupService,
     EmployeeOrganizationService,
     TenantDatabaseService,
+    AdminUserService,
   ],
   controllers: [
     TenantController,
     LookupController,
     EmployeeOrganizationController,
+    AdminUserController,
   ],
-  exports: [TenantService],
+  exports: [TenantService, TenantDatabaseService],
 })
 export class AuthenticationModule {}

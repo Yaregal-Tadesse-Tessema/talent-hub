@@ -9,6 +9,7 @@ import { TenantEntity } from './persistances/tenant.entity';
 import { EmployeeOrganizationEntity } from './persistances/employee-organization.entity';
 import { ApplicationEntity } from '../application/persistences/application.entity';
 import { LookupEntity } from './persistances/lookup.entity';
+import { UserEntity } from '../user/persistence/users.entity';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -47,6 +48,7 @@ export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
         TenantEntity,
         LookupEntity,
         EmployeeOrganizationEntity,
+        UserEntity,
       ],
       synchronize:
         process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,

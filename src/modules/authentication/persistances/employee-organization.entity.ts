@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from "src/libs/Common/common-entity";
-import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
-import { TenantEntity } from "./tenant.entity";
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
+import { TenantEntity } from './tenant.entity';
 import { LookupEntity } from './lookup.entity';
 
 @Entity({ name: 'employee_organizations' })
+@Unique(['tenantId', 'lookupId'])
 export class EmployeeOrganizationEntity extends CommonEntity {
   @Column({ name: 'tenant_id' })
   tenantId: string;

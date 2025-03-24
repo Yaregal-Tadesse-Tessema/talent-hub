@@ -7,9 +7,9 @@ import { LookupEntity } from '../persistances/lookup.entity';
 export class CreateLookupCommand {
   id?: string;
   @ApiProperty()
-  firstName: string;
+  firstName?: string;
   @ApiProperty()
-  middleName: string;
+  middleName?: string;
   @ApiProperty()
   lastName?: string;
   @ApiProperty()
