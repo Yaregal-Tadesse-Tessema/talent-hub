@@ -81,6 +81,8 @@ export class JobPostingResponse {
   @ApiProperty({ type: () => [ApplicationResponse] })
   preScreeningQuestions: PreScreeningQuestionResponse[];
   @ApiProperty()
+  positions: number;
+  @ApiProperty()
   isSaved: boolean;
   @ApiProperty()
   positions: number;

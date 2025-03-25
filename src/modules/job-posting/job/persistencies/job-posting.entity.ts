@@ -73,6 +73,8 @@ export class JobPostingEntity extends CommonEntity {
   howToApply: string;
   @Column({ nullable: true })
   onHoldDate: Date;
+  @Column({ default: 1 })
+  positions: number;
   @Column({ default: 0 })
   applicationCount: number;
   @Column('text', { array: true, nullable: true })
