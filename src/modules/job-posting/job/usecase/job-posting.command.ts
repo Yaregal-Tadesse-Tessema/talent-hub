@@ -71,6 +71,8 @@ export class CreateJobPostingCommand {
   onHoldDate: Date;
   @ApiProperty()
   jobPostRequirement: string[];
+  @ApiProperty()
+  positions: number;
   currentUser?: any;
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
     const entity = new JobPostingEntity();
@@ -106,6 +108,7 @@ export class CreateJobPostingCommand {
     entity.howToApply = dto?.howToApply;
     entity.onHoldDate = dto?.onHoldDate;
     entity.jobPostRequirement = dto?.jobPostRequirement;
+    entity.positions = dto?.positions;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

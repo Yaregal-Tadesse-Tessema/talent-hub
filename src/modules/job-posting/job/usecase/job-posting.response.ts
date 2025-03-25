@@ -82,7 +82,8 @@ export class JobPostingResponse {
   preScreeningQuestions: PreScreeningQuestionResponse[];
   @ApiProperty()
   isSaved: boolean;
-
+  @ApiProperty()
+  positions: number;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -118,6 +119,7 @@ export class JobPostingResponse {
     response.onHoldDate = entity?.onHoldDate;
     response.jobPostRequirement = entity?.jobPostRequirement;
     response.applicationCount = entity?.applicationCount;
+    response.positions = entity?.positions;
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),
