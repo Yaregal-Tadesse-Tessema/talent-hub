@@ -83,6 +83,16 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       throw error;
     }
   }
+  async isJobSaved(savedUsers: any, currentUserId: string) {
+    if (savedUsers?.length > 0) {
+      const userExists = savedUsers.some(
+        (user) => user.userId === currentUserId,
+      );
+      const isSaved = userExists ? true : false;
+      return isSaved;
+    }
+    return false;
+  }
   async changeJobPostStatus(
     command: ChangeJobPostStatusCommand,
   ): Promise<JobPostingResponse> {
@@ -149,7 +159,9 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
         query,
       );
       const skills = userInfo.skills;
-      dataQuery.andWhere('skill && :skills', { skills });
+      if (skills) {
+        dataQuery.andWhere('skill && :skills', { skills });
+      }
       const [items, total] = await dataQuery.getManyAndCount();
       const data = items.map((item) => {
         let isSaved = false;

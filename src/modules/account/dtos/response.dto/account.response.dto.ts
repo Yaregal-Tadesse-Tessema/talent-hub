@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
-import { Account } from '../../domain/account';
+import { IsNotEmpty } from 'class-validator';
 import { AccountEntity } from '../../persistances/account.entity';
 import { OrganizationResponse } from 'src/modules/organization/usecase/organization.response';
 
@@ -39,7 +38,6 @@ export class AccountResponse {
   @IsNotEmpty()
   phone: string;
 
-  
   @ApiProperty()
   organization: OrganizationResponse;
 
@@ -57,12 +55,14 @@ export class AccountResponse {
     accountResponse.updatedBy = accountEntity?.updatedBy;
     accountResponse.deletedAt = accountEntity?.deletedAt;
     accountResponse.deletedBy = accountEntity?.deletedBy;
-    if(accountEntity?.organization){
-      accountResponse.organization=OrganizationResponse.toResponse(accountEntity.organization)
+    if (accountEntity?.organization) {
+      accountResponse.organization = OrganizationResponse.toResponse(
+        accountEntity.organization,
+      );
     }
     return accountResponse;
   }
-  static fromDomain(userAccount: Account): AccountResponse {
+  static fromDomain(userAccount: AccountEntity): AccountResponse {
     const accountResponse: AccountResponse = new AccountResponse();
     accountResponse.id = userAccount.id;
     // accountResponse.userId = userAccount.userId;
