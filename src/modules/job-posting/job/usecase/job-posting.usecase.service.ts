@@ -23,18 +23,21 @@ import { QueryConstructor } from 'src/libs/Common/collection-query/query-constru
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   constructor(
     @InjectRepository(JobPostingEntity)
-    private readonly jobPostingRepository: Repository<JobPostingEntity>,
+    private readonly jobPostingsRepository: Repository<JobPostingEntity>,
+    private readonly jobPostingRepository: JobPostingService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jobRequirementService: JobRequirementService,
     @Inject(forwardRef(() => TelegramBotService))
     private readonly telegramBotService: TelegramBotService,
+    @Inject(REQUEST) request?: Request,
   ) {
-    super(jobPostingRepository);
+    super(jobPostingsRepository, request);
   }
 
   async createJobPosting(command: CreateJobPostingCommand) {
@@ -52,7 +55,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     command.requirementId = jobRequirementResult.id;
 
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
-    return await this.jobPostingRepository.save(jobPostingEntity);
+    return await this.create(jobPostingEntity);
   }
 
   async getJobPostings(
@@ -62,7 +65,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     try {
       query.includes.push('savedUsers');
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        this.jobPostingRepository,
+        this.jobPostingsRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
@@ -95,7 +98,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
           `Job post with Id ${command.id} is not Found`,
         );
       jobPostDomain.status = command.status;
-      const response = await this.jobPostingRepository.save(jobPostDomain);
+      const response = await this.jobPostingsRepository.save(jobPostDomain);
       if (command.status === JobPostingStatusEnums.POSTED) {
         const eligibleUsers = await this.getEligibleUsersForTheJobPost(
           response.skill,
@@ -145,7 +148,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     try {
       query.includes.push('savedUsers');
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        this.jobPostingRepository,
+        this.jobPostingsRepository,
         query,
       );
       const skills = userInfo.skills;

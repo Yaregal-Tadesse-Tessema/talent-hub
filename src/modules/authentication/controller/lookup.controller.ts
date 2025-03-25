@@ -1,30 +1,25 @@
 /* eslint-disable prettier/prettier */
-import { Controller } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { LookupService } from '../services/look-up.service';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
-import { LookupEntity } from '../persistances/lookup.entity';
-import {
-  CreateLookupCommand,
-  LookupResponse,
-  UpdateLookupCommand,
-} from '../dtos/lookup.dto';
-const options: EntityCrudOptions = {
-  createDto: CreateLookupCommand,
-  updateDto: UpdateLookupCommand,
-  responseFormat: LookupResponse,
-};
+import { LookupResponse } from '../dtos/lookup.dto';
+
 @Controller('lookups')
 @ApiTags('lookups')
 @ApiExtraModels(DataResponseFormat)
 @AllowAnonymous()
-export class LookupController extends CommonCrudController<LookupEntity>(
-  options,
-) {
-  constructor(private readonly lookupService: LookupService) {
-    super(lookupService);
+export class LookupController {
+  constructor(private readonly lookupService: LookupService) {}
+  @Get()
+  @ApiOkResponse({ type: LookupResponse })
+  async getAll() {
+    return await this.lookupService.getAll();
+  }
+  @Get('/:id')
+  @ApiOkResponse({ type: LookupResponse })
+  async getOne(@Param('id') id: string) {
+    return await this.lookupService.getById(id);
   }
 }

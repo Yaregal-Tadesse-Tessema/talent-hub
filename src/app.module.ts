@@ -16,30 +16,32 @@ import { SessionEntity } from './modules/auth/persistances/session.entity';
 import { EmployeeOrganizationEntity } from './modules/authentication/persistances/employee-organization.entity';
 import { UserEntity } from './modules/user/persistence/users.entity';
 import { AuthenticationModule } from './modules/authentication/authentication.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { SchemaAddInterceptor } from './libs/Common/interceptors/Schema-setup';
+import { TenantDatabaseService } from './modules/authentication/tenant-database.service';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '196.188.249.24',
-      port: 5432,
-      username: 'postgres',
-      password: 'timewize@2024',
-      database: 'talent_hub',
+      host: process.env.PUBLIC_DATABASE_HOST,
+      port: +process.env.PUBLIC_DATABASE_PORT,
+      username: process.env.PUBLIC_DATABASE_USERNAME,
+      password: process.env.PUBLIC_DATABASE_PASSWORD,
+      database: process.env.PUBLIC_DATABASE_Name,
       entities: [
         TenantEntity,
         LookupEntity,
         SessionEntity,
         EmployeeOrganizationEntity,
         UserEntity,
-        // AdminUserEntity,
       ],
       synchronize: true,
       schema: 'public',
     }),
     EventEmitterModule.forRoot(),
     JwtModule.register({
-      secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',
+      secret: process.env.TOKEN_SECRET_KEY,
       signOptions: { expiresIn: '1h' },
     }),
     // AccountModule,
@@ -53,6 +55,13 @@ import { AuthenticationModule } from './modules/authentication/authentication.mo
     AuthenticationModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    TenantDatabaseService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SchemaAddInterceptor,
+    },
+  ],
+  exports: [TenantDatabaseService],
 })
 export class AppModule {}

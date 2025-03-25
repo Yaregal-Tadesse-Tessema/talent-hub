@@ -17,9 +17,9 @@ export class TenantEntity extends CommonEntity {
   type: string;
   @Column({ name: 'trade_name', nullable: true })
   tradeName: string;
-  @Column({ name: 'email' })
+  @Column({ name: 'email', nullable: true })
   email: string;
-  @Column({ name: 'code', nullable: true })
+  @Column({ name: 'code', nullable: false })
   code: string;
   @Column({ name: 'phone_number' })
   phoneNumber: string;

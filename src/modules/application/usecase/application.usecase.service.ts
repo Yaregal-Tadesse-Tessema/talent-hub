@@ -15,6 +15,7 @@ import { ApplicationResponse } from './application.response';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
+import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class ApplicationService extends CommonCrudService<ApplicationEntity> {
   constructor(
@@ -23,8 +24,9 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     @Inject(forwardRef(() => JobPostingService))
     private jobPostingService: JobPostingService,
     private readonly fileService: FileService,
+    @Inject(REQUEST) request?: Request,
   ) {
-    super(applicationRepository);
+    super(applicationRepository, request);
   }
 
   async createApplication(

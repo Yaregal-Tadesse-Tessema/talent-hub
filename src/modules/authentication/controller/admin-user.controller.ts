@@ -17,10 +17,6 @@ const options: EntityCrudOptions = {
 @ApiTags('admin-users')
 @ApiExtraModels(DataResponseFormat)
 @AllowAnonymous()
-export class AdminUserController extends CommonCrudController<AdminUserEntity>(
-  options,
-) {
-  constructor(private readonly adminUserService: AdminUserService) {
-    super(adminUserService);
-  }
+export class AdminUserController {
+  constructor(private readonly adminUserService: AdminUserService) {}
 }

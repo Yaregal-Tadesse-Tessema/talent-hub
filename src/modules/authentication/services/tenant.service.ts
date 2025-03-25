@@ -19,7 +19,9 @@ import { TenantSubscriptionType, UserStatusEnums } from '../constants';
 import { CreateLookupCommand } from '../dtos/lookup.dto';
 import { CreateEmployeeOrganizationCommand } from '../dtos/employee-organization';
 import axios from 'axios';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
+import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 @Injectable()
 export class TenantService {
   constructor(private tenantDatabaseService: TenantDatabaseService) {}
@@ -173,13 +175,7 @@ export class TenantService {
   }
   async registerOrganizationWithETrade(
     command: CheckOrganizationFromETrade,
-  ): Promise<{
-    status: string;
-    data: any;
-    result: any;
-    account: any;
-    message: any;
-  }> {
+  ): Promise<any> {
     try {
       const publicConnection =
         await this.tenantDatabaseService.getPublicConnection();
@@ -223,10 +219,10 @@ export class TenantService {
         licenseNumber: command.licenseNumber,
         registrationNumber: registrationNumber,
         email: licenseInformation.data.email,
-        phoneNumber: licenseInformation.data[0].phone,
+        phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
       };
 
-      const tenantEntity = await tenantRepository.save(createCommand);
+      const tenantEntity = await this.createTenant(createCommand);
       const lookupCommand: CreateLookupCommand = {
         email: tenantEntity?.email,
         phoneNumber: tenantEntity.phoneNumber,
@@ -247,14 +243,9 @@ export class TenantService {
       const employeeORganizationEntity =
         await employeeOrganizationRepository.save(employeeoRganizationCommand);
       return {
-        status: AccountStatusEnums.ACTIVE,
-        data: {
-          tenantEntity,
-          lookupEntity,
-          employeeORganizationEntity,
-        },
-        result: tenantEntity,
-        account: lookupEntity,
+        tenantEntity,
+        lookupEntity,
+        employeeORganizationEntity,
         message: `One time password is sent to the phone Numner ${
           licenseInformation.data?.AddressInfo.MobilePhone
         }`,
@@ -313,5 +304,33 @@ export class TenantService {
         'Unable to verify Business License. Please try again',
       );
     }
+  }
+  async getTenant(id: string) {
+    const publicConnection =
+      await this.tenantDatabaseService.getPublicConnection();
+    const tenantRepository = publicConnection.getRepository(TenantEntity);
+    return await tenantRepository.find({
+      where: { id: id },
+      relations: { organizationEmployees: true },
+    });
+  }
+  async getTenants(query: CollectionQuery) {
+    const publicConnection =
+      await this.tenantDatabaseService.getPublicConnection();
+    const tenantRepository = publicConnection.getRepository(TenantEntity);
+    const dataQuery = QueryConstructor.constructQuery<TenantEntity>(
+      tenantRepository,
+      query,
+    );
+
+    const response = new DataResponseFormat<TenantResponse>();
+    if (query.count) {
+      response.total = await dataQuery.getCount();
+    } else {
+      const [result, total] = await dataQuery.getManyAndCount();
+      response.total = total;
+      response.items = result;
+    }
+    return response;
   }
 }

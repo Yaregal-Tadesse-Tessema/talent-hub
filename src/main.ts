@@ -29,8 +29,8 @@ async function bootstrap() {
       scheme: 'basic',
     })
     .addBearerAuth()
-    .setTitle('TH APIs')
-    .setDescription('LM API Documentation')
+    .setTitle('TAS APIs')
+    .setDescription('TAS API Documentation')
     .setVersion('1.0')
     .setContact(
       'Elit Talent Plc',

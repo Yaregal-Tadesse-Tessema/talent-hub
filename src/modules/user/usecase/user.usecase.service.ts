@@ -1,19 +1,21 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
 import { UserEntity } from '../persistence/users.entity';
 import { FileService } from 'src/modules/file/services/file.service';
 import { UserResponse } from './user.response';
+import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly fileService: FileService,
+    @Inject(REQUEST) request?: Request,
   ) {
-    super(userRepository);
+    super(userRepository, request);
   }
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
     const user = await this.userRepository.findOne({ where: { id } });

@@ -14,6 +14,7 @@ import { TenantDatabaseService } from './tenant-database.service';
 import { AdminUserEntity } from './persistances/admin-user.entity';
 import { AdminUserService } from './services/admin-user.service';
 import { AdminUserController } from './controller/admin-user.controller';
+import { TenantManagerService } from './tenant-manager.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,6 +29,7 @@ import { AdminUserController } from './controller/admin-user.controller';
     LookupService,
     EmployeeOrganizationService,
     TenantDatabaseService,
+    TenantManagerService,
     AdminUserService,
   ],
   controllers: [

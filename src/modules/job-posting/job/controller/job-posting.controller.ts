@@ -43,7 +43,6 @@ export class JobPostingController extends CommonCrudController<JobPostingEntity>
   }
   @Post('create-job-posting')
   async createJobPosting(@Body() command: CreateJobPostingCommand) {
-    command.currentUser = userInfo;
     const result = await this.jobPostingService.createJobPosting(command);
     return result;
   }

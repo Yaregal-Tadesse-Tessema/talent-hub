@@ -60,7 +60,6 @@ export class LookupResponse {
     response.firstName = entity.firstName;
     response.middleName = entity.middleName;
     response.lastName = entity.lastName;
-    response.password = entity.password;
     response.email = entity.email;
     response.phoneNumber = entity.phoneNumber;
     response.status = entity?.status;

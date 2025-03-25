@@ -79,8 +79,6 @@ export class JobPostingEntity extends CommonEntity {
   applicationCount: number;
   @Column('text', { array: true, nullable: true })
   jobPostRequirement: string[];
-  @Column({ default: 0 })
-  positions: number;
   @ManyToOne(
     () => JobRequirementEntity,
     (institutionEntity) => institutionEntity.jobPostings,

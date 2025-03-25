@@ -1,5 +1,10 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Global,
+  Injectable,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
 import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
@@ -10,6 +15,8 @@ import { EmployeeOrganizationEntity } from './persistances/employee-organization
 import { ApplicationEntity } from '../application/persistences/application.entity';
 import { LookupEntity } from './persistances/lookup.entity';
 import { UserEntity } from '../user/persistence/users.entity';
+import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
+import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -26,7 +33,13 @@ export class TenantDatabaseService implements OnModuleInit, OnModuleDestroy {
       password: process.env.PUBLIC_DATABASE_PASSWORD,
       database: process.env.PUBLIC_DATABASE_Name,
       schema: tenantSchema,
-      entities: [JobPostingEntity, JobRequirementEntity, ApplicationEntity],
+      entities: [
+        JobPostingEntity,
+        JobRequirementEntity,
+        ApplicationEntity,
+        SaveJobEntity,
+        PreScreeningQuestionEntity,
+      ],
       synchronize:
         process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
     });

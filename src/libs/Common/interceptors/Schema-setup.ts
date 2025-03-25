@@ -16,20 +16,18 @@ export const ORGANIZATION_NAME = 'ORGANIZATION_NAME';
 @Injectable()
 export class SchemaAddInterceptor implements NestInterceptor {
   constructor(private readonly tenantDatabaseService: TenantDatabaseService) {}
-
   async intercept(
     context: ExecutionContext,
     next: CallHandler<any>,
   ): Promise<any> {
-    const result = await next.handle();
     const req = context.switchToHttp().getRequest<Request>();
     const token = req.headers.authorization?.split(' ')[1];
     let schema: string = '';
     if (token) {
       try {
         const decodedToken: any = jwt.decode(token);
-        schema = decodedToken?.organizationSchemaName;
-        req[TENANT_ID] = Number(decodedToken.organizationId);
+        schema = decodedToken?.tenantSchema;
+        req[TENANT_ID] = Number(decodedToken.tenantId);
         req[ORGANIZATION_NAME] = schema;
       } catch (error) {
         console.error('Error decoding token:', error);
@@ -42,8 +40,8 @@ export class SchemaAddInterceptor implements NestInterceptor {
         await this.tenantDatabaseService.getPublicConnection();
       req[CONNECTION_KEY] = connection;
       req[PUBLIC_CONNECTION_KEY] = publicConnection;
+      console.log('Added connection to request:', connection.options.database);
     }
-
-    return result;
+    return next.handle();
   }
 }

@@ -15,8 +15,10 @@ import { REQUEST } from '@nestjs/core';
 export class CommonCrudService<T extends ObjectLiteral> {
   constructor(
     private readonly repository: Repository<T>,
-    @Inject(REQUEST) private request?: Request,
-  ) {}
+    @Inject(REQUEST) private request: Request,
+  ) {
+    console.log('🟢 Request inside CommonCrudService:', this.request);
+  }
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
     try {
       const connection: DataSource = await this.request['CONNECTION_KEY'];
@@ -32,12 +34,10 @@ export class CommonCrudService<T extends ObjectLiteral> {
       throw error;
     }
   }
-
   async findAll(query: CollectionQuery) {
     const connection: DataSource = await this.request['CONNECTION_KEY'];
     const repository = connection.getRepository(this.repository.target);
     const dataQuery = QueryConstructor.constructQuery<T>(repository, query);
-
     const response = new DataResponseFormat<T>();
     if (query.count) {
       response.total = await dataQuery.getCount();
@@ -48,7 +48,6 @@ export class CommonCrudService<T extends ObjectLiteral> {
     }
     return response;
   }
-
   async findOne(
     id: any,
     relations = [],

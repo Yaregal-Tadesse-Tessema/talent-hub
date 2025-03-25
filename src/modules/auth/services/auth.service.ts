@@ -8,6 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { TenantDatabaseService } from 'src/modules/authentication/tenant-database.service';
 import { LookupEntity } from 'src/modules/authentication/persistances/lookup.entity';
+import { TenantEntity } from 'src/modules/authentication/persistances/tenant.entity';
 @Injectable()
 export class AuthService {
   constructor(
@@ -25,6 +26,9 @@ export class AuthService {
           name: account?.userName,
           email: account?.email,
           organizationId: account?.organizationId,
+          tenantSchema: account?.tenant.schemaName,
+          tenantId: account?.tenant.id,
+          tenantName: account?.tenant.name,
           phone: account?.phone,
           status: account?.status,
           skills: account?.skills,
@@ -62,16 +66,20 @@ export class AuthService {
     const publicConnection =
       await this.tenantDatabaseService.getPublicConnection();
     const lookupRepository = publicConnection.getRepository(LookupEntity);
+    const tenantRepository = publicConnection.getRepository(TenantEntity);
     const lookup = await lookupRepository.findOne({
       where: [{ phoneNumber: command.username }, { email: command.username }],
-      relations: { employeeOrganization: true },
+      relations: { employeeOrganization: { tenant: true } },
     });
     if (!lookup)
       throw new UnauthorizedException(
         `invalid user name : ${command.username}`,
       );
     if (command.code) {
-      return await this.generateTokenForEmployee(lookup);
+      const tenant = await tenantRepository.findOne({
+        where: { code: command.code },
+      });
+      return await this.generateTokenForEmployee({ ...lookup, tenant });
     }
 
     if (command.password !== lookup.password)
@@ -79,7 +87,8 @@ export class AuthService {
     if (lookup?.employeeOrganization?.length > 1) {
       return lookup.employeeOrganization;
     } else {
-      return await this.generateTokenForEmployee(lookup);
+      const tenant = lookup.employeeOrganization[0].tenant;
+      return await this.generateTokenForEmployee({ ...lookup, tenant });
     }
   }
   async employeeLogin({ username, password }: LoginDto) {
