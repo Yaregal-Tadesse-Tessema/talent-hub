@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  BadRequestException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -7,22 +8,26 @@ import {
 } from '@nestjs/common';
 import { FileDto } from '../dtos/command/fileUploadDto';
 import * as Minio from 'minio';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import * as sharp from 'sharp';
 import * as fs from 'node:fs/promises';
 import * as path from 'path';
 import * as os from 'os';
 import * as dotenv from 'dotenv';
 import * as process from 'node:process';
-
-dotenv.config({ path: '.env' }); 
-
+import * as fas from 'fs';
+import * as util from 'util';
+import * as libreConvert from 'libreoffice-convert';
+import { promisify } from 'node:util';
+dotenv.config({ path: '.env' });
+import * as docxConverter from 'docx-pdf';
+const convert = promisify(docxConverter);
 @Injectable()
 export class FileService {
   private readonly bucketName: string;
   private readonly minioClient: Minio.Client;
   private storage: Storage;
-
+  private readonly convertAsync = util.promisify(libreConvert.convert);
   constructor() {
     this.bucketName = process.env.MINIO_BUCKET_NAME;
     this.minioClient = new Minio.Client({
@@ -33,46 +38,6 @@ export class FileService {
       secretKey: process.env.MINIO_SECRET_KEY,
     });
   }
-  // async uploadBucketFile(
-  //   file: Express.Multer.File,
-  //   fileId: string,
-  // ): Promise<FileDto> {
-  //   // const fileName = file.originalname;
-  //   const fileName = fileId;
-  //   const mimetype = file.mimetype;
-  //   const origionalName = file.originalname;
-  //   const size = file.size;
-
-  //   const bucket = this.storage.bucket(this.bucketName);
-  //   const blob = bucket.file(fileName);
-
-  //   const blobStream = blob.createWriteStream({
-  //     resumable: true,
-  //     contentType: file.mimetype,
-  //   });
-
-  //   const res = await new Promise<string>((resolve, reject) => {
-  //     blobStream.on('finish', () => {
-  //       const publicUrl = `https://storage.googleapis.com/${this.bucketName}/${blob.name}`;
-  //       resolve(publicUrl);
-  //     });
-
-  //     blobStream.on('error', (err) => {
-  //       reject(`Unable to upload file: ${err.message}`);
-  //     });
-
-  //     blobStream.end(file.buffer);
-  //   });
-  //   const response: FileDto = {
-  //     filename: fileId,
-  //     mimetype: mimetype,
-  //     originalname: origionalName,
-  //     path: res,
-  //     bucketName: this.bucketName,
-  //     size: size,
-  //   };
-  //   return response;
-  // }
   async uploadAttachment(
     fileId: string,
     file: Express.Multer.File,
@@ -327,6 +292,59 @@ export class FileService {
     } catch (err) {
       console.error(err);
       throw new Error('Error processing file upload');
+    }
+  }
+  async enforceA4Size(pdfBuffer: Buffer): Promise<Buffer> {
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const A4_WIDTH = 595.28; // A4 width in points
+    const A4_HEIGHT = 841.89; // A4 height in points
+
+    pdfDoc.getPages().forEach((page) => {
+      page.setSize(A4_WIDTH, A4_HEIGHT);
+    });
+
+    return Buffer.from(await pdfDoc.save());
+  }
+  async convertWordToPdf(
+    file: Express.Multer.File,
+  ): Promise<Express.Multer.File> {
+    if (!file) {
+      throw new BadRequestException('No file uploaded.');
+    }
+
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (!['.doc', '.docx'].includes(ext)) {
+      throw new BadRequestException('Only DOC and DOCX files are supported.');
+    }
+
+    try {
+      // Create temporary file paths
+      const inputPath = path.join(__dirname, `temp-${Date.now()}.docx`);
+      const outputPath = inputPath.replace(/\.docx?$/, '.pdf');
+
+      // Save the uploaded file temporarily
+      fas.writeFileSync(inputPath, file.buffer);
+
+      // Convert DOCX to PDF
+      await convert(inputPath, outputPath);
+
+      // Read the converted PDF
+      const pdfBuffer = fas.readFileSync(outputPath);
+      const modifiedPdfBuffer = await this.enforceA4Size(pdfBuffer);
+      // Clean up temporary files
+      fas.unlinkSync(inputPath);
+      fas.unlinkSync(outputPath);
+
+      // Return the PDF file in Multer format
+      return {
+        ...file,
+        originalname: file.originalname.replace(/\.(doc|docx)$/, '.pdf'),
+        mimetype: 'application/pdf',
+        buffer: modifiedPdfBuffer,
+        size: modifiedPdfBuffer.length,
+      };
+    } catch (error) {
+      throw new BadRequestException(`Conversion failed: ${error.message}`);
     }
   }
 }

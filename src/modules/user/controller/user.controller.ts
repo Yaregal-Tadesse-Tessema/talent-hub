@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  BadRequestException,
   Controller,
   Get,
   Param,
@@ -31,16 +32,47 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
   constructor(private readonly userService: UserService) {
     super(userService);
   }
+  @Post('upload-resume/:userId')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 20 * 1024 * 1024 },
+      fileFilter: (req, file, cb) => {
+        if (
+          !file.mimetype.match(
+            /\/(pdf|msword|vnd.openxmlformats-officedocument.wordprocessingml.document)$/,
+          )
+        ) {
+          return cb(
+            new BadRequestException('Only PDF and Word documents are allowed!'),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadResume(
+    @Param('userId') userId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const result = await this.userService.uploadResumeByUserId(file, userId);
+    return result;
+  }
   @Post('upload-profile/:userId')
   @UseInterceptors(FileInterceptor('file'))
-  async createJobPosting(
+  async uploadProfilePicture(
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     const result = await this.userService.uploadProfile(file, userId);
     return result;
   }
-
+  @Post('convert-word-to-pdf')
+  @UseInterceptors(FileInterceptor('file'))
+  async convertWordToPdf(@UploadedFile() file: Express.Multer.File) {
+    const result = await this.userService.convertWordToPdf(file);
+    return result;
+  }
   @Get('get-profile-completeness/:userId')
   async getProfileCompleteness(@Param('userId') userId: string) {
     const result = await this.userService.getProfileCompleteness(userId);

@@ -6,6 +6,7 @@ import { CommonCrudService } from 'src/libs/Common/common-services/common.servic
 import { UserEntity } from '../persistence/users.entity';
 import { FileService } from 'src/modules/file/services/file.service';
 import { UserResponse } from './user.response';
+import * as path from 'path';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -61,16 +62,44 @@ export class UserService extends CommonCrudService<UserEntity> {
 
     return { percentage };
   }
-  async uploadProfile(file: Express.Multer.File, userId: string) {
+  async uploadResumeByUserId(file: Express.Multer.File, userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user.resume) {
       const res = await this.fileService.deleteBucketFile(user.resume.path);
     }
+
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+
+    // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext == '.doc' || ext == '.docx') {
+      // file = await this.fileService.convertWordToPdf(file);
+      // const res = await this.fileService.uploadAttachment(fileId, filed);
+    }
     const fileName = file.originalname;
     const fileId = `${userId}/${randomNumber}_${fileName}`;
+    const res = await this.fileService.uploadAttachment(fileId, file);
+    if (!res) throw new BadRequestException('file upload failed');
+    user.resume = res;
+    const response = await this.userRepository.save(user);
+    return UserResponse.toResponse(response);
+  }
+
+  async uploadProfile(file: Express.Multer.File, userId: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user)
+      throw new BadRequestException(`User with id ${userId} doesn't exist`);
+    if (user.profile) {
+      const res = await this.fileService.deleteBucketFile(
+        user.profile.filename,
+      );
+    }
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    const fileName = file.originalname;
+    const fileId = `${userId}/Profile/${randomNumber}_${fileName}`;
+    // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
     const res = await this.fileService.uploadAttachment(fileId, file);
     if (!res) throw new BadRequestException('file upload failed');
     user.profile = res;
@@ -94,5 +123,10 @@ export class UserService extends CommonCrudService<UserEntity> {
     user.resume = res;
     const response = await this.userRepository.save(user);
     return UserResponse.toResponse(response);
+  }
+  async convertWordToPdf(file: Express.Multer.File) {
+    const res = await this.fileService.convertWordToPdf(file);
+    if (!res) throw new BadRequestException('file upload failed');
+    return res;
   }
 }
