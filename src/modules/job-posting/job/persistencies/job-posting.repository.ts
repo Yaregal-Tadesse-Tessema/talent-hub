@@ -1,41 +1,33 @@
 /* eslint-disable prettier/prettier */
 import {
-  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
-import {
-  ChangeJobPostStatusCommand,
-  CreateJobPostingCommand,
-  JobPostTelegramNotificationCommand,
-} from './job-posting.command';
+import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
+
+import { JobRequirementService } from '../../job-requirement/usecase/job-requirement.usecase.service';
 import { CreateJobRequirementCommand } from '../../job-requirement/usecase/job-requirement.command';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { JobPostingResponse } from './job-posting.response';
 import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
-import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
-import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { REQUEST } from '@nestjs/core';
-import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
-import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
+import { ChangeJobPostStatusCommand, CreateJobPostingCommand, JobPostTelegramNotificationCommand } from '../usecase/job-posting.command';
+import { JobPostingResponse } from '../usecase/job-posting.response';
 @Injectable()
-export class JobPostingService {
+export class JobPostingRepository extends CommonCrudService<JobPostingEntity> {
   constructor(
-    private readonly jobPostingRepository: CommonCrudService<JobPostingEntity>,
-    private readonly jobRequirementRepository: CommonCrudService<JobRequirementEntity>,
-    @Inject(REQUEST) private request: Request,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    // private readonly jobRequirementService: JobRequirementService,
-    @Inject(forwardRef(() => TelegramBotService))
-    private readonly telegramBotService: TelegramBotService,
-  ) {}
+    @InjectRepository(JobPostingEntity)
+    private readonly jobPostingsRepository: Repository<JobPostingEntity>,
+    private readonly jobRequirementService: JobRequirementService,
+    @Inject(REQUEST) request: Request,
+  ) {
+    super(jobPostingsRepository, request);
+  }
 
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobRequirementCommand: CreateJobRequirementCommand = {
@@ -48,11 +40,11 @@ export class JobPostingService {
       jobRequirementCommand,
     );
     const jobRequirementResult =
-      await this.jobRequirementRepository.create(jobRequirementEntity);
+      await this.jobRequirementService.create(jobRequirementEntity);
     command.requirementId = jobRequirementResult.id;
 
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
-    return await this.jobPostingRepository.create(jobPostingEntity);
+    return await this.create(jobPostingEntity);
   }
 
   async getJobPostings(
@@ -61,11 +53,8 @@ export class JobPostingService {
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
       query.includes.push('savedUsers');
-      // temporary to be moved to the base repository
-      const connection: DataSource = await this.request['CONNECTION_KEY'];
-      const jobPostingRepository = connection.getRepository(JobPostingEntity);
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        jobPostingRepository,
+        this.jobPostingsRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
@@ -90,7 +79,7 @@ export class JobPostingService {
     command: ChangeJobPostStatusCommand,
   ): Promise<JobPostingResponse> {
     try {
-      const jobPostDomain = await this.jobPostingRepository.findOne({
+      const jobPostDomain = await this.jobPostingsRepository.findOne({
         where: { id: command.id },
       });
       if (!jobPostDomain)
@@ -98,11 +87,11 @@ export class JobPostingService {
           `Job post with Id ${command.id} is not Found`,
         );
       jobPostDomain.status = command.status;
-      const response = await this.jobPostingRepository.create(jobPostDomain);
+      const response = await this.jobPostingsRepository.save(jobPostDomain);
       if (command.status === JobPostingStatusEnums.POSTED) {
-        const eligibleUsers = await this.getEligibleUsersForTheJobPost(
-          response.skill,
-        );
+        // const eligibleUsers = await this.getEligibleUsersForTheJobPost(
+        //   response.skill,
+        // );
 
         const messageCommand: JobPostTelegramNotificationCommand = {
           deadline: response.deadline,
@@ -115,15 +104,15 @@ export class JobPostingService {
           jobType: response.employmentType,
           workLocation: response.location,
         };
-        for (let index = 0; index < eligibleUsers?.length; index++) {
-          const element = eligibleUsers[index];
-          const notify = await this.notifyUsersOnTelegramBoot(
-            element.telegramUserId,
-            messageCommand,
-            jobPostDomain.id,
-          );
-          console.log(notify);
-        }
+        // for (let index = 0; index < eligibleUsers?.length; index++) {
+        //   const element = eligibleUsers[index];
+        //   const notify = await this.notifyUsersOnTelegramBoot(
+        //     element.telegramUserId,
+        //     messageCommand,
+        //     jobPostDomain.id,
+        //   );
+        //   console.log(notify);
+        // }
       }
       return JobPostingResponse.toResponse(response);
     } catch (error) {
@@ -131,26 +120,26 @@ export class JobPostingService {
     }
   }
 
-  async getEligibleUsersForTheJobPost(skills: string[]) {
-    const query: CollectionQuery = new CollectionQuery();
-    const dataQuery = QueryConstructor.constructQuery<UserEntity>(
-      this.userRepository,
-      query,
-    );
-    dataQuery.andWhere('skills && :skills', { skills });
-    const result = await dataQuery.getMany();
-    return result;
-  }
+  // async getEligibleUsersForTheJobPost(skills: string[]) {
+  //    const connection: DataSource = await this.request['CONNECTION_KEY'];
+  //       const repository = connection.getRepository(this.repository.target);
+  //   const query: CollectionQuery = new CollectionQuery();
+  //   const dataQuery = QueryConstructor.constructQuery<UserEntity>(
+  //     this.userRepository,
+  //     query,
+  //   );
+  //   dataQuery.andWhere('skills && :skills', { skills });
+  //   const result = this.jobPostingsRepository.get
+  //   return result;
+  // }
   async getJobPostingsBySkill(
     query: CollectionQuery,
     userInfo: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
       query.includes.push('savedUsers');
-      const connection: DataSource = await this.request['CONNECTION_KEY'];
-      const jobPostingRepository = connection.getRepository(JobPostingEntity);
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        jobPostingRepository,
+        this.jobPostingsRepository,
         query,
       );
       const skills = userInfo.skills;
@@ -173,29 +162,6 @@ export class JobPostingService {
       throw error;
     }
   }
-  async getOneByCriteria() {
-    return null;
-  }
-  async notifyUsersOnTelegramBoot(
-    userId: string,
-    command: JobPostTelegramNotificationCommand,
-    JobPostId: string,
-  ) {
-    try {
-      if (!userId || !command) return;
-      const message = this.constructJobPostMessage(command);
-      if (!message) return;
-      const result = await this.telegramBotService.sendMessage(
-        userId,
-        message,
-        JobPostId,
-      );
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
-
   constructJobPostMessage(command: JobPostTelegramNotificationCommand): string {
     return `🔹 *Job Title:* ${command.jobTitle}
   

@@ -33,7 +33,7 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     command: CreateApplicationCommand,
     file?: Express.Multer.File,
   ) {
-    const jobPost = await this.jobPostingService.findOne(command.JobPostId);
+    const jobPost = await this.jobPostingService.getOneByCriteria();
     if (!jobPost)
       throw new ConflictException(`You already applied for this job`);
     const count = jobPost.applicationCount + 1;
@@ -54,9 +54,9 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     const applicationEntity = CreateApplicationCommand.fromDto(command);
     applicationEntity.cv = res;
     const result = await this.applicationRepository.save(applicationEntity);
-    const respons = await this.jobPostingService.update(jobPost.id, {
-      applicationCount: count,
-    });
+    // const respons = await this.jobPostingService.update(jobPost.id, {
+    //   applicationCount: count,
+    // });
     const response = ApplicationResponse.toResponse(result);
     return response;
   }

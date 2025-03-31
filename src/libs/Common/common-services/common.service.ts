@@ -34,6 +34,7 @@ export class CommonCrudService<T extends ObjectLiteral> {
       throw error;
     }
   }
+
   async findAll(query: CollectionQuery) {
     const connection: DataSource = await this.request['CONNECTION_KEY'];
     const repository = connection.getRepository(this.repository.target);

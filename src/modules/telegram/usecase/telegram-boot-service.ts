@@ -377,9 +377,12 @@ export class TelegramBotService {
         });
         if (alreadyApplied)
           await ctx.reply(`✅You have already applied for this job`);
-        const jonPost = await this.jobPostingService.getOneByCriteria({
-          id: jobId,
-        });
+        const jonPost = await this.jobPostingService
+          .getOneByCriteria
+          // {
+          //   id: jobId,
+          // }
+          ();
         if (jonPost) {
           const jobApplicationCommand: CreateApplicationCommand = {
             JobPostId: jonPost.id,

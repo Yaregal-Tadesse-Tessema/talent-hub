@@ -14,6 +14,7 @@ import { SaveJobController } from './job/controller/saved-jobs.controller';
 import { PreScreeningQuestionEntity } from './job/persistencies/pre-screening-question.entity';
 import { PreScreeningQuestionService } from './job/usecase/pre-screening-question/pre-screening-question.usecase.command';
 import { PreScreeningQuestionController } from './job/controller/pre-screening-question.controller';
+import { JobPostingRepository } from './job/persistencies/job-posting.repository';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { PreScreeningQuestionController } from './job/controller/pre-screening-q
   ],
   providers: [
     JobPostingService,
+    JobPostingRepository,
+
     JobRequirementService,
     SavedJobsService,
     PreScreeningQuestionService,
