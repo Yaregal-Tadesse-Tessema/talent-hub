@@ -24,7 +24,10 @@ export class ApplicationEntity extends CommonEntity {
   coverLetter: string;
   @Column({ nullable: true, type: 'jsonb' })
   applicationInformation: any;
-
+  @Column({ default: false })
+  isViewed: boolean;
+  @Column({ nullable: true })
+  remark: string;
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,

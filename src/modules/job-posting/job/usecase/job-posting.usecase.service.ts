@@ -154,6 +154,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
       query.includes.push('savedUsers');
+      query.includes.push('applications');
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
         this.jobPostingRepository,
         query,
@@ -165,6 +166,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       const [items, total] = await dataQuery.getManyAndCount();
       const data = items.map((item) => {
         let isSaved = false;
+        let isApplied = false;
         const response = JobPostingResponse.toResponse(item);
         if (item.savedUsers?.length > 0) {
           const userExists = item.savedUsers.some(
@@ -172,7 +174,14 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
           );
           isSaved = userExists ? true : false;
         }
+        if (item.applications?.length > 0) {
+          const userExists = item.applications.some(
+            (application) => application.userId === userInfo.id,
+          );
+          isApplied = userExists ? true : false;
+        }
         response.isSaved = isSaved;
+        response.isApplied = isApplied;
         return { ...response };
       });
       return { items: data, total: total };

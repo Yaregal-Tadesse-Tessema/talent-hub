@@ -19,6 +19,10 @@ export class ApplicationResponse {
   applicationInformation: any;
   @ApiProperty()
   user: UserResponse;
+  @ApiProperty()
+  remark: string;
+  @ApiProperty()
+  isViewed: boolean;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   static toResponse(entity: ApplicationEntity): ApplicationResponse {
@@ -32,6 +36,8 @@ export class ApplicationResponse {
     response.cv = entity?.cv;
     response.coverLetter = entity?.coverLetter;
     response.applicationInformation = entity?.applicationInformation;
+    response.isViewed = entity?.isViewed;
+    response.remark = entity?.remark;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);
     }

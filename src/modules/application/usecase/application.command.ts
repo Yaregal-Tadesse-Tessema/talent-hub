@@ -13,6 +13,10 @@ export class CreateApplicationCommand {
   @ApiProperty()
   coverLetter: string;
   @ApiProperty()
+  isViewed?: boolean;
+  @ApiProperty()
+  remark?: string;
+  @ApiProperty()
   applicationInformation: any;
 
   static fromDto(dto: CreateApplicationCommand): ApplicationEntity {
@@ -25,6 +29,8 @@ export class CreateApplicationCommand {
     entity.JobPostId = dto.JobPostId;
     entity.coverLetter = dto?.coverLetter;
     entity.applicationInformation = dto?.applicationInformation;
+    entity.isViewed = dto?.isViewed;
+    entity.remark = dto?.remark;
     return entity;
   }
 

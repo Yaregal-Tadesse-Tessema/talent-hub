@@ -83,6 +83,8 @@ export class JobPostingResponse {
   @ApiProperty()
   isSaved: boolean;
   @ApiProperty()
+  isApplied: boolean;
+  @ApiProperty()
   positions: number;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
