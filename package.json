@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@handlebars/allow-prototype-access": "^1.0.5",
     "@nestjs/common": "^10.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/event-emitter": "^3.0.0",
@@ -48,6 +49,7 @@
     "passport-jwt": "^4.0.1",
     "pdf-lib": "^1.17.1",
     "pg": "^8.13.2",
+    "puppeteer": "^24.6.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "sharp": "^0.33.5",
@@ -60,8 +62,10 @@
     "@nestjs/schematics": "^10.0.1",
     "@nestjs/testing": "^10.0.1",
     "@types/express": "^4.17.17",
+    "@types/handlebars": "^4.1.0",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
+    "@types/puppeteer": "^7.0.4",
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",

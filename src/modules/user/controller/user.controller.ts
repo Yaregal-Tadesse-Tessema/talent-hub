@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { UserEntity } from '../persistence/users.entity';
 import { UserService } from '../usecase/user.usecase.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
+import { Response } from 'express';
 
 const options: EntityCrudOptions = {
   createDto: CreateUserCommand,
@@ -77,5 +79,17 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
   async getProfileCompleteness(@Param('userId') userId: string) {
     const result = await this.userService.getProfileCompleteness(userId);
     return result;
+  }
+  @Get('generate-cv-in-pdf')
+  async generatePayrollRunPdf(@Res() res: Response) {
+    const fileName = await this.userService.generateCv();
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    return res.download('/tmp/' + fileName);
+  }
+  @Get('generate-cv-in-pdf-2')
+  async generatePayrollRunPdfTwo(@Res() res: Response) {
+    const fileName = await this.userService.generateCv2();
+    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+    return res.download('/tmp/' + fileName);
   }
 }

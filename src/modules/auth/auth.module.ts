@@ -14,6 +14,7 @@ import { AuthController } from './controllers/auth.controller';
 import { UserModule } from '../user/user.module';
 import { UserService } from '../user/usecase/user.usecase.service';
 import { UserEntity } from '../user/persistence/users.entity';
+import { PdfService } from 'src/libs/pdf/pdf.service';
 @Global()
 @Module({
   imports: [
@@ -32,7 +33,13 @@ import { UserEntity } from '../user/persistence/users.entity';
       signOptions: { expiresIn: '1d' },
     }),
   ],
-  providers: [AuthService, RefreshTokenStrategy, JwtStrategy, UserService],
+  providers: [
+    AuthService,
+    RefreshTokenStrategy,
+    JwtStrategy,
+    UserService,
+    PdfService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })
