@@ -22,13 +22,13 @@ import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-s
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { REQUEST } from '@nestjs/core';
-import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
-import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
+import { JobPostingRepository } from '../persistencies/job-posting.repository';
+import { JobRequirementRepository } from '../../job-requirement/persistance/job-requirement.repository';
 @Injectable()
 export class JobPostingService {
   constructor(
-    private readonly jobPostingRepository: CommonCrudService<JobPostingEntity>,
-    private readonly jobRequirementRepository: CommonCrudService<JobRequirementEntity>,
+    private readonly jobPostingRepository: JobPostingRepository,
+    private readonly jobRequirementRepository: JobRequirementRepository,
     @Inject(REQUEST) private request: Request,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,

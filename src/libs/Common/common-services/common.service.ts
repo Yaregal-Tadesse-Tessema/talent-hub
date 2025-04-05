@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Repository, DeepPartial, ObjectLiteral, DataSource } from 'typeorm';
 import {
+  Global,
   Inject,
   Injectable,
   NotFoundException,
@@ -12,6 +13,7 @@ import { CollectionQuery } from '../collection-query/query';
 import { QueryConstructor } from '../collection-query/query-constructor';
 import { REQUEST } from '@nestjs/core';
 @Injectable({ scope: Scope.REQUEST })
+@Global()
 export class CommonCrudService<T extends ObjectLiteral> {
   constructor(
     private readonly repository: Repository<T>,

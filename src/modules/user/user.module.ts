@@ -10,14 +10,15 @@ import { EducationEntity } from './persistence/education.entity';
 import { ExperienceEntity } from './persistence/experience.entity';
 import { EducationService } from './usecase/education.usecase.service';
 import { ExperienceService } from './usecase/experience.usecase.service';
+import { UserRepository } from './persistence/users.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([UserEntity, EducationEntity, ExperienceEntity]),
   ],
-  providers: [UserService, EducationService, ExperienceService],
+  providers: [UserService, UserRepository, EducationService, ExperienceService],
   controllers: [UserController, EducationController, ExperiencesController],
-  exports: [UserService],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}
 

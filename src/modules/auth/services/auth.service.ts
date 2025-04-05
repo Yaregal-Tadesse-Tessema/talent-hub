@@ -5,14 +5,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SessionEntity } from '../persistances/session.entity';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { TenantDatabaseService } from 'src/modules/authentication/tenant-database.service';
 import { LookupEntity } from 'src/modules/authentication/persistances/lookup.entity';
 import { TenantEntity } from 'src/modules/authentication/persistances/tenant.entity';
+import { UserRepository } from 'src/modules/user/persistence/users.repository';
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UserService,
+    private userService: UserRepository,
     private jwtService: JwtService,
     private tenantDatabaseService: TenantDatabaseService,
 

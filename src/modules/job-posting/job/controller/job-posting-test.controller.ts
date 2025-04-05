@@ -1,15 +1,6 @@
 /* eslint-disable prettier/prettier */
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Put,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
 import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
 import {
   ChangeJobPostStatusCommand,
@@ -19,11 +10,8 @@ import {
 import { JobPostingResponse } from '../usecase/job-posting.response';
 import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
-import { REQUEST } from '@nestjs/core';
-import { JobPostingCommand } from '../usecase/job-posting.usecase.command';
 
 const options: EntityCrudOptions = {
   createDto: CreateJobPostingCommand,

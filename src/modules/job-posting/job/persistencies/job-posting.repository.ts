@@ -18,12 +18,13 @@ import { JobPostingStatusEnums } from '../../constants';
 import { REQUEST } from '@nestjs/core';
 import { ChangeJobPostStatusCommand, CreateJobPostingCommand, JobPostTelegramNotificationCommand } from '../usecase/job-posting.command';
 import { JobPostingResponse } from '../usecase/job-posting.response';
+import { JobRequirementRepository } from '../../job-requirement/persistance/job-requirement.repository';
 @Injectable()
 export class JobPostingRepository extends CommonCrudService<JobPostingEntity> {
   constructor(
     @InjectRepository(JobPostingEntity)
     private readonly jobPostingsRepository: Repository<JobPostingEntity>,
-    private readonly jobRequirementService: JobRequirementService,
+    private readonly jobRequirementService: JobRequirementRepository,
     @Inject(REQUEST) request: Request,
   ) {
     super(jobPostingsRepository, request);

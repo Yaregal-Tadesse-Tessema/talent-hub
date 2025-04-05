@@ -22,6 +22,14 @@ export class CreateLookupCommand {
   status: UserStatusEnums;
   currentUser?: any;
 
+  @ApiProperty()
+  jobTitle?: string;
+  @ApiProperty()
+  startDate?: Date;
+  @ApiProperty()
+  tenantId?: string;
+  @ApiProperty()
+  tenantName?: string;
   static fromCommand(command: CreateLookupCommand): LookupEntity {
     const lookUp = new LookupEntity();
     lookUp.id = command?.id;

@@ -10,11 +10,12 @@ import { ProfessionEnums } from 'src/modules/job-posting/constants';
 import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
 import { CreateApplicationCommand } from 'src/modules/application/usecase/application.command';
 import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
+import { UserRepository } from 'src/modules/user/persistence/users.repository';
 @Injectable()
 export class TelegramBotService {
   constructor(
     @InjectBot() private readonly bot: Telegraf,
-    private readonly user: UserService,
+    private readonly user: UserRepository,
     @Inject(forwardRef(() => JobPostingService))
     private readonly jobPostingService: JobPostingService,
     private readonly applicationService: ApplicationService,
@@ -89,7 +90,6 @@ export class TelegramBotService {
         console.log('❌ No file received!');
         return ctx.reply('❌ No file detected. Please upload a valid resume.');
       }
-
       const fileId = file.file_id;
       const fileName = file.file_name;
       const fileLink = await ctx.telegram.getFileLink(fileId);

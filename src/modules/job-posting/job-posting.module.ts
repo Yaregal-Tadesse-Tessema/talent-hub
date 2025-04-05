@@ -15,6 +15,8 @@ import { PreScreeningQuestionEntity } from './job/persistencies/pre-screening-qu
 import { PreScreeningQuestionService } from './job/usecase/pre-screening-question/pre-screening-question.usecase.command';
 import { PreScreeningQuestionController } from './job/controller/pre-screening-question.controller';
 import { JobPostingRepository } from './job/persistencies/job-posting.repository';
+import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
+import { JobRequirementRepository } from './job-requirement/persistance/job-requirement.repository';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { JobPostingRepository } from './job/persistencies/job-posting.repository
 
     JobRequirementService,
     SavedJobsService,
+    JobRequirementRepository,
+
     PreScreeningQuestionService,
   ],
   controllers: [
