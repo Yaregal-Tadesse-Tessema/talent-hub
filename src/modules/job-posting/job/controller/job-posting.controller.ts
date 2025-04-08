@@ -14,6 +14,7 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 
 const options: EntityCrudOptions = {
   createDto: CreateJobPostingCommand,
@@ -45,6 +46,14 @@ export class JobPostingController extends CommonCrudController<JobPostingEntity>
   async getAllJobPosting(@userInfo() userInfo: any, @Query('q') q?: string) {
     const query = decodeCollectionQuery(q);
     const result = await this.jobPostingService.getJobPostings(query, userInfo);
+    return result;
+  }
+
+  @Get('get-all-public-job-postings')
+  @AllowAnonymous()
+  async getAllPublicJobPosting(@Query('q') q?: string) {
+    const query = decodeCollectionQuery(q);
+    const result = await this.jobPostingService.getAllJobPostings(query);
     return result;
   }
   @Get('get-all-job-postings-by-skills')

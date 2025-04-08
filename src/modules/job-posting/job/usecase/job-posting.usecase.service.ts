@@ -82,6 +82,25 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       throw error;
     }
   }
+  async getAllJobPostings(
+    query: CollectionQuery,
+  ): Promise<DataResponseFormat<JobPostingResponse>> {
+    try {
+      const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
+        this.jobPostingRepository,
+        query,
+      );
+      const [items, total] = await dataQuery.getManyAndCount();
+      const data = items.map((item) => {
+        const response = JobPostingResponse.toResponse(item);
+
+        return response;
+      });
+      return { items: data, total: total };
+    } catch (error) {
+      throw error;
+    }
+  }
   async isJobSaved(savedUsers: any, currentUserId: string) {
     if (savedUsers?.length > 0) {
       const userExists = savedUsers.some(

@@ -18,7 +18,8 @@ export class CreateApplicationCommand {
   remark?: string;
   @ApiProperty()
   applicationInformation: any;
-
+  @ApiProperty()
+  userInfo?: any;
   static fromDto(dto: CreateApplicationCommand): ApplicationEntity {
     const entity = new ApplicationEntity();
     if (!dto) {
@@ -29,6 +30,7 @@ export class CreateApplicationCommand {
     entity.JobPostId = dto.JobPostId;
     entity.coverLetter = dto?.coverLetter;
     entity.applicationInformation = dto?.applicationInformation;
+    entity.userInfo = dto?.userInfo;
     entity.isViewed = dto?.isViewed;
     entity.remark = dto?.remark;
     return entity;

@@ -15,6 +15,7 @@ import { ApplicationResponse } from './application.response';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
+import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 @Injectable()
 export class ApplicationService extends CommonCrudService<ApplicationEntity> {
   constructor(
@@ -23,6 +24,7 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     @Inject(forwardRef(() => JobPostingService))
     private jobPostingService: JobPostingService,
     private readonly fileService: FileService,
+    private readonly userService: UserService,
   ) {
     super(applicationRepository);
   }
@@ -34,13 +36,13 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     const jobPost = await this.jobPostingService.findOne(command.JobPostId);
     if (!jobPost)
       throw new ConflictException(`You already applied for this job`);
+    const userInfo = await this.userService.findOne(command.userId);
     const count = jobPost.applicationCount + 1;
     const applicationAlreadyExists = await this.applicationRepository.findOne({
       where: { JobPostId: command.JobPostId, userId: command.userId },
     });
     if (applicationAlreadyExists)
       throw new ConflictException(`You already applied for this job`);
-
     let res: FileDto = null;
     if (file) {
       const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
@@ -51,6 +53,7 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     }
     const applicationEntity = CreateApplicationCommand.fromDto(command);
     applicationEntity.cv = res;
+    applicationEntity.userInfo = userInfo;
     const result = await this.applicationRepository.save(applicationEntity);
     const respons = await this.jobPostingService.update(jobPost.id, {
       applicationCount: count,

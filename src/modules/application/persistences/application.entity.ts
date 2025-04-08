@@ -24,6 +24,8 @@ export class ApplicationEntity extends CommonEntity {
   coverLetter: string;
   @Column({ nullable: true, type: 'jsonb' })
   applicationInformation: any;
+  @Column({ nullable: true, type: 'jsonb' })
+  userInfo: any;
   @Column({ default: false })
   isViewed: boolean;
   @Column({ nullable: true })

@@ -18,6 +18,8 @@ export class ApplicationResponse {
   @ApiProperty()
   applicationInformation: any;
   @ApiProperty()
+  userInfo: any;
+  @ApiProperty()
   user: UserResponse;
   @ApiProperty()
   remark: string;
@@ -36,6 +38,7 @@ export class ApplicationResponse {
     response.cv = entity?.cv;
     response.coverLetter = entity?.coverLetter;
     response.applicationInformation = entity?.applicationInformation;
+    response.userInfo = entity?.userInfo;
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
     if (entity?.user) {

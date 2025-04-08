@@ -89,6 +89,11 @@ export class JobPostingResponse {
   positionNumbers: number;
   @ApiProperty()
   paymentType: PaymentTypeEnums;
+
+  @ApiProperty()
+  createdAt: Date;
+  @ApiProperty()
+  updatedAt: Date;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -126,6 +131,10 @@ export class JobPostingResponse {
     response.applicationCount = entity.applicationCount;
     response.positionNumbers = entity.positionNumbers;
     response.paymentType = entity.paymentType;
+
+    response.createdAt = entity.createdAt;
+    response.updatedAt = entity.updatedAt;
+
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),
