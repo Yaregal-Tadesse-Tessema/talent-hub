@@ -5,6 +5,7 @@ import {
   EmploymentTypeEnums,
   JobIndustryEnums,
   JobPostingStatusEnums,
+  PaymentTypeEnums,
   WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
@@ -72,8 +73,11 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   jobPostRequirement: string[];
   @ApiProperty()
-  positions: number;
+  positionNumbers: number;
+  @ApiProperty()
+  paymentType: PaymentTypeEnums;
   currentUser?: any;
+
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
     const entity = new JobPostingEntity();
     if (!dto) {
@@ -108,7 +112,8 @@ export class CreateJobPostingCommand {
     entity.howToApply = dto?.howToApply;
     entity.onHoldDate = dto?.onHoldDate;
     entity.jobPostRequirement = dto?.jobPostRequirement;
-    entity.positions = dto?.positions;
+    entity.positionNumbers = dto?.positionNumbers;
+    entity.paymentType = dto?.paymentType;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

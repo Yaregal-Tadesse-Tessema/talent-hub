@@ -4,6 +4,7 @@ import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
+  PaymentTypeEnums,
   SalaryRangeEnum,
   WorkTypeEnums,
 } from '../../constants';
@@ -77,8 +78,10 @@ export class JobPostingEntity extends CommonEntity {
   applicationCount: number;
   @Column('text', { array: true, nullable: true })
   jobPostRequirement: string[];
-  @Column({ default: 0 })
-  positions: number;
+  @Column({ default: 1 })
+  positionNumbers: number;
+  @Column({ nullable: true })
+  paymentType: PaymentTypeEnums;
   @ManyToOne(
     () => JobRequirementEntity,
     (institutionEntity) => institutionEntity.jobPostings,

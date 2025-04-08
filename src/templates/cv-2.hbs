@@ -5,52 +5,30 @@
     <title>{{fullName}} - Resume</title>
     <style>
       @page { size: A4; margin: 20mm; }
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
         font-family: 'Segoe UI', sans-serif;
         font-size: 12px;
         color: #222;
         line-height: 1.6;
       }
-      a {
-        color: #0366d6;
-        text-decoration: none;
-      }
+      a { color: #0366d6; text-decoration: none; }
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
       }
-      .left-header {
-        flex: 1;
-      }
-      .right-header {
-        text-align: right;
-        font-size: 0.85rem;
-        color: #444;
-      }
+      .left-header { flex: 1; }
+      .right-header { text-align: right; font-size: 0.85rem; color: #444; }
       .profile-pic {
         width: 120px;
         border-radius: 8px;
         margin-top: 0.5rem;
         object-fit: cover;
       }
-      .name {
-        font-size: 1.8rem;
-        font-weight: 600;
-      }
-      .role {
-        font-weight: 500;
-        margin-top: 0.25rem;
-      }
-      .contact {
-        margin-top: 0.5rem;
-        color: #444;
-      }
+      .name { font-size: 1.8rem; font-weight: 600; }
+      .role { font-weight: 500; margin-top: 0.25rem; }
+      .contact { margin-top: 0.5rem; color: #444; }
       .slogan {
         text-align: center;
         font-style: italic;
@@ -58,9 +36,7 @@
         font-size: 0.95rem;
         color: #555;
       }
-      section {
-        margin-top: 1.25rem;
-      }
+      section { margin-top: 1.25rem; }
       h2 {
         font-size: 1rem;
         font-weight: 600;
@@ -70,53 +46,31 @@
         color: #444;
         text-transform: uppercase;
       }
-      .skills {
+      .skills, .pill-list {
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
       }
-      .skill-tag {
+      .skill-tag, .pill {
         border: 1px solid #ccc;
         border-radius: 1rem;
         padding: 0.25rem 0.75rem;
         font-size: 0.85rem;
       }
-      .item {
-        margin-bottom: 1rem;
-      }
+      .item { margin-bottom: 1rem; }
       .item-header {
         display: flex;
         justify-content: space-between;
         font-weight: 600;
       }
-      .item-sub {
-        color: #666;
-        font-size: 0.9rem;
-        margin-bottom: 0.25rem;
-      }
-      .item ul {
-        margin-left: 1.25rem;
-        list-style: disc;
-      }
-      .pill-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-      }
-      .pill {
-        background: #f2f2f2;
-        border-radius: 9999px;
-        padding: 0.25rem 0.75rem;
-        font-size: 0.85rem;
-      }
+      .item-sub { color: #666; font-size: 0.9rem; margin-bottom: 0.25rem; }
+      .item ul { margin-left: 1.25rem; list-style: disc; }
     </style>
   </head>
   <body>
     <header>
       <div class="left-header">
-        {{#if profilePicture}}
-          <img src="{{profilePicture}}" class="profile-pic" alt="Profile Picture" />
-        {{/if}}
+        {{#if profilePicture}}<img src="{{profilePicture}}" class="profile-pic" alt="Profile Picture" />{{/if}}
         <div class="name">{{fullName}}</div>
         <div class="role">{{title}}</div>
         <div class="contact">{{address}} | {{phone}} | {{email}}</div>
@@ -131,15 +85,11 @@
 
     <div class="slogan">{{slogan}}</div>
 
-    <section>
-      <h2>Skills</h2>
-      <div class="skills">
-        {{#each skills}}<div class="skill-tag">{{this}}</div>{{/each}}
-      </div>
-    </section>
+    <section><h2>About</h2><p>{{about}}</p></section>
 
-    <section>
-      <h2>Experience</h2>
+    <section><h2>Skills</h2><div class="skills">{{#each skills}}<div class="skill-tag">{{this}}</div>{{/each}}</div></section>
+
+    <section><h2>Experience</h2>
       {{#each experience}}
         <div class="item">
           <div class="item-header">
@@ -147,21 +97,13 @@
             <div>{{startDate}} to {{#if isCurrent}}Present{{else}}{{endDate}}{{/if}}</div>
           </div>
           <div class="item-sub">{{location}}</div>
-          <ul>
-            {{#each responsibilities}}<li>{{this}}</li>{{/each}}
-          </ul>
-          {{#if achievements}}
-            <p><strong>Achievements:</strong></p>
-            <ul>
-              {{#each achievements}}<li>{{this}}</li>{{/each}}
-            </ul>
-          {{/if}}
+          <ul>{{#each responsibilities}}<li>{{this}}</li>{{/each}}</ul>
+          {{#if achievements}}<p><strong>Achievements:</strong></p><ul>{{#each achievements}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
         </div>
       {{/each}}
     </section>
 
-    <section>
-      <h2>Education</h2>
+    <section><h2>Education</h2>
       {{#each education}}
         <div class="item">
           <div class="item-header">
@@ -170,30 +112,34 @@
           </div>
           <div class="item-sub">{{institution}}, {{location}}</div>
           <p>GPA: {{gpa}}</p>
-          {{#if honors}}
-            <p>Honors: {{honors.join ", "}}</p>
-          {{/if}}
+          {{#if honors}}<p>Honors: {{honors.join ", "}}</p>{{/if}}
         </div>
       {{/each}}
     </section>
 
-    <section>
-      <h2>Certificates</h2>
+    <section><h2>Certificates</h2>
       {{#each certificates}}
         <div class="item">
           <div class="item-header">
             <div>{{title}} - {{issuingOrganization}}</div>
             <div>{{issueDate}}</div>
           </div>
-          {{#if credentialURL}}
-            <div class="item-sub"><a href="{{credentialURL}}">{{credentialURL}}</a></div>
-          {{/if}}
+          {{#if credentialURL}}<div class="item-sub"><a href="{{credentialURL}}">{{credentialURL}}</a></div>{{/if}}
         </div>
       {{/each}}
     </section>
 
-    <section>
-      <h2>Publications</h2>
+    <section><h2>Awards</h2>
+      {{#each awards}}
+        <div class="item">
+          <div class="item-header">{{title}} - {{organization}}</div>
+          <div class="item-sub">Received: {{dateReceived}}</div>
+          <p>{{description}}</p>
+        </div>
+      {{/each}}
+    </section>
+
+    <section><h2>Publications</h2>
       {{#each publications}}
         <div class="item">
           <div class="item-header">{{title}}</div>
@@ -206,8 +152,7 @@
       {{/each}}
     </section>
 
-    <section>
-      <h2>Projects</h2>
+    <section><h2>Projects</h2>
       {{#each projects}}
         <div class="item">
           <div class="item-header">{{name}} - {{role}}</div>
@@ -220,11 +165,30 @@
       {{/each}}
     </section>
 
-    <section>
-      <h2>Interests</h2>
-      <div class="pill-list">
-        {{#each interests}}<div class="pill">{{this}}</div>{{/each}}
-      </div>
+    <section><h2>Languages</h2>
+      <div class="pill-list">{{#each languages}}<div class="pill">{{this}}</div>{{/each}}</div>
+    </section>
+
+    <section><h2>Interests</h2>
+      <div class="pill-list">{{#each interests}}<div class="pill">{{this}}</div>{{/each}}</div>
+    </section>
+
+    <section><h2>Volunteer</h2>
+      {{#each volunteer}}
+        <div class="item">
+          <div class="item-header">{{role}} - {{organization}}</div>
+          <div class="item-sub">Year: {{year}}</div>
+        </div>
+      {{/each}}
+    </section>
+
+    <section><h2>References</h2>
+      {{#each references}}
+        <div class="item">
+          <strong>{{name}}</strong> — {{relation}}<br />
+          Contact: {{contact}}
+        </div>
+      {{/each}}
     </section>
   </body>
 </html>

@@ -4,6 +4,7 @@ import {
   EmploymentTypeEnums,
   JobIndustryEnums,
   JobPostingStatusEnums,
+  PaymentTypeEnums,
   WorkTypeEnums,
 } from '../../constants';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
@@ -85,43 +86,46 @@ export class JobPostingResponse {
   @ApiProperty()
   isApplied: boolean;
   @ApiProperty()
-  positions: number;
+  positionNumbers: number;
+  @ApiProperty()
+  paymentType: PaymentTypeEnums;
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
       return null;
     }
-    response.id = entity?.id;
+    response.id = entity.id;
     response.title = entity.title;
     response.description = entity.description;
-    response.position = entity?.position;
-    response.industry = entity?.industry;
-    response.type = entity?.type;
-    response.city = entity?.city;
-    response.location = entity?.location;
-    response.employmentType = entity?.employmentType;
-    response.salaryRange = entity?.salaryRange;
-    response.organizationId = entity?.organizationId;
-    response.deadline = entity?.deadline;
-    response.requirementId = entity?.requirementId;
-    response.skill = entity?.skill;
-    response.benefits = entity?.benefits;
-    response.responsibilities = entity?.responsibilities;
-    response.status = entity?.status;
-    response.gender = entity?.gender;
-    response.minimumGPA = entity?.minimumGPA;
-    response.companyName = entity?.companyName;
-    response.companyLogo = entity?.companyLogo;
-    response.postedDate = entity?.postedDate;
-    response.applicationURL = entity?.applicationURL;
-    response.experienceLevel = entity?.experienceLevel;
-    response.fieldOfStudy = entity?.fieldOfStudy;
-    response.educationLevel = entity?.educationLevel;
-    response.howToApply = entity?.howToApply;
-    response.onHoldDate = entity?.onHoldDate;
-    response.jobPostRequirement = entity?.jobPostRequirement;
-    response.applicationCount = entity?.applicationCount;
-    response.positions = entity?.positions;
+    response.position = entity.position;
+    response.industry = entity.industry;
+    response.type = entity.type;
+    response.city = entity.city;
+    response.location = entity.location;
+    response.employmentType = entity.employmentType;
+    response.salaryRange = entity.salaryRange;
+    response.organizationId = entity.organizationId;
+    response.deadline = entity.deadline;
+    response.requirementId = entity.requirementId;
+    response.skill = entity.skill;
+    response.benefits = entity.benefits;
+    response.responsibilities = entity.responsibilities;
+    response.status = entity.status;
+    response.gender = entity.gender;
+    response.minimumGPA = entity.minimumGPA;
+    response.companyName = entity.companyName;
+    response.companyLogo = entity.companyLogo;
+    response.postedDate = entity.postedDate;
+    response.applicationURL = entity.applicationURL;
+    response.experienceLevel = entity.experienceLevel;
+    response.fieldOfStudy = entity.fieldOfStudy;
+    response.educationLevel = entity.educationLevel;
+    response.howToApply = entity.howToApply;
+    response.onHoldDate = entity.onHoldDate;
+    response.jobPostRequirement = entity.jobPostRequirement;
+    response.applicationCount = entity.applicationCount;
+    response.positionNumbers = entity.positionNumbers;
+    response.paymentType = entity.paymentType;
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),

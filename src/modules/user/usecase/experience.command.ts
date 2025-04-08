@@ -36,11 +36,6 @@ export class CreateExperienceCommand {
     entity.Attachment = dto?.Attachment;
     return entity;
   }
-
-  /**
-   * Transfer list of DTO object to Entity  list
-   *
-   */
   static fromDtos(dto: CreateExperienceCommand[]): ExperienceEntity[] {
     return dto?.map((d) => CreateExperienceCommand.fromDto(d));
   }

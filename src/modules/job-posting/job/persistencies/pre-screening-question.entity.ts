@@ -6,9 +6,9 @@ import { JobPostingEntity } from './job-posting.entity';
 export class PreScreeningQuestionEntity extends CommonEntity {
   @Column()
   jobPostId: string;
-  @Column()
+  @Column({})
   question: string;
-  @Column({ type: 'enum', enum: ['multiple-choice', 'text', 'yes-no'] })
+  @Column({ nullable: true })
   type: string;
   @Column({ type: 'json', nullable: true })
   options: string[];

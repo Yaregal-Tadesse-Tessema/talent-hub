@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   BadRequestException,
+  Body,
   Controller,
   Get,
   Param,
@@ -80,15 +81,15 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
     const result = await this.userService.getProfileCompleteness(userId);
     return result;
   }
-  @Get('generate-cv-in-pdf')
-  async generatePayrollRunPdf(@Res() res: Response) {
-    const fileName = await this.userService.generateCv();
+  @Post('generate-cv-in-pdf')
+  async generatePayrollRunPdf(@Res() res: Response, @Body() command: any) {
+    const fileName = await this.userService.generateCv(command);
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     return res.download('/tmp/' + fileName);
   }
-  @Get('generate-cv-in-pdf-2')
-  async generatePayrollRunPdfTwo(@Res() res: Response) {
-    const fileName = await this.userService.generateCv2();
+  @Post('generate-cv-in-pdf-2')
+  async generatePayrollRunPdfTwo(@Res() res: Response, @Body() command: any) {
+    const fileName = await this.userService.generateCv2(command);
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     return res.download('/tmp/' + fileName);
   }

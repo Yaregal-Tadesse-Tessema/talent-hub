@@ -22,6 +22,11 @@ export enum JobPostingStatusEnums {
   WITHDRAWN = 'Withdrawn',
   CLOSED = 'Closed',
 }
+export enum PaymentTypeEnums {
+  Fixed = 'Fixed',
+  Monthly = 'Monthly',
+  Hourly = 'Hourly',
+}
 export enum JobIndustryEnums {
   'AGRICULTURE_FORESTRY_FISHING' = 'AgricultureForestryFishing',
   'ANIMAL_HEALTH_VETERINARY' = 'AnimalHealthVeterinary',
