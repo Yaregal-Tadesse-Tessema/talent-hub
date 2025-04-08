@@ -72,9 +72,7 @@ export class UserService extends CommonCrudService<UserEntity> {
     if (user.resume) {
       const res = await this.fileService.deleteBucketFile(user.resume.path);
     }
-
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
-
     // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
     const ext = path.extname(file.originalname).toLowerCase();
     if (ext == '.doc' || ext == '.docx') {
