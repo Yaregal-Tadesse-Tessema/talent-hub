@@ -8,7 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserModule } from './modules/user/user.module';
 import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
-import { TelegramModule } from './modules/telegram/telegram.module';
+// import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
 
 @Module({

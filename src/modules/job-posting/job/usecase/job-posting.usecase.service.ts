@@ -20,7 +20,6 @@ import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
-import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 @Injectable()
@@ -31,8 +30,8 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jobRequirementService: JobRequirementService,
-    @Inject(forwardRef(() => TelegramBotService))
-    private readonly telegramBotService: TelegramBotService,
+    // @Inject(forwardRef(() => TelegramBotService))
+    // private readonly telegramBotService: TelegramBotService,
   ) {
     super(jobPostingRepository);
   }
@@ -122,15 +121,15 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
           jobType: response.employmentType,
           workLocation: response.location,
         };
-        for (let index = 0; index < eligibleUsers?.length; index++) {
-          const element = eligibleUsers[index];
-          const notify = await this.notifyUsersOnTelegramBoot(
-            element.telegramUserId,
-            messageCommand,
-            jobPostDomain.id,
-          );
-          console.log(notify);
-        }
+        // for (let index = 0; index < eligibleUsers?.length; index++) {
+        //   const element = eligibleUsers[index];
+        //   const notify = await this.notifyUsersOnTelegramBoot(
+        //     element.telegramUserId,
+        //     messageCommand,
+        //     jobPostDomain.id,
+        //   );
+        //   console.log(notify);
+        // }
       }
       return JobPostingResponse.toResponse(response);
     } catch (error) {
@@ -190,25 +189,25 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     }
   }
 
-  async notifyUsersOnTelegramBoot(
-    userId: string,
-    command: JobPostTelegramNotificationCommand,
-    JobPostId: string,
-  ) {
-    try {
-      if (!userId || !command) return;
-      const message = this.constructJobPostMessage(command);
-      if (!message) return;
-      const result = await this.telegramBotService.sendMessage(
-        userId,
-        message,
-        JobPostId,
-      );
-      return result;
-    } catch (error) {
-      throw error;
-    }
-  }
+  // async notifyUsersOnTelegramBoot(
+  //   userId: string,
+  //   command: JobPostTelegramNotificationCommand,
+  //   JobPostId: string,
+  // ) {
+  //   try {
+  //     if (!userId || !command) return;
+  //     const message = this.constructJobPostMessage(command);
+  //     if (!message) return;
+  //     const result = await this.telegramBotService.sendMessage(
+  //       userId,
+  //       message,
+  //       JobPostId,
+  //     );
+  //     return result;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   constructJobPostMessage(command: JobPostTelegramNotificationCommand): string {
     return `🔹 *Job Title:* ${command.jobTitle}

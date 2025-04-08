@@ -6,7 +6,6 @@ import { JobRequirementEntity } from './job-requirement/persistance/job-requirem
 import { JobPostingService } from './job/usecase/job-posting.usecase.service';
 import { JobRequirementService } from './job-requirement/usecase/job-requirement.usecase.service';
 import { JobPostingController } from './job/controller/job-posting.controller';
-import { TelegramModule } from '../telegram/telegram.module';
 import { UserEntity } from '../user/persistence/users.entity';
 import { SaveJobEntity } from './job/persistencies/save-job-post.entity';
 import { SavedJobsService } from './job/usecase/saved-jobs.usecase.service';
@@ -24,7 +23,7 @@ import { PreScreeningQuestionController } from './job/controller/pre-screening-q
       SaveJobEntity,
       PreScreeningQuestionEntity,
     ]),
-    forwardRef(() => TelegramModule),
+    // forwardRef(() => TelegramModule),
   ],
   providers: [
     JobPostingService,
