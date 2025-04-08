@@ -95,7 +95,6 @@ export class CreateUserCommand {
     entity.technicalSkills = dto?.technicalSkills;
     entity.educations = dto?.educations;
     entity.experiences = dto?.experiences;
-
     entity.socialMediaLinks = dto?.socialMediaLinks;
     entity.profileHeadLine = dto?.profileHeadLine;
     entity.coverLetter = dto?.coverLetter;

@@ -89,7 +89,6 @@ export class UserService extends CommonCrudService<UserEntity> {
     const response = await this.userRepository.save(user);
     return UserResponse.toResponse(response);
   }
-
   async uploadProfile(file: Express.Multer.File, userId: string) {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user)
