@@ -132,30 +132,35 @@ export class UserService extends CommonCrudService<UserEntity> {
     return res;
   }
   async generateCv(template: CvTemplateEnums, command: any) {
-    const pdfContext = command;
-    const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
-    const fileName = `my_cv`;
-    const query = { landscape: 'true' };
-    const Options = {
-      format: 'A4',
-      landscape:
-        query && query.landscape && query.landscape === 'true' ? true : false,
-      displayHeaderFooter: query ? true : false,
-      margin: {
-        top: '10px',
-        bottom: '10px',
-        right: '20px',
-        left: '20px',
-      },
-    };
-    const pdfPath = await this.pdfService.generatePdf(
-      pdfContext,
-      templateName,
-      fileName,
-      Options,
-      null,
-    );
-    return pdfPath;
+    try {
+      const pdfContext = command;
+      const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
+      const fileName = `my_cv`;
+      const query = { landscape: 'true' };
+      const Options = {
+        format: 'A4',
+        landscape:
+          query && query.landscape && query.landscape === 'true' ? true : false,
+        displayHeaderFooter: query ? true : false,
+        margin: {
+          top: '10px',
+          bottom: '10px',
+          right: '20px',
+          left: '20px',
+        },
+      };
+      const pdfPath = await this.pdfService.generatePdf(
+        pdfContext,
+        templateName,
+        fileName,
+        Options,
+        null,
+      );
+      return pdfPath;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
   async generateCv2(command: any) {
     const pdfContext = command;
