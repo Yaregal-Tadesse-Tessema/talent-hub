@@ -34,7 +34,7 @@ import { NotificationModule } from './modules/notification/notification.module';
     UserModule,
     FileModule,
     ApplicationModule,
-    TelegramModule,
+    // TelegramModule,
     NotificationModule,
   ],
   controllers: [],
