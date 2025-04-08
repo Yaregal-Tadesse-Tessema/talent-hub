@@ -14,7 +14,11 @@ import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
-import { CreateUserCommand, UpdateUserCommand } from '../usecase/user.command';
+import {
+  CreateUserCommand,
+  CvTemplateEnums,
+  UpdateUserCommand,
+} from '../usecase/user.command';
 import { UserResponse } from '../usecase/user.response';
 import { UserEntity } from '../persistence/users.entity';
 import { UserService } from '../usecase/user.usecase.service';
@@ -81,9 +85,13 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
     const result = await this.userService.getProfileCompleteness(userId);
     return result;
   }
-  @Post('generate-cv-in-pdf')
-  async generatePayrollRunPdf(@Res() res: Response, @Body() command: any) {
-    const fileName = await this.userService.generateCv(command);
+  @Post('generate-cv-in-pdf/:template')
+  async generatePayrollRunPdf(
+    @Param('template') template: CvTemplateEnums,
+    @Res() res: Response,
+    @Body() command: any,
+  ) {
+    const fileName = await this.userService.generateCv(template, command);
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     return res.download('/tmp/' + fileName);
   }

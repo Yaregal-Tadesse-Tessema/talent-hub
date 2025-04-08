@@ -114,3 +114,8 @@ export class UpdateUserCommand extends CreateUserCommand {
   id: string;
 }
 
+export enum CvTemplateEnums {
+  EuroPass = 'EuroPass',
+  GitConnect = 'GitConnect',
+}
+

@@ -8,6 +8,7 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { UserResponse } from './user.response';
 import * as path from 'path';
 import { PdfService } from 'src/libs/pdf/pdf.service';
+import { CvTemplateEnums } from './user.command';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -131,9 +132,9 @@ export class UserService extends CommonCrudService<UserEntity> {
     if (!res) throw new BadRequestException('file upload failed');
     return res;
   }
-  async generateCv(command: any) {
+  async generateCv(template: CvTemplateEnums, command: any) {
     const pdfContext = command;
-    const templateName = 'cv';
+    const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
     const fileName = `my_cv`;
     const query = { landscape: 'true' };
     const Options = {
