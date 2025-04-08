@@ -72,7 +72,9 @@ export class UserService extends CommonCrudService<UserEntity> {
     if (user.resume) {
       const res = await this.fileService.deleteBucketFile(user.resume.path);
     }
+
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+
     // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
     const ext = path.extname(file.originalname).toLowerCase();
     if (ext == '.doc' || ext == '.docx') {
@@ -132,32 +134,32 @@ export class UserService extends CommonCrudService<UserEntity> {
   async generateCv(template: CvTemplateEnums, command: any) {
     try {
       const pdfContext = command;
-      const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
-      const fileName = `my_cv`;
-      const query = { landscape: 'true' };
-      const Options = {
-        format: 'A4',
-        landscape:
-          query && query.landscape && query.landscape === 'true' ? true : false,
-        displayHeaderFooter: query ? true : false,
-        margin: {
-          top: '10px',
-          bottom: '10px',
-          right: '20px',
-          left: '20px',
-        },
-      };
-      const pdfPath = await this.pdfService.generatePdf(
-        pdfContext,
-        templateName,
-        fileName,
-        Options,
-        null,
-      );
-      return pdfPath;
+    const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
+    const fileName = `my_cv`;
+    const query = { landscape: 'true' };
+    const Options = {
+      format: 'A4',
+      landscape:
+        query && query.landscape && query.landscape === 'true' ? true : false,
+      displayHeaderFooter: query ? true : false,
+      margin: {
+        top: '10px',
+        bottom: '10px',
+        right: '20px',
+        left: '20px',
+      },
+    };
+    const pdfPath = await this.pdfService.generatePdf(
+      pdfContext,
+      templateName,
+      fileName,
+      Options,
+      null,
+    );
+    return pdfPath;
     } catch (error) {
-      console.log(error);
-      throw error;
+      console.log(error)
+      throw error
     }
   }
   async generateCv2(command: any) {
