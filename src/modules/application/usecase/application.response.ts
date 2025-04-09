@@ -24,6 +24,10 @@ export class ApplicationResponse {
   @ApiProperty()
   remark: string;
   @ApiProperty()
+  notification: string;
+  @ApiProperty()
+  questionaryScore: number;
+  @ApiProperty()
   isViewed: boolean;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
@@ -41,6 +45,8 @@ export class ApplicationResponse {
     response.userInfo = entity?.userInfo;
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
+    response.notification = entity?.notification;
+    response.questionaryScore = entity?.questionaryScore;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);
     }

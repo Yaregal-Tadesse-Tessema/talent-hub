@@ -34,3 +34,10 @@ export class UpdateSaveJobCommand extends CreateSavedJobsCommand {
   @IsNotEmpty()
   id: string;
 }
+
+export class UnsaveJobPostCommand {
+  @ApiProperty()
+  jobPostId: string;
+  @ApiProperty()
+  userId: string;
+}

@@ -30,6 +30,10 @@ export class ApplicationEntity extends CommonEntity {
   isViewed: boolean;
   @Column({ nullable: true })
   remark: string;
+  @Column({ nullable: true })
+  notification: string;
+  @Column({ nullable: true })
+  questionaryScore: number;
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,

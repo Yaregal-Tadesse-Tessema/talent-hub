@@ -1,5 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
@@ -9,6 +13,9 @@ import { UserResponse } from './user.response';
 import * as path from 'path';
 import { PdfService } from 'src/libs/pdf/pdf.service';
 import { CvTemplateEnums } from './user.command';
+import { exec } from 'child_process';
+import * as fs from 'fs-extra';
+import * as tmp from 'tmp';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -126,40 +133,40 @@ export class UserService extends CommonCrudService<UserEntity> {
     const response = await this.userRepository.save(user);
     return UserResponse.toResponse(response);
   }
-  async convertWordToPdf(file: Express.Multer.File) {
-    const res = await this.fileService.convertWordToPdf(file);
-    if (!res) throw new BadRequestException('file upload failed');
-    return res;
-  }
+  // async convertWordToPdf(file: Express.Multer.File) {
+  //   const res = await this.fileService.convertWordToPdf(file);
+  //   if (!res) throw new BadRequestException('file upload failed');
+  //   return res;
+  // }
   async generateCv(template: CvTemplateEnums, command: any) {
     try {
       const pdfContext = command;
-    const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
-    const fileName = `my_cv`;
-    const query = { landscape: 'true' };
-    const Options = {
-      format: 'A4',
-      landscape:
-        query && query.landscape && query.landscape === 'true' ? true : false,
-      displayHeaderFooter: query ? true : false,
-      margin: {
-        top: '10px',
-        bottom: '10px',
-        right: '20px',
-        left: '20px',
-      },
-    };
-    const pdfPath = await this.pdfService.generatePdf(
-      pdfContext,
-      templateName,
-      fileName,
-      Options,
-      null,
-    );
-    return pdfPath;
+      const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
+      const fileName = `my_cv`;
+      const query = { landscape: 'true' };
+      const Options = {
+        format: 'A4',
+        landscape:
+          query && query.landscape && query.landscape === 'true' ? true : false,
+        displayHeaderFooter: query ? true : false,
+        margin: {
+          top: '10px',
+          bottom: '10px',
+          right: '20px',
+          left: '20px',
+        },
+      };
+      const pdfPath = await this.pdfService.generatePdf(
+        pdfContext,
+        templateName,
+        fileName,
+        Options,
+        null,
+      );
+      return pdfPath;
     } catch (error) {
-      console.log(error)
-      throw error
+      console.log(error);
+      throw error;
     }
   }
   async generateCv2(command: any) {
@@ -187,5 +194,50 @@ export class UserService extends CommonCrudService<UserEntity> {
       null,
     );
     return pdfPath;
+  }
+  async convertWordToPdf(
+    wordBuffer: Buffer,
+    fileName: string,
+  ): Promise<Buffer> {
+    const tempDir = tmp.dirSync({ unsafeCleanup: true });
+    const inputPath = path.join(tempDir.name, fileName);
+    const outputPath = path.join(
+      tempDir.name,
+      fileName.replace(/\.[^/.]+$/, '.pdf'),
+    );
+
+    try {
+      // Save Word file to temp dir
+      await fs.writeFile(inputPath, wordBuffer);
+
+      // Convert using LibreOffice
+      await this.runLibreOffice(inputPath, tempDir.name);
+
+      // Wait for the PDF to be generated
+      if (!fs.existsSync(outputPath)) {
+        throw new Error('PDF conversion failed, file not created');
+      }
+
+      const pdfBuffer = await fs.readFile(outputPath);
+      return pdfBuffer;
+    } catch (err) {
+      console.error('Conversion error:', err);
+      throw new InternalServerErrorException('Failed to convert Word to PDF');
+    } finally {
+      tempDir.removeCallback(); // Clean up temp files
+    }
+  }
+
+  private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const command = `soffice --headless --convert-to pdf --outdir "${outputDir}" "${inputPath}"`;
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          console.error('LibreOffice error:', stderr || error.message);
+          return reject(error);
+        }
+        resolve();
+      });
+    });
   }
 }

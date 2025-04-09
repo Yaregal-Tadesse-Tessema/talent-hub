@@ -77,7 +77,11 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
   @Post('convert-word-to-pdf')
   @UseInterceptors(FileInterceptor('file'))
   async convertWordToPdf(@UploadedFile() file: Express.Multer.File) {
-    const result = await this.userService.convertWordToPdf(file);
+    const fileName = file.originalname;
+    const result = await this.userService.convertWordToPdf(
+      file.buffer,
+      fileName,
+    );
     return result;
   }
   @Get('get-profile-completeness/:userId')

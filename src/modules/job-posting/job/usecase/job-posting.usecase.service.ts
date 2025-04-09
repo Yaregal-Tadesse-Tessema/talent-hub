@@ -75,6 +75,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
           isSaved = userExists ? true : false;
         }
         response.isSaved = isSaved;
+        delete response.savedUsers;
         return { ...response };
       });
       return { items: data, total: total };
@@ -200,6 +201,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
         }
         response.isSaved = isSaved;
         response.isApplied = isApplied;
+        delete response.savedUsers
         return { ...response };
       });
       return { items: data, total: total };

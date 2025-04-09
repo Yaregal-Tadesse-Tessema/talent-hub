@@ -17,6 +17,10 @@ export class CreateApplicationCommand {
   @ApiProperty()
   remark?: string;
   @ApiProperty()
+  notification?: string;
+  @ApiProperty()
+  questionaryScore?: number;
+  @ApiProperty()
   applicationInformation: any;
   @ApiProperty()
   userInfo?: any;
@@ -33,6 +37,8 @@ export class CreateApplicationCommand {
     entity.userInfo = dto?.userInfo;
     entity.isViewed = dto?.isViewed;
     entity.remark = dto?.remark;
+    entity.notification = dto?.notification;
+    entity.questionaryScore = dto?.questionaryScore;
     return entity;
   }
 
