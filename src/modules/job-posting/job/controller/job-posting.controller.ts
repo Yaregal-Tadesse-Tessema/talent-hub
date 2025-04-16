@@ -1,6 +1,11 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Post, Put, Query } from '@nestjs/common';
-import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  ApiExtraModels,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
 import {
@@ -72,5 +77,20 @@ export class JobPostingController extends CommonCrudController<JobPostingEntity>
   async changeJobPostStatus(@Body() command: ChangeJobPostStatusCommand) {
     const result = await this.jobPostingService.changeJobPostStatus(command);
     return result;
+  }
+  @Get(':id')
+  @ApiQuery({
+    name: 'i',
+    type: String,
+    description: 'includes. Optional',
+    required: false,
+  })
+  @ApiOkResponse({ type: JobPostingResponse })
+  async getOne(
+    @Param('id') id: string,
+    @Query('i') i?: string,
+  ): Promise<JobPostingResponse> {
+    const relations = i ? i.split(',') : [];
+    return this.jobPostingService.getOne(id, relations);
   }
 }

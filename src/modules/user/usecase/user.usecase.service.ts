@@ -16,6 +16,7 @@ import { CvTemplateEnums } from './user.command';
 import { exec } from 'child_process';
 import * as fs from 'fs-extra';
 import * as tmp from 'tmp';
+import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -23,6 +24,8 @@ export class UserService extends CommonCrudService<UserEntity> {
     private readonly userRepository: Repository<UserEntity>,
     private readonly fileService: FileService,
     private readonly pdfService: PdfService,
+    @InjectRepository(ApplicationEntity)
+    private readonly applicationRepository: Repository<ApplicationEntity>,
   ) {
     super(userRepository);
   }
@@ -76,8 +79,13 @@ export class UserService extends CommonCrudService<UserEntity> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
-    if (user.resume) {
-      const res = await this.fileService.deleteBucketFile(user.resume.path);
+    if (user?.resume) {
+      const resumeAlreadyUsed = await this.applicationRepository.findOne({
+        where: { cv: { path: user.resume.path } },
+      });
+      if (!resumeAlreadyUsed) {
+        const res = await this.fileService.deleteBucketFile(user.resume.path);
+      }
     }
 
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);

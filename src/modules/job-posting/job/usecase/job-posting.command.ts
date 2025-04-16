@@ -152,3 +152,10 @@ export class ChangeJobPostStatusCommand {
   @IsNotEmpty({ message: 'id can not be empty' })
   id: string;
 }
+export class RePostJobCommand {
+  @ApiProperty()
+  @IsNotEmpty({ message: 'jobPost id can not be empty' })
+  jobPostId: string;
+  @ApiProperty()
+  deadLine?: Date;
+}

@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  BadGatewayException,
   forwardRef,
   Inject,
   Injectable,
@@ -13,6 +14,7 @@ import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
   JobPostTelegramNotificationCommand,
+  RePostJobCommand,
 } from './job-posting.command';
 import { JobRequirementService } from '../../job-requirement/usecase/job-requirement.usecase.service';
 import { CreateJobRequirementCommand } from '../../job-requirement/usecase/job-requirement.command';
@@ -23,6 +25,7 @@ import { QueryConstructor } from 'src/libs/Common/collection-query/query-constru
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { Util } from 'src/libs/Common/util';
 @Injectable()
 export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   constructor(
@@ -201,7 +204,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
         }
         response.isSaved = isSaved;
         response.isApplied = isApplied;
-        delete response.savedUsers
+        delete response.savedUsers;
         return { ...response };
       });
       return { items: data, total: total };
@@ -245,5 +248,47 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   ${command.jobDescription}
   
   🔹 *[Apply Here](${command.applicationLink})*`;
+  }
+
+  async getOne(
+    id: any,
+    userId: any,
+    relations = [],
+    withDeleted = false,
+  ): Promise<JobPostingResponse> {
+    relations.push('savedUsers');
+    const result = await this.jobPostingRepository.findOne({
+      where: { id },
+      relations,
+      withDeleted,
+    });
+    const Saved = result.savedUsers.find(
+      (item) => item.userId == userId && item.jobPostId == result.id,
+    );
+    const isSaved = Saved ? true : false;
+    const response = JobPostingResponse.toResponse(result);
+    response.isSaved = isSaved;
+    return response;
+  }
+  async repostJob(command: RePostJobCommand) {
+    const jobPost = await this.jobPostingRepository.findOne({
+      where: { id: command.jobPostId },
+    });
+    if (!jobPost)
+      throw new BadGatewayException(
+        `job post with id ${command.jobPostId} does not exist`,
+      );
+    const now = new Date();
+    const nextMonth = new Date(now.setMonth(now.getMonth() + 1));
+    delete jobPost.id;
+    jobPost.savedUsers = null;
+    jobPost.onHoldDate = null;
+    jobPost.applicationCount = 0;
+    jobPost.applications = null;
+    jobPost.deadline = command.deadLine ? command.deadLine : nextMonth;
+    jobPost.postedDate = new Date();
+    jobPost.status = JobPostingStatusEnums.POSTED;
+    const result = await this.jobPostingRepository.save(jobPost);
+    return JobPostingResponse.toResponse(result);
   }
 }

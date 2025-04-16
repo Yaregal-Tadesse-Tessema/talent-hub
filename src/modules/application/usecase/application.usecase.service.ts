@@ -44,15 +44,23 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     if (applicationAlreadyExists)
       throw new ConflictException(`You already applied for this job`);
     let res: FileDto = null;
+    const applicationEntity = CreateApplicationCommand.fromDto(command);
+
     if (file) {
       const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
       const fileName = file.originalname;
       const fileId = `${command.userId}/${randomNumber}_${fileName}`;
       res = await this.fileService.uploadAttachment(fileId, file);
       if (!res) throw new BadRequestException('file upload failed');
+      applicationEntity.cv = res;
+    } else {
+      if (!userInfo.resume) {
+        throw new BadRequestException(
+          `Either you have to send Resume or there must be one on the user profile`,
+        );
+      }
+      applicationEntity.cv = userInfo.resume;
     }
-    const applicationEntity = CreateApplicationCommand.fromDto(command);
-    applicationEntity.cv = res;
     applicationEntity.userInfo = userInfo;
     const result = await this.applicationRepository.save(applicationEntity);
     const respons = await this.jobPostingService.update(jobPost.id, {

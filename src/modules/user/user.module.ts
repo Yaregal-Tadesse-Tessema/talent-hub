@@ -11,10 +11,16 @@ import { ExperienceEntity } from './persistence/experience.entity';
 import { EducationService } from './usecase/education.usecase.service';
 import { ExperienceService } from './usecase/experience.usecase.service';
 import { PdfService } from 'src/libs/pdf/pdf.service';
+import { ApplicationEntity } from '../application/persistences/application.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, EducationEntity, ExperienceEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      EducationEntity,
+      ExperienceEntity,
+      ApplicationEntity,
+    ]),
   ],
   providers: [UserService, EducationService, ExperienceService, PdfService],
   controllers: [UserController, EducationController, ExperiencesController],
