@@ -149,7 +149,8 @@ export class UserService extends CommonCrudService<UserEntity> {
   async generateCv(template: CvTemplateEnums, command: any) {
     try {
       const pdfContext = command;
-      const templateName = template == CvTemplateEnums.EuroPass ? 'cv' : 'cv-2';
+      const templateName =
+        template == CvTemplateEnums.EuroPass ? 'cv-one' : 'cv-two';
       const fileName = `my_cv`;
       const query = { landscape: 'true' };
       const Options = {
@@ -179,7 +180,7 @@ export class UserService extends CommonCrudService<UserEntity> {
   }
   async generateCv2(command: any) {
     const pdfContext = command;
-    const templateName = 'cv-2';
+    const templateName = 'cv-two';
     const fileName = `my_cv`;
     const query = { landscape: 'true' };
     const Options = {
