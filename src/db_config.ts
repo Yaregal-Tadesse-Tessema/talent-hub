@@ -6,7 +6,7 @@ const db_config = {
   port: 5432,
   username: 'postgres',
   password: 'timewize@2024',
-  database: 'gpiisms_dev',
+  database: 'talentHub',
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
   synchronize: true,
 };

@@ -15,6 +15,7 @@ import { UserModule } from '../user/user.module';
 import { UserService } from '../user/usecase/user.usecase.service';
 import { UserEntity } from '../user/persistence/users.entity';
 import { PdfService } from 'src/libs/pdf/pdf.service';
+import { ApplicationEntity } from '../application/persistences/application.entity';
 @Global()
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PdfService } from 'src/libs/pdf/pdf.service';
       AccountEntity,
       SessionEntity,
       UserEntity,
+      ApplicationEntity,
     ]),
     PassportModule,
     UserModule,

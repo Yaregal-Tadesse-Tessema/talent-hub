@@ -15,11 +15,11 @@ import { NotificationModule } from './modules/notification/notification.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '196.188.249.24',
+      host: '138.197.105.31',
       port: 5432,
       username: 'postgres',
       password: 'timewize@2024',
-      database: 'talent_hub',
+      database: 'talentHub',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
