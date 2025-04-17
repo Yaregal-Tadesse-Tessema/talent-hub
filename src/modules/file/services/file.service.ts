@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { FileDto } from '../dtos/command/fileUploadDto';
 import * as Minio from 'minio';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument } from 'pdf-lib';
 import * as sharp from 'sharp';
 import * as fs from 'node:fs/promises';
 import * as path from 'path';

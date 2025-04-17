@@ -5,6 +5,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -16,6 +17,8 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { NotFoundError } from 'rxjs';
 @Injectable()
 export class ApplicationService extends CommonCrudService<ApplicationEntity> {
   constructor(
@@ -36,7 +39,9 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     const jobPost = await this.jobPostingService.findOne(command.JobPostId);
     if (!jobPost)
       throw new ConflictException(`You already applied for this job`);
-    const userInfo = await this.userService.findOne(command.userId);
+    const userInfo: UserEntity = await this.userService.findOne(command.userId);
+    if (!userInfo)
+      throw new NotFoundException(`User not found with id ${command.userId}`);
     const count = jobPost.applicationCount + 1;
     const applicationAlreadyExists = await this.applicationRepository.findOne({
       where: { JobPostId: command.JobPostId, userId: command.userId },
@@ -49,17 +54,17 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     if (file) {
       const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
       const fileName = file.originalname;
-      const fileId = `${command.userId}/${randomNumber}_${fileName}`;
+      const fileId = `${command.JobPostId}/${randomNumber}_${fileName}`;
       res = await this.fileService.uploadAttachment(fileId, file);
       if (!res) throw new BadRequestException('file upload failed');
-      applicationEntity.cv = res;
+      // applicationEntity.cv = res;
+      userInfo.resume = res;
     } else {
       if (!userInfo.resume) {
         throw new BadRequestException(
           `Either you have to send Resume or there must be one on the user profile`,
         );
       }
-      applicationEntity.cv = userInfo.resume;
     }
     applicationEntity.userInfo = userInfo;
     const result = await this.applicationRepository.save(applicationEntity);

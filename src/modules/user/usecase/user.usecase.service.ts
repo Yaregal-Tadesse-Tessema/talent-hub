@@ -81,7 +81,7 @@ export class UserService extends CommonCrudService<UserEntity> {
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user?.resume) {
       const resumeAlreadyUsed = await this.applicationRepository.findOne({
-        where: { cv: { path: user.resume.path } },
+        where: { userInfo: { path: user.resume.path } },
       });
       if (!resumeAlreadyUsed) {
         const res = await this.fileService.deleteBucketFile(user.resume.path);
@@ -97,7 +97,7 @@ export class UserService extends CommonCrudService<UserEntity> {
       // const res = await this.fileService.uploadAttachment(fileId, filed);
     }
     const fileName = file.originalname;
-    const fileId = `${userId}/${randomNumber}_${fileName}`;
+    const fileId = `${userId}/resume/${randomNumber}_${fileName}`;
     const res = await this.fileService.uploadAttachment(fileId, file);
     if (!res) throw new BadRequestException('file upload failed');
     user.resume = res;

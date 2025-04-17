@@ -18,8 +18,8 @@ export class ApplicationEntity extends CommonEntity {
   userId: string;
   @Column()
   JobPostId: string;
-  @Column({ type: 'jsonb', nullable: true })
-  cv: FileDto;
+  // @Column({ type: 'jsonb', nullable: true })
+  // cv: FileDto;
   @Column({ nullable: true })
   coverLetter: string;
   @Column({ nullable: true, type: 'jsonb' })

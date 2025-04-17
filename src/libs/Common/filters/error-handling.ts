@@ -14,14 +14,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status =
       exception instanceof HttpException ? exception.getStatus() : 500;
-    const message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : 'Internal server error';
-
+    const message: any =
+      exception instanceof HttpException ? exception.getResponse() : exception;
+    console.log(exception);
     response.status(status).json({
       statusCode: status,
-      message,
+      message: message.message,
       timestamp: new Date().toISOString(),
     });
   }
