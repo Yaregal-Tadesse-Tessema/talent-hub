@@ -34,8 +34,8 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly jobRequirementService: JobRequirementService,
-    @Inject(forwardRef(() => TelegramBotService))
-    private readonly telegramBotService: TelegramBotService,
+    // @Inject(forwardRef(() => TelegramBotService))
+    // private readonly telegramBotService: TelegramBotService,
   ) {
     super(jobPostingRepository);
   }
@@ -222,12 +222,12 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       if (!userId || !command) return;
       const message = this.constructJobPostMessage(command);
       if (!message) return;
-      const result = await this.telegramBotService.sendMessage(
-        userId,
-        message,
-        JobPostId,
-      );
-      return result;
+      // const result = await this.telegramBotService.sendMessage(
+      //   userId,
+      //   message,
+      //   JobPostId,
+      // );
+      return message;
     } catch (error) {
       throw error;
     }

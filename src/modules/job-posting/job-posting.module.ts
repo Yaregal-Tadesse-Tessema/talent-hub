@@ -24,7 +24,7 @@ import { PreScreeningQuestionController } from './job/controller/pre-screening-q
       SaveJobEntity,
       PreScreeningQuestionEntity,
     ]),
-    forwardRef(() => TelegramModule),
+    // forwardRef(() => TelegramModule),
   ],
   providers: [
     JobPostingService,
