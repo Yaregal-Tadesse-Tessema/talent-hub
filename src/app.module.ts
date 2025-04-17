@@ -34,7 +34,7 @@ dotenv.config({ path: '.env' });
     UserModule,
     FileModule,
     ApplicationModule,
-    // TelegramModule,
+    TelegramModule,
     NotificationModule,
   ],
   controllers: [],
