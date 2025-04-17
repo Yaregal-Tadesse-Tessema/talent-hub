@@ -28,7 +28,6 @@ import { NotificationModule } from './modules/notification/notification.module';
       secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',
       signOptions: { expiresIn: '1h' },
     }),
-    // AccountModule,
     AuthModule,
     JobPostingModule,
     UserModule,
