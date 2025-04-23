@@ -262,7 +262,8 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       relations,
       withDeleted,
     });
-    const Saved = result.savedUsers.find(
+    if (!result) return null;
+    const Saved = result?.savedUsers?.find(
       (item) => item.userId == userId && item.jobPostId == result.id,
     );
     const isSaved = Saved ? true : false;

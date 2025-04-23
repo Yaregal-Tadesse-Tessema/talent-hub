@@ -81,10 +81,12 @@ export class UserService extends CommonCrudService<UserEntity> {
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user?.resume) {
       const resumeAlreadyUsed = await this.applicationRepository.findOne({
-        where: { cv: { path: user.resume.path } },
+        where: { cv: { filename: user.resume.filename } },
       });
       if (!resumeAlreadyUsed) {
-        const res = await this.fileService.deleteBucketFile(user.resume.path);
+        const res = await this.fileService.deleteBucketFile(
+          user.resume.filename,
+        );
       }
     }
 
@@ -96,8 +98,8 @@ export class UserService extends CommonCrudService<UserEntity> {
       // file = await this.fileService.convertWordToPdf(file);
       // const res = await this.fileService.uploadAttachment(fileId, filed);
     }
-    const fileName = file.originalname;
-    const fileId = `${userId}/${randomNumber}_${fileName}`;
+    const fileName = file.originalname.replace(/\s/g, '_');
+    const fileId = `${userId}/resume/${randomNumber}_${fileName}`;
     const res = await this.fileService.uploadAttachment(fileId, file);
     if (!res) throw new BadRequestException('file upload failed');
     user.resume = res;

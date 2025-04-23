@@ -10,22 +10,23 @@ import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
-
+import * as process from 'node:process';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: '138.197.105.31',
-      port: 5432,
-      username: 'postgres',
-      password: 'timewize@2024',
-      database: 'talentHub',
+      host: process.env.PUBLIC_DATABASE_HOST,
+      port: +process.env.PUBLIC_DATABASE_PORT,
+      username: process.env.PUBLIC_DATABASE_USERNAME,
+      password: process.env.PUBLIC_DATABASE_PASSWORD,
+      database: process.env.PUBLIC_DATABASE_Name,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize:
+        process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
     }),
     EventEmitterModule.forRoot(),
     JwtModule.register({
-      secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',
+      secret: process.env.TOKEN_SECRET_KEY,
       signOptions: { expiresIn: '1h' },
     }),
     // AccountModule,
