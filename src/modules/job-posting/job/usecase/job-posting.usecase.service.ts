@@ -118,46 +118,42 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   async changeJobPostStatus(
     command: ChangeJobPostStatusCommand,
   ): Promise<JobPostingResponse> {
-    try {
-      const jobPostDomain = await this.jobPostingRepository.findOne({
-        where: { id: command.id },
-      });
-      if (!jobPostDomain)
-        throw new NotFoundException(
-          `Job post with Id ${command.id} is not Found`,
-        );
-      jobPostDomain.status = command.status;
-      const response = await this.jobPostingRepository.save(jobPostDomain);
-      if (command.status === JobPostingStatusEnums.POSTED) {
-        const eligibleUsers = await this.getEligibleUsersForTheJobPost(
-          response.skill,
-        );
+    const jobPostDomain = await this.jobPostingRepository.findOne({
+      where: { id: command.id },
+    });
+    if (!jobPostDomain)
+      throw new NotFoundException(
+        `Job post with Id ${command.id} is not Found`,
+      );
+    jobPostDomain.status = command.status;
+    const response = await this.jobPostingRepository.save(jobPostDomain);
+    if (command.status === JobPostingStatusEnums.POSTED) {
+      const eligibleUsers = await this.getEligibleUsersForTheJobPost(
+        response.skill,
+      );
 
-        const messageCommand: JobPostTelegramNotificationCommand = {
-          deadline: response.deadline,
-          jobTitle: response.title,
-          jobDescription: response.description,
-          applicationLink: response.applicationURL,
-          Salary: response.salaryRange
-            ? response.salaryRange
-            : 'Based On Company Standard',
-          jobType: response.employmentType,
-          workLocation: response.location,
-        };
-        for (let index = 0; index < eligibleUsers?.length; index++) {
-          const element = eligibleUsers[index];
-          const notify = await this.notifyUsersOnTelegramBoot(
-            element.telegramUserId,
-            messageCommand,
-            jobPostDomain.id,
-          );
-          console.log(notify);
-        }
+      const messageCommand: JobPostTelegramNotificationCommand = {
+        deadline: response.deadline,
+        jobTitle: response.title,
+        jobDescription: response.description,
+        applicationLink: response.applicationURL,
+        Salary: response.salaryRange
+          ? response.salaryRange
+          : 'Based On Company Standard',
+        jobType: response.employmentType,
+        workLocation: response.location,
+      };
+      for (let index = 0; index < eligibleUsers?.length; index++) {
+        const eligibleUser = eligibleUsers[index];
+        if (!eligibleUser.telegramUserId) continue;
+        const notify = await this.notifyUsersOnTelegramBoot(
+          eligibleUser.telegramUserId,
+          messageCommand,
+          jobPostDomain.id,
+        );
       }
-      return JobPostingResponse.toResponse(response);
-    } catch (error) {
-      throw error;
     }
+    return JobPostingResponse.toResponse(response);
   }
 
   async getEligibleUsersForTheJobPost(skills: string[]) {
@@ -166,7 +162,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       this.userRepository,
       query,
     );
-    dataQuery.andWhere('skills && :skills', { skills });
+    dataQuery.andWhere('"technicalSkills"&&:skills', { skills });
     const result = await dataQuery.getMany();
     return result;
   }
@@ -183,7 +179,7 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       );
       const skills = userInfo.skills;
       if (skills) {
-        dataQuery.andWhere('skill && :skills', { skills });
+        dataQuery.andWhere('technicalSkills && :technicalSkills', { skills });
       }
       const [items, total] = await dataQuery.getManyAndCount();
       const data = items.map((item) => {

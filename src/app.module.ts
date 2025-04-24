@@ -24,11 +24,13 @@ import * as process from 'node:process';
       synchronize:
         process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
     }),
+
     EventEmitterModule.forRoot(),
     JwtModule.register({
       secret: process.env.TOKEN_SECRET_KEY,
       signOptions: { expiresIn: '1h' },
     }),
+
     // AccountModule,
     AuthModule,
     JobPostingModule,

@@ -11,7 +11,7 @@ export class PdfService {
     templateName: string,
     fileName = null,
     options = null,
-    logoAddress?:string
+    profilePicture?: string,
   ): Promise<string> {
     const defaultOptions = {
       format: 'A4',
@@ -31,7 +31,6 @@ export class PdfService {
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
     const content = await HandlebarEngine.compile(templateName, data);
-    console.log('Handlebar content', content);
     await page.setContent(content, { waitUntil: 'load', timeout: 0 });
     if (fileName === null) {
       fileName = `${new Date().getTime()}`;
