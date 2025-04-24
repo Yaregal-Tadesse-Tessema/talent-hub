@@ -1,418 +1,230 @@
 /* eslint-disable prettier/prettier */
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  forwardRef,
+  Logger,
+  OnApplicationShutdown,
+} from '@nestjs/common';
 import { InjectBot } from 'nestjs-telegraf';
-import { UserEntity } from 'src/modules/user/persistence/users.entity';
-import { UserService } from 'src/modules/user/usecase/user.usecase.service';
-import { Telegraf } from 'telegraf';
-import { Markup } from 'telegraf';
+import { Telegraf, Markup } from 'telegraf';
 import axios from 'axios';
-import { ProfessionEnums } from 'src/modules/job-posting/constants';
+import type { Express } from 'express';
+
+import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
-import { CreateApplicationCommand } from 'src/modules/application/usecase/application.command';
 import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
+import { ProfessionEnums } from 'src/modules/job-posting/constants';
+
 @Injectable()
-export class TelegramBotService {
+export class TelegramBotService implements OnApplicationShutdown {
+  private readonly log = new Logger(TelegramBotService.name);
+  private listenersAttached = false;
+
   constructor(
     @InjectBot() private readonly bot: Telegraf,
     private readonly user: UserService,
     @Inject(forwardRef(() => JobPostingService))
-    private readonly jobPostingService: JobPostingService,
-    private readonly applicationService: ApplicationService,
+    private readonly jobPosting: JobPostingService,
+    private readonly application: ApplicationService,
   ) {
-    this.setupListeners();
+    if (!this.listenersAttached) {
+      this.setupListeners();
+      this.listenersAttached = true;
+      this.log.log('Telegram listeners attached ✅');
+    }
   }
+
+  /* graceful shutdown – frees Telegram polling lock */
+  onApplicationShutdown(signal?: string) {
+    this.log.log(`Stopping Telegram polling (${signal ?? 'shutdown'})`);
+    return this.bot.stop(signal ?? 'SIGTERM');
+  }
+
+  /* ------------------------------------------------------------------ */
+  /*                     LISTENER DEFINITIONS                           */
+  /* ------------------------------------------------------------------ */
   private setupListeners() {
+    /* 1 ▪ any text = show menu / ask contact ------------------------ */
     this.bot.on('text', async (ctx) => {
-      const userId = ctx.from.id;
-      const result = await this.user.getOneByCriteria({
-        telegramUserId: userId,
-      });
+      const tgId = ctx.from.id.toString();
+      const u = await this.user.getOneByCriteria({ telegramUserId: tgId });
 
-      if (!result) {
-        ctx.reply(
-          'In order to get job posts Regularly please click the button below',
-          {
-            ...Markup.keyboard([
-              Markup.button.contactRequest('Send Contact'),
-            ]).resize(),
-          },
+      if (!u) {
+        await ctx.reply(
+          '👋 To receive job posts, please share your contact:',
+          Markup.keyboard([
+            Markup.button.contactRequest('Send Contact'),
+          ]).resize(),
         );
       } else {
-        ctx.reply(
-          `Here is the menu please select One`,
-          Markup.inlineKeyboard([
-            [Markup.button.callback('📄 Complete Your Profile', 'profile')],
-            [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
-            [Markup.button.callback('🔄 select Profession', 'profession')],
-          ]),
-        );
+        await this.showMainMenu(ctx);
       }
     });
-    this.bot.action('upload_resume', (ctx) => {
-      ctx.reply('📤 Please attach a file in PDF or DOCX format (Max: 2MB).');
-    });
+
+    /* 2 ▪ contact share -------------------------------------------- */
     this.bot.on('contact', async (ctx) => {
-      const userId = ctx.from.id;
-      const contact = ctx.message.contact; // Contact object
-      const phoneNumber = contact.phone_number;
-      const firstName = contact.first_name;
-      const lastName = contact.last_name;
+      const tgId = ctx.from.id.toString();
+      const { phone_number, first_name, last_name } = ctx.message.contact;
 
-      const result = await this.user.getOneByCriteria({ phone: phoneNumber });
-      if (!result) {
-        const user = new UserEntity();
-        user.phone = phoneNumber;
-        user.telegramUserId = userId.toString();
-        user.firstName = firstName;
-        user.lastName = lastName;
-        const res = await this.user.create(user);
-      } else {
-        result.telegramUserId = userId.toString();
-        const res = await this.user.update(result.id, result);
+      const existing = await this.user.getOneByCriteria({
+        phone: phone_number,
+      });
+      if (!existing) {
+        await this.user.create({
+          phone: phone_number,
+          telegramUserId: tgId,
+          firstName: first_name,
+          lastName: last_name,
+        } as any);
+      } else if (!existing.telegramUserId) {
+        existing.telegramUserId = tgId;
+        await this.user.update(existing.id, existing);
       }
-      ctx.reply(
-        `Thanks for sharing your phone number, ${firstName}! Here's what you can do next`,
+
+      await ctx.reply(
+        `Thanks, ${first_name}!`,
         Markup.inlineKeyboard([
-          [Markup.button.callback('📄 Complete Your Profile', 'profile')],
+          [Markup.button.callback('📄 Complete Profile', 'profile')],
           [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
-          [Markup.button.callback('🔄 select Profession', 'profession')],
+          [Markup.button.callback('🔄 Select Profession', 'profession')],
         ]),
       );
-
-      // Optionally, store the phone number in your database with the userId
     });
+
+    /* 3 ▪ ask for résumé upload ------------------------------------ */
+    this.bot.action('upload_resume', (ctx) =>
+      ctx.reply('📤 Please attach a PDF/DOCX résumé (≤ 2 MB).'),
+    );
+
+    /* 4 ▪ résumé file handler -------------------------------------- */
     this.bot.on('document', async (ctx) => {
-      console.log('📂 Received a document!'); // Debugging
-      const file = ctx.message.document;
-      const userId = ctx.from.id;
-      if (!file) {
-        console.log('❌ No file received!');
-        return ctx.reply('❌ No file detected. Please upload a valid resume.');
+      const doc = ctx.message.document;
+      const fileName = doc.file_name ?? 'resume';
+      if (!fileName.endsWith('.pdf') && !fileName.endsWith('.docx')) {
+        return ctx.reply('❌ Only PDF or DOCX, please.');
       }
 
-      const fileId = file.file_id;
-      const fileName = file.file_name;
-      const fileLink = await ctx.telegram.getFileLink(fileId);
-      console.log('Download resume from:', fileLink);
-
-      // Download the file using axios
-      const response = await axios.get(fileLink.toString(), {
+      const fileUrl = await ctx.telegram.getFileLink(doc.file_id);
+      const data = await axios.get(fileUrl.toString(), {
         responseType: 'arraybuffer',
       });
+
       const multerFile: Express.Multer.File = {
         fieldname: 'resume',
         originalname: fileName,
         encoding: '7bit',
-        mimetype:
-          file.file_size > 0 ? file.mime_type : 'application/octet-stream',
-        buffer: Buffer.from(response.data),
-        size: response.data.length,
+        mimetype: doc.mime_type ?? 'application/octet-stream',
+        buffer: Buffer.from(data.data),
+        size: data.data.length,
         destination: '',
         filename: fileName,
         path: '',
-        stream: null,
+        stream: null as any,
       };
-      const res = await this.user.uploadResume(multerFile, userId.toString());
-      // const fileId = file.file_id;
-      // const fileName = file.file_name;
-      // console.log(`📄 File Name: ${fileName}`);
-
-      // Check if the file is a valid resume (PDF or DOCX)
-      if (!fileName.endsWith('.pdf') && !fileName.endsWith('.docx')) {
-        return ctx.reply('❌ Please upload a valid resume (PDF or DOCX only).');
-      }
-
-      ctx.reply(`✅ Resume received: \n you do not need to upload file  every time you apply  
-        \n know you can Apply for Job`);
-
-      // Get the file link (for downloading)
-      // const fileLink = await ctx.telegram.getFileLink(fileId);
-      console.log('Download resume from:', fileLink);
-    });
-    this.bot.action('profession', (ctx) => {
-      ctx.reply(
-        `Select one of the professions below`,
-        Markup.inlineKeyboard([
-          [
-            Markup.button.callback(
-              ProfessionEnums.CreativeAndMedia,
-              ProfessionEnums.CreativeAndMedia,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.EducationAndResearch,
-              ProfessionEnums.CreativeAndMedia,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.EngineeringConstruction,
-              ProfessionEnums.EngineeringConstruction,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.FinanceAndBusiness,
-              ProfessionEnums.FinanceAndBusiness,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.HealthcareAndMedicine,
-              ProfessionEnums.HealthcareAndMedicine,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.HospitalityAndTourism,
-              ProfessionEnums.HospitalityAndTourism,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.LawAndGovernment,
-              ProfessionEnums.LawAndGovernment,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.ScienceAndEnvironment,
-              ProfessionEnums.ScienceAndEnvironment,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.SkilledTrades,
-              ProfessionEnums.SkilledTrades,
-            ),
-          ],
-          [
-            Markup.button.callback(
-              ProfessionEnums.TechnologyAndIT,
-              ProfessionEnums.TechnologyAndIT,
-            ),
-          ],
-        ]),
-      );
-    });
-    this.bot.action(ProfessionEnums.CreativeAndMedia, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Graphic Designer
-        Content Writer
-        Video Editor
-        Photographer
-        Musician
-        Filmmaker
-        Fashion Designer
-        Animator
-        UX/UI Designer`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.EducationAndResearch, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Teacher (Primary, Secondary, Special Education)
-        Professor
-        Lecturer
-        Research Scientist
-        Instructional Designer
-        Education Administrator
-        Librarian
-        Tutor
-        Academic Advisor`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.EngineeringConstruction, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Civil Engineer
-        Mechanical Engineer
-        Electrical Engineer
-        Structural Engineer
-        Architect
-        Surveyor
-        Urban Planner
-        Construction Manager
-        HVAC Technician
-        Environmental Engineer`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.FinanceAndBusiness, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Accountant
-        Financial Analyst
-        Investment Banker
-        Actuary
-        Tax Consultant
-        Auditor
-        Business Consultant
-        Project Manager
-        Supply Chain Manager
-        Human Resources Manager`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.HealthcareAndMedicine, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Doctor (General Practitioner, Surgeon, Specialist)
-        Nurse
-        Pharmacist
-        Dentist
-        Physiotherapist
-        Radiologist
-        Medical Laboratory Technician
-        Paramedic
-        Psychologist
-        Veterinarian`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.HospitalityAndTourism, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Hotel Manager
-        Chef
-        Tour Guide
-        Event Planner
-        Bartender
-        Travel Agent`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.LawAndGovernment, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Lawyer
-        Judge
-        Paralegal
-        Police Officer
-        Diplomat
-        Politician
-        Military Officer
-        Customs Officer
-        Intelligence Analyst`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.ScienceAndEnvironment, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Biologist
-        Chemist
-        Environmental Scientist
-        Meteorologist
-        Geologist`);
-      ctx.reply(`📤 Remember You can change this any time`);
-    });
-    this.bot.action(ProfessionEnums.TechnologyAndIT, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Software Engineer
-        Data Scientist
-        Cybersecurity Analyst
-        Web Developer
-        Network Administrator
-        IT Support Specialist
-        Cloud Engineer
-        DevOps Engineer
-        Database Administrator
-        Front End Developer,
-        BackEnd Developer
-        AI/ML Engineer and more`);
-      ctx.reply(`📤 Remember You can change this any time \n`);
-    });
-    this.bot.action(ProfessionEnums.SkilledTrades, (ctx) => {
-      ctx.reply(
-        `📤 Congratulation we will send you jobs in the Following felids`,
-      );
-      ctx.reply(`
-        Mechanic
-        Electrician
-        Plumber
-        Carpenter
-        Welder and more
-        `);
-      ctx.reply(`📤 Remember You can change this any time`);
+      await this.user.uploadResume(multerFile, ctx.from.id.toString());
+      await ctx.reply('✅ Résumé received! You can now apply to jobs.');
     });
 
-    this.bot.action('profile', (ctx) => {
-      ctx.reply('📤 Please attach a file in PDF or DOCX format (Max: 2MB).');
-    });
+    /* 5 ▪ profession menu ------------------------------------------ */
+    this.bot.action('profession', (ctx) => this.showProfessionMenu(ctx));
 
+    /* 6 ▪ profession chosen (every enum value) ---------------------- */
+    Object.values(ProfessionEnums).forEach((p) =>
+      this.bot.action(p, async (ctx) => {
+        await ctx.answerCbQuery();
+        await ctx.reply(`👍 Got it! We’ll send you *${p}* jobs.`, {
+          parse_mode: 'Markdown',
+        });
+      }),
+    );
+
+    /* 7 ▪ APPLY button handler ------------------------------------- */
     this.bot.action(/^apply_(.+)$/, async (ctx) => {
-      const userId = ctx.from.id;
-      const jobId = ctx.match[1]; // Extract the job ID from callback_data
+      try {
+        await ctx.answerCbQuery('Processing…');
+        const jobId = ctx.match[1];
+        const tgId = ctx.from.id.toString();
 
-      const user = await this.user.getOneByCriteria({ telegramUserId: userId });
-      if (!user.resume) {
-        await ctx.reply(
-          `✅You have already applied for this job`,
-          Markup.inlineKeyboard([
-            [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
-          ]),
-        );
-      }
-      if (user) {
-        const alreadyApplied = await this.applicationService.getOneByCriteria({
+        const user = await this.user.getOneByCriteria({ telegramUserId: tgId });
+        if (!user) {
+          return ctx.reply('🔑 Please /start first so we can identify you.');
+        }
+        if (!user.resume) {
+          return ctx.reply(
+            '❌ We don’t have your résumé yet.',
+            Markup.inlineKeyboard([
+              [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
+            ]),
+          );
+        }
+
+        /* duplicate check */
+        const dup = await this.application.getOneByCriteria({
           JobPostId: jobId,
           userId: user.id,
         });
-        if (alreadyApplied)
-          await ctx.reply(`✅You have already applied for this job`);
-        const jonPost = await this.jobPostingService.getOneByCriteria({
-          id: jobId,
+        if (dup) return ctx.reply('✅ You already applied for this job.');
+
+        const job = await this.jobPosting.getOneByCriteria({ id: jobId });
+        if (!job) return ctx.reply('❌ Job not found or closed.');
+
+        await this.application.create({
+          JobPostId: job.id,
+          userId: user.id,
+          applicationInformation: { description: '' },
+          coverLetter: '',
         });
-        if (jonPost) {
-          const jobApplicationCommand: CreateApplicationCommand = {
-            JobPostId: jonPost.id,
-            userId: user.id,
-            applicationInformation: { description: '' },
-            coverLetter: '',
-          };
-          const response = await this.applicationService.create(
-            jobApplicationCommand,
-          );
-          await ctx.answerCbQuery();
-          await ctx.reply(
-            `✅ You have successfully applied for job ID: ${jonPost.position}.`,
-          );
-        }
+
+        await ctx.reply(
+          `🎉 Application submitted for *${job.position}*. Good luck!`,
+          { parse_mode: 'Markdown' },
+        );
+      } catch (e) {
+        this.log.error('apply action failed', e);
+        await ctx.answerCbQuery('Error – try again later.', { show_alert: true });
       }
     });
-    console.log('🤖 Telegram bot is running...');
-  }
-  async sendMessage(chatId: string, message: string, JobPostId: string) {
-    try {
-      const options = {
-        parse_mode: 'Markdown' as 'Markdown' | 'HTML' | 'MarkdownV2',
-        reply_markup: {
-          inline_keyboard: [
-            [{ text: '📝 Apply Now', callback_data: `apply_${JobPostId}` }],
-          ],
-        },
-      };
 
-      await this.bot.telegram.sendMessage(chatId, message, options);
-    } catch (error) {
-      throw error;
+    this.log.log('All bot actions & events wired.');
+  }
+
+  /* ----------------- helper menus ---------------------------------- */
+  private async showMainMenu(ctx: any) {
+    await ctx.reply(
+      'Choose an option:',
+      Markup.inlineKeyboard([
+        [Markup.button.callback('📄 Complete Profile', 'profile')],
+        [Markup.button.callback('📤 Upload Resume', 'upload_resume')],
+        [Markup.button.callback('🔄 Select Profession', 'profession')],
+      ]),
+    );
+  }
+
+  private async showProfessionMenu(ctx: any) {
+    await ctx.reply(
+      'Select a profession:',
+      Markup.inlineKeyboard(
+        Object.values(ProfessionEnums).map((p) => [
+          Markup.button.callback(p, p),
+        ]),
+      ),
+    );
+  }
+
+  /* ----------------- public helper to broadcast a job -------------- */
+  async sendMessage(chatId: string, markdown: string, jobId: string) {
+    /* guarantee callback_data ≤ 64 bytes */
+    let cb = `apply_${jobId}`;
+    if (Buffer.byteLength(cb, 'utf8') > 64) {
+      cb = `apply_${jobId.slice(-58)}`; // keep last part (64-6 = 58)
     }
+
+    await this.bot.telegram.sendMessage(chatId, markdown, {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [[{ text: '📝 Apply Now', callback_data: cb }]],
+      },
+    });
   }
 }

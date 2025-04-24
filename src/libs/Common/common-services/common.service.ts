@@ -14,17 +14,12 @@ export class CommonCrudService<T extends ObjectLiteral> {
   // private readonly auditingService: AuditingService;
   constructor(private readonly repository: Repository<T>) {}
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
-    try {
-      if (req?.user?.organization) {
-        itemData.organizationId = req.user.organization.id;
-      }
-      const item = this.repository.create(itemData);
-      const res = (await this.repository.insert(item)) as any;
-      return item;
-    } catch (error) {
-      console.log(error);
-      throw error;
+    if (req?.user?.organization) {
+      itemData.organizationId = req.user.organization.id;
     }
+    const item = this.repository.create(itemData);
+    const res = (await this.repository.insert(item)) as any;
+    return item;
   }
 
   async findAll(query: CollectionQuery) {

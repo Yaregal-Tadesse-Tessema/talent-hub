@@ -162,7 +162,10 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       this.userRepository,
       query,
     );
-    dataQuery.andWhere('"technicalSkills"&&:skills', { skills });
+    dataQuery.andWhere(
+      '(("technicalSkills"&&:skills) OR "technicalSkills" IS NULL OR cardinality("technicalSkills") = 0) ',
+      { skills },
+    );
     const result = await dataQuery.getMany();
     return result;
   }
