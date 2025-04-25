@@ -131,7 +131,6 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       const eligibleUsers = await this.getEligibleUsersForTheJobPost(
         response.skill,
       );
-
       const messageCommand: JobPostTelegramNotificationCommand = {
         deadline: response.deadline,
         jobTitle: response.title,
