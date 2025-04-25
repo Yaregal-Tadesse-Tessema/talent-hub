@@ -42,9 +42,6 @@ jobs:
             dist
             package.json
             package-lock.json
-
-          target: ${{ env.APP_DIR }}
-          overwrite: true
       - name: Remote deploy commands
         uses: appleboy/ssh-action@v0.1.10
         with:
