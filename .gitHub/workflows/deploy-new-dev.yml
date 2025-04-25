@@ -1,0 +1,55 @@
+name: Build & Deploy (new-dev → talent-hub-api)
+
+on:
+  push:
+    branches: [ new-dev ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      APP_DIR: /projects/talent-hub
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Use Node v20.15.1
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.15.1'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build NestJS
+        run: npm run build    # produces ./dist
+
+      - name: Copy files to server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host:   ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}   # root
+          key:    ${{ secrets.SSH_KEY }}
+          port:   ${{ secrets.SSH_PORT }}
+          source: |
+            dist
+            package.json
+            package-lock.json
+          target: ${{ env.APP_DIR }}
+          overwrite: true
+
+      - name: Remote deploy commands
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}   # root
+          key:      ${{ secrets.SSH_KEY }}
+          port:     ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd $APP_DIR
+            npm ci --omit=dev
+            pm2 reload talent-hub-api || pm2 start dist/main.js --name talent-hub-api
+            pm2 save
