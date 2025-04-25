@@ -1,58 +1,70 @@
+# .github/workflows/deploy-new-dev.yml
 name: Build & Deploy (new-dev → talent-hub-api)
 
 on:
   push:
-    branches: [new-dev]
+    branches: [ new-dev ]   # 🚀 every push to “new-dev” runs this job
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
-      APP_DIR: /projects/talent-hub
+      APP_DIR: /projects/talent-hub   # remote folder on your server
 
     steps:
+      # 1️⃣  Clone the commit
       - name: Checkout source
         uses: actions/checkout@v4
 
+      # 2️⃣  Install the exact Node version you use in prod
       - name: Use Node v20.15.1
         uses: actions/setup-node@v4
         with:
           node-version: '20.15.1'
 
+      # 3️⃣  Install dependencies & build
       - name: Install dependencies
         run: npm ci
 
       - name: Build NestJS
-        run: npm run build # produces ./dist
+        run: npm run build          # → creates ./dist
+
+      # 4️⃣  Quick debug listing (optional – keep or remove later)
       - name: Show workspace tree (debug)
         run: |
           echo "── Workspace after build ──"
           find . -maxdepth 2 -type f | sort
+
+      # 5️⃣  Copy artefacts to the server via SCP
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.4
+        with:
+          host:       ${{ secrets.SSH_HOST }}
+          username:   ${{ secrets.SSH_USER }}   # root
+          key:        ${{ secrets.SSH_KEY }}
+          port:       ${{ secrets.SSH_PORT }}   # 22 unless you changed sshd
+          overwrite:  true
+          target:     ${{ env.APP_DIR }}
+          # ── list ONE path per line; “dist/**” grabs everything inside dist/
+          source: |
+            dist/**
+            package.json
+            package-lock.json
+
+      # 6️⃣  SSH in, install prod deps, then (re)start the app with PM2
+      - name: Remote deploy commands
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host:       ${{ secrets.SSH_HOST }}
           username:   ${{ secrets.SSH_USER }}
           key:        ${{ secrets.SSH_KEY }}
           port:       ${{ secrets.SSH_PORT }}
-          overwrite:  true             # replace old files
-          target:     ${{ env.APP_DIR }}
-          source: |
-            dist
-            package.json
-            package-lock.json
-      - name: Remote deploy commands
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host:     ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key:      ${{ secrets.SSH_KEY }}
-          port:     ${{ secrets.SSH_PORT }}
           script: |
             set -e
             cd $APP_DIR
+            echo "Installing production dependencies…"
             npm ci --omit=dev
-            pm2 reload talent-hub-api || \
-            pm2 start dist/apps/api/main.js --name talent-hub-api
+            echo "Reloading (or starting) PM2 process…"
+            pm2 reload talent-hub-api || pm2 start dist/main.js --name talent-hub-api
             pm2 save
