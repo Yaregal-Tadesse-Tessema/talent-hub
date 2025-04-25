@@ -30,12 +30,6 @@ jobs:
       - name: Build NestJS
         run: npm run build            # → dist/main.js
 
-      # (optional) quick listing
-      - name: Show workspace tree (debug)
-        run: |
-          echo "── Workspace after build ──"
-          find . -maxdepth 2 -type f | sort
-
       # ─── 4. copy artefacts to the server ─────────────────────────────────────
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.4
@@ -48,7 +42,11 @@ jobs:
           target:     ${{ env.APP_DIR }}
           # IMPORTANT → one comma-separated string (no newlines)
           source: "dist/**,package.json,package-lock.json"
-
+      # (optional) quick listing
+      - name: Show workspace tree (debug)
+        run: |
+          echo "── Workspace after build ──"
+          find . -maxdepth 2 -type f | sort
       # ─── 5. SSH + PM2 reload/start ───────────────────────────────────────────
       - name: Remote deploy commands
         uses: appleboy/ssh-action@v0.1.10
