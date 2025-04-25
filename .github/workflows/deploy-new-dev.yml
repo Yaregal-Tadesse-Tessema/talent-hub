@@ -59,7 +59,7 @@ jobs:
             set -e
             cd /projects/talent-hub
             echo "Installing production dependencies…"
-            npm ci --omit=dev
+            npm ci
             echo "Reloading (or starting) PM2 process…"
             pm2 reload talent-hub-api || pm2 start dist/main.js --name talent-hub-api
             pm2 save
