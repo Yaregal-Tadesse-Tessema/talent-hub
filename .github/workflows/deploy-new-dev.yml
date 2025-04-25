@@ -36,10 +36,13 @@ jobs:
           username:   ${{ secrets.SSH_USER }}
           key:        ${{ secrets.SSH_KEY }}
           port:       ${{ secrets.SSH_PORT }}
-          source: 
-            dist/**
+          overwrite:  true             # replace old files
+          target:     ${{ env.APP_DIR }}
+          source: |
+            dist
             package.json
             package-lock.json
+
           target: ${{ env.APP_DIR }}
           overwrite: true
       - name: Remote deploy commands
