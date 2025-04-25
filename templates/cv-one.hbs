@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{fullName}} - CV</title>
+    <style>
+      @page { size: A4; margin: 25mm; }
+      body {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        color: #222;
+        line-height: 1.5;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 1rem;
+      }
+      .profile-pic {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-bottom: 0.5rem;
+      }
+      header h1 {
+        font-size: 1.75rem;
+        margin-bottom: 0.25rem;
+      }
+      header p.slogan {
+        font-style: italic;
+        color: #555;
+      }
+      .socials a {
+        margin: 0 0.5rem;
+        text-decoration: none;
+        color: #0366d6;
+      }
+      section {
+        margin-top: 1.25rem;
+      }
+      h2 {
+        font-size: 1.1rem;
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+      }
+      ul {
+        padding-left: 1rem;
+      }
+      .item {
+        margin-bottom: 0.75rem;
+      }
+      .item-title {
+        font-weight: bold;
+      }
+      .item-subtitle {
+        font-size: 0.9rem;
+        color: #666;
+      }
+      .two-column {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .column {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      {{#if profilePicture}}
+        <img src="{{profilePicture}}" alt="Profile Picture" class="profile-pic" />
+      {{/if}}
+      <h1>{{fullName}}</h1>
+      <p class="slogan">{{slogan}}</p>
+      <p>{{email}} | {{phone}} | {{address}}</p>
+      <div class="socials">
+        {{#if linkedin}}<a href="{{linkedin}}">LinkedIn</a>{{/if}}
+        {{#if github}}<a href="{{github}}">GitHub</a>{{/if}}
+        {{#if twitter}}<a href="{{twitter}}">Twitter</a>{{/if}}
+        {{#if website}}<a href="{{website}}">Website</a>{{/if}}
+      </div>
+    </header>
+
+    <section>
+      <h2>About Me</h2>
+      <p>{{about}}</p>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      {{#each education}}
+        <div class="item">
+          <div class="item-title">{{degree}} in {{fieldOfStudy}} - {{institution}}</div>
+          <div class="item-subtitle">{{location}} | {{startDate}} – {{#if isCurrent}}Present{{else}}{{endDate}}{{/if}}</div>
+          <p><strong>GPA:</strong> {{gpa}} {{#if honors}}| <strong>Honors:</strong> {{honors.[0]}}{{/if}}</p>
+        </div>
+      {{/each}}
+    </section>
+
+    <section>
+      <h2>Experience</h2>
+      {{#each experience}}
+        <div class="item">
+          <div class="item-title">{{position}} - {{company}}</div>
+          <div class="item-subtitle">{{location}} | {{startDate}} – {{#if isCurrent}}Present{{else}}{{endDate}}{{/if}}</div>
+          <ul>
+            {{#each responsibilities}}<li>{{this}}</li>{{/each}}
+          </ul>
+          {{#if achievements}}
+            <p><strong>Achievements:</strong></p>
+            <ul>
+              {{#each achievements}}<li>{{this}}</li>{{/each}}
+            </ul>
+          {{/if}}
+        </div>
+      {{/each}}
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+      {{#each projects}}
+        <div class="item">
+          <div class="item-title">{{name}} - {{role}}</div>
+          <div class="item-subtitle">{{startDate}} – {{#if isOngoing}}Present{{else}}{{endDate}}{{/if}}</div>
+          <p>{{description}}</p>
+          <p><strong>Tech:</strong> {{technologies.join ", "}}</p>
+          {{#if repository}}<p><a href="{{repository}}">GitHub</a></p>{{/if}}
+          {{#if demoURL}}<p><a href="{{demoURL}}">Demo</a></p>{{/if}}
+        </div>
+      {{/each}}
+    </section>
+
+    <section>
+      <h2>Certificates</h2>
+      {{#each certificates}}
+        <div class="item">
+          <div class="item-title">{{title}} - {{issuingOrganization}}</div>
+          <div class="item-subtitle">Issued: {{issueDate}}{{#unless isPermanent}}, Expires: {{expirationDate}}{{/unless}}</div>
+          {{#if credentialURL}}<p><a href="{{credentialURL}}">Credential</a></p>{{/if}}
+        </div>
+      {{/each}}
+    </section>
+
+    <section>
+      <h2>Awards</h2>
+      {{#each awards}}
+        <div class="item">
+          <div class="item-title">{{title}} - {{organization}}</div>
+          <div class="item-subtitle">{{dateReceived}}</div>
+          <p>{{description}}</p>
+        </div>
+      {{/each}}
+    </section>
+
+    <section>
+      <h2>Publications</h2>
+      {{#each publications}}
+        <div class="item">
+          <div class="item-title">{{title}}</div>
+          <div class="item-subtitle">{{publicationDate}} - {{journal}} ({{publisher}})</div>
+          <p><strong>Authors:</strong> {{authors.join ", "}}</p>
+          {{#if doi}}<p><strong>DOI:</strong> {{doi}}</p>{{/if}}
+          {{#if url}}<p><a href="{{url}}">View Publication</a></p>{{/if}}
+          <p>{{summary}}</p>
+        </div>
+      {{/each}}
+    </section>
+
+    <section class="two-column">
+      <div class="column">
+        <h2>Skills</h2>
+        <ul>
+          {{#each skills}}<li>{{this}}</li>{{/each}}
+        </ul>
+
+        <h2>Languages</h2>
+        <ul>
+          {{#each languages}}<li>{{this}}</li>{{/each}}
+        </ul>
+
+        <h2>Interests</h2>
+        <ul>
+          {{#each interests}}<li>{{this}}</li>{{/each}}
+        </ul>
+      </div>
+
+      <div class="column">
+        <h2>Volunteer Work</h2>
+        <ul>
+          {{#each volunteer}}
+            <li>{{role}} at {{organization}} ({{year}})</li>
+          {{/each}}
+        </ul>
+
+        <h2>References</h2>
+        <ul>
+          {{#each references}}
+            <li>{{name}} - {{relation}} - {{contact}}</li>
+          {{/each}}
+        </ul>
+      </div>
+    </section>
+  </body>
+</html>
