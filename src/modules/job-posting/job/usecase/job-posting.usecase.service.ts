@@ -155,7 +155,6 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
     }
     return JobPostingResponse.toResponse(response);
   }
-
   async getEligibleUsersForTheJobPost(skills: string[]) {
     const query: CollectionQuery = new CollectionQuery();
     const dataQuery = QueryConstructor.constructQuery<UserEntity>(
