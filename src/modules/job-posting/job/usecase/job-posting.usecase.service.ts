@@ -208,7 +208,6 @@ export class JobPostingService extends CommonCrudService<JobPostingEntity> {
       throw error;
     }
   }
-
   async notifyUsersOnTelegramBoot(
     userId: string,
     command: JobPostTelegramNotificationCommand,
