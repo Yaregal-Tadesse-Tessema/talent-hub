@@ -19,7 +19,6 @@ Handlebars.registerHelper('numberFormat', (num: number | string) => {
   if (!num) {
     return '';
   }
-
   if (typeof num === 'string') num = parseFloat(num);
   num = num.toFixed(2);
   return parseFloat(num).toLocaleString('en-US', {
