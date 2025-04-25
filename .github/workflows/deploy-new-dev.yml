@@ -25,7 +25,10 @@ jobs:
 
       - name: Build NestJS
         run: npm run build # produces ./dist
-
+      - name: Show workspace tree (debug)
+        run: |
+          echo "── Workspace after build ──"
+          find . -maxdepth 2 -type f | sort
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.4
         with:
