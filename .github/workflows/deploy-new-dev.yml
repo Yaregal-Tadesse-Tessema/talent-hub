@@ -63,5 +63,10 @@ jobs:
             echo "Installing production dependencies…"
             npm ci --omit=dev
             echo "Reloading (or starting) PM2 process…"
+            if [ -f package-lock.json ]; then
+              npm ci --omit=dev
+            else
+              npm install --omit=dev
+            fi
             pm2 reload talent-hub-api || pm2 start dist/main.js --name talent-hub-api
             pm2 save
