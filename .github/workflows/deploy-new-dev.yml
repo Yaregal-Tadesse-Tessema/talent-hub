@@ -41,7 +41,7 @@ jobs:
           overwrite:  true
           target:     ${{ env.APP_DIR }}
           # IMPORTANT → one comma-separated string (no newlines)
-          source: "dist/**,package.json,package-lock.json"
+          source: "dist/**,package.json,package-lock.json,.env"
       # (optional) quick listing
       - name: Show workspace tree (debug)
         run: |
