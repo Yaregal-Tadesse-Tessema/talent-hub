@@ -25,7 +25,6 @@ import { QueryConstructor } from 'src/libs/Common/collection-query/query-constru
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
-import { Util } from 'src/libs/Common/util';
 @Injectable()
 export class JobPostingService extends CommonCrudService<JobPostingEntity> {
   constructor(
