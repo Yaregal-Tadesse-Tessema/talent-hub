@@ -3,56 +3,53 @@ name: Build & Deploy (new-dev → talent-hub-api)
 
 on:
   push:
-    branches: [ new-dev ]   # 🚀 every push to “new-dev” runs this job
+    branches: [ new-dev ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
-      APP_DIR: /projects/talent-hub   # remote folder on your server
+      APP_DIR: /projects/talent-hub   # folder on the server
 
     steps:
-      # 1️⃣  Clone the commit
+      # ─── 1. checkout ─────────────────────────────────────────────────────────
       - name: Checkout source
         uses: actions/checkout@v4
 
-      # 2️⃣  Install the exact Node version you use in prod
+      # ─── 2. Node tool-chain ──────────────────────────────────────────────────
       - name: Use Node v20.15.1
         uses: actions/setup-node@v4
         with:
           node-version: '20.15.1'
 
-      # 3️⃣  Install dependencies & build
+      # ─── 3. install & build ──────────────────────────────────────────────────
       - name: Install dependencies
         run: npm ci
 
       - name: Build NestJS
-        run: npm run build          # → creates ./dist
+        run: npm run build            # → dist/main.js
 
-      # 4️⃣  Quick debug listing (optional – keep or remove later)
+      # (optional) quick listing
       - name: Show workspace tree (debug)
         run: |
           echo "── Workspace after build ──"
           find . -maxdepth 2 -type f | sort
 
-      # 5️⃣  Copy artefacts to the server via SCP
+      # ─── 4. copy artefacts to the server ─────────────────────────────────────
       - name: Copy files to server
         uses: appleboy/scp-action@v0.1.4
         with:
           host:       ${{ secrets.SSH_HOST }}
           username:   ${{ secrets.SSH_USER }}   # root
           key:        ${{ secrets.SSH_KEY }}
-          port:       ${{ secrets.SSH_PORT }}   # 22 unless you changed sshd
+          port:       ${{ secrets.SSH_PORT }}   # usually 22
           overwrite:  true
           target:     ${{ env.APP_DIR }}
-          # ── list ONE path per line; “dist/**” grabs everything inside dist/
-          source: |
-            dist/**
-            package.json
-            package-lock.json
+          # IMPORTANT → one comma-separated string (no newlines)
+          source: "dist/**,package.json,package-lock.json"
 
-      # 6️⃣  SSH in, install prod deps, then (re)start the app with PM2
+      # ─── 5. SSH + PM2 reload/start ───────────────────────────────────────────
       - name: Remote deploy commands
         uses: appleboy/ssh-action@v0.1.10
         with:
