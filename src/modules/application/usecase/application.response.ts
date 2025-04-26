@@ -4,6 +4,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { JobPostingResponse } from 'src/modules/job-posting/job/usecase/job-posting.response';
+import { ReferralInformation } from './application.command';
 export class ApplicationResponse {
   @ApiProperty()
   id: string;
@@ -29,6 +30,10 @@ export class ApplicationResponse {
   questionaryScore: number;
   @ApiProperty()
   isViewed: boolean;
+  @ApiProperty()
+  referralInformation: ReferralInformation;
+  @ApiProperty()
+  referenceReason: string;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   static toResponse(entity: ApplicationEntity): ApplicationResponse {
@@ -46,6 +51,8 @@ export class ApplicationResponse {
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
     response.notification = entity?.notification;
+    response.referralInformation = entity?.referralInformation;
+    response.referenceReason = entity?.referenceReason;
     response.questionaryScore = entity?.questionaryScore;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);

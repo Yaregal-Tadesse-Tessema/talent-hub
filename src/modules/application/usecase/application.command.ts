@@ -2,6 +2,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApplicationEntity } from '../persistences/application.entity';
+export class ReferralInformation {
+  @ApiProperty()
+  fullName: string;
+  @ApiProperty()
+  employeeId: string;
+  @ApiProperty()
+  id?: string;
+}
 export class CreateApplicationCommand {
   id?: string;
   @ApiProperty({ nullable: false })
@@ -12,6 +20,10 @@ export class CreateApplicationCommand {
   JobPostId: string;
   @ApiProperty()
   coverLetter: string;
+  @ApiProperty()
+  referralInformation: ReferralInformation;
+  @ApiProperty()
+  referenceReason: string;
   @ApiProperty()
   isViewed?: boolean;
   @ApiProperty()
@@ -39,6 +51,8 @@ export class CreateApplicationCommand {
     entity.remark = dto?.remark;
     entity.notification = dto?.notification;
     entity.questionaryScore = dto?.questionaryScore;
+    entity.referralInformation = dto?.referralInformation;
+    entity.referenceReason = dto?.referenceReason;
     return entity;
   }
 
@@ -52,4 +66,5 @@ export class UpdateApplicationCommand extends CreateApplicationCommand {
   @IsNotEmpty()
   id: string;
 }
+
 
