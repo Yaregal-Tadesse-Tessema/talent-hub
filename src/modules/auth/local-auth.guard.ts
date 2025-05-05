@@ -47,7 +47,7 @@ export class LocalAuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.TOKEN_SECRET,
+        secret: process.env.TOKEN_SECRET_KEY,
       });
       request['user'] = payload;
     } catch (err) {
