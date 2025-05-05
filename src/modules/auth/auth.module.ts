@@ -18,6 +18,7 @@ import { PdfService } from 'src/libs/pdf/pdf.service';
 import { ApplicationEntity } from '../application/persistences/application.entity';
 import { SessionCommand } from './services/session/session.usecase.command';
 import { SessionQuery } from './services/session/session.usecase.query';
+import * as process from 'node:process';
 @Global()
 @Module({
   imports: [
