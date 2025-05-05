@@ -7,6 +7,8 @@ import fetch from 'node-fetch';
 import * as base64arraybuffer from 'base64-arraybuffer';
 import { CountryCode, parsePhoneNumberFromString } from 'libphonenumber-js';
 import { BadRequestException } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env' });
 import * as process from 'node:process';
 export class Util {
   static hashPassword(plainPassword: string): string {

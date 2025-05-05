@@ -14,6 +14,8 @@ import { AllowAnonymous } from '../allow-anonymous.decorator';
 import * as jwt from 'jsonwebtoken';
 import { Util } from 'src/libs/Common/util';
 import { SessionQuery } from '../services/session/session.usecase.query';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env' });
 import * as process from 'node:process';
 @Controller('auth')
 @ApiTags('Auth')

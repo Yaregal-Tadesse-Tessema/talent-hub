@@ -10,6 +10,8 @@ import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env' });
 import * as process from 'node:process';
 @Module({
   imports: [

@@ -8,6 +8,8 @@ import { SessionEntity } from '../persistances/session.entity';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { SessionCommand } from './session/session.usecase.command';
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env' });
 import * as process from 'node:process';
 @Injectable()
 export class AuthService {
