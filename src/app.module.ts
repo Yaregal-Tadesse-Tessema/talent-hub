@@ -12,9 +12,13 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
+import { ConfigModule } from '@nestjs/config';
 import * as process from 'node:process';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.PUBLIC_DATABASE_HOST,
