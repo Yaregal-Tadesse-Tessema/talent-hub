@@ -6,13 +6,14 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class RefreshTokenStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor() {
-    const secret = process.env.REFRESH_TOKEN_SECRET_KEY;
+  constructor(private readonly configService: ConfigService) {
+    const secret = configService.get<string>('REFRESH_TOKEN_SECRET_KEY');
     console.log(secret);
     if (!secret) {
       throw new Error('TOKEN_SECRET_KEY is not defined');
