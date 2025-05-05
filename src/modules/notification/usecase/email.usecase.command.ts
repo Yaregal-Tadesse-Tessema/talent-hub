@@ -10,7 +10,7 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+    // SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
