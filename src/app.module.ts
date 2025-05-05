@@ -37,7 +37,6 @@ import * as process from 'node:process';
       signOptions: { expiresIn: '1h' },
     }),
 
-    // AccountModule,
     AuthModule,
     JobPostingModule,
     UserModule,
