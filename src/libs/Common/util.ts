@@ -12,7 +12,7 @@ dotenv.config({ path: '.env' });
 import * as process from 'node:process';
 export class Util {
   static hashPassword(plainPassword: string): string {
-    return bcrypt.hashSync(plainPassword, Number(process.env.BcryptHashRound));
+    return bcrypt.hashSync(plainPassword, Number(11));
   }
   static comparePassword(
     plainPassword: string,
@@ -48,14 +48,18 @@ export class Util {
     return result;
   }
   static GenerateToken(user: any, expiresIn = '1d') {
-    return jwt.sign(user, process.env.TOKEN_SECRET_KEY, {
+    return jwt.sign(user,'669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281', {
       expiresIn: expiresIn,
     });
   }
   static GenerateRefreshToken(user: any, expiresIn = '365d') {
-    return jwt.sign(user, process.env.REFRESH_SECRET_TOKEN, {
-      expiresIn: expiresIn,
-    });
+    return jwt.sign(
+      user,
+      '06788ed74c52baf6ecff2876caa01619f03ca1b11b872ad1f182728d3694f227c22b35dc775ac634cd88e1c17fa80fface0cf30127b34dc8cfed063a240db46c',
+      {
+        expiresIn: expiresIn,
+      },
+    );
   }
   static compareDate(date1: Date, date2: Date) {
     return date1.getTime() - date2.getTime();

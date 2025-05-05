@@ -37,7 +37,8 @@ export class AuthService {
           sub: account?.id,
         },
         {
-          secret: process.env.TOKEN_SECRET_KEY,
+          secret:
+            '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
           expiresIn: '1h',
         },
       ),
@@ -53,7 +54,8 @@ export class AuthService {
           sub: account?.id,
         },
         {
-          secret: process.env.REFRESH_TOKEN_SECRET_KEY,
+          secret:
+            '06788ed74c52baf6ecff2876caa01619f03ca1b11b872ad1f182728d3694f227c22b35dc775ac634cd88e1c17fa80fface0cf30127b34dc8cfed063a240db46c',
           expiresIn: '7d',
         },
       ),

@@ -35,8 +35,6 @@ export class AuthController {
   }
   @Post('refresh')
   async getRefreshToken(@Headers() headers: object) {
-    console.log(process.env.TOKEN_SECRET_KEY);
-
     if (!headers['x-refresh-token']) {
       throw new ForbiddenException(`Refresh token required`);
     }
@@ -51,7 +49,7 @@ export class AuthController {
       }
       const p = jwt.verify(
         refreshToken,
-        process.env.REFRESH_TOKEN_SECRET_KEY,
+        '06788ed74c52baf6ecff2876caa01619f03ca1b11b872ad1f182728d3694f227c22b35dc775ac634cd88e1c17fa80fface0cf30127b34dc8cfed063a240db46c',
       ) as any;
       return {
         accessToken: Util.GenerateToken(

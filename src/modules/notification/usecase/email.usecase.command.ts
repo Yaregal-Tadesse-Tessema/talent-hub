@@ -14,8 +14,8 @@ export class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: 'yayasoles@gmail.com',
+        pass: 'nakz vvvl goxz pxfu',
       },
     });
   }
@@ -100,7 +100,7 @@ export class EmailService {
     icsContent?: string,
   ) {
     const mailOptions: nodemailer.SendMailOptions = {
-      from: `"Talent Hub" <${process.env.EMAIL_USER}>`,
+      from: `"Talent Hub" <yayasoles@gmail.com>`,
       to,
       subject,
       html,
