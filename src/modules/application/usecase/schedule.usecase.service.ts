@@ -9,7 +9,7 @@ export class EmailService {
   private readonly logger = new Logger(EmailService.name);
 
   constructor() {
-    SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+    // SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
   }
 
   async basicEmail(data, resolve, reject) {
