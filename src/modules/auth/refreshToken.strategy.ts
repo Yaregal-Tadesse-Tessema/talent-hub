@@ -12,6 +12,11 @@ export class RefreshTokenStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor() {
+    const secret = process.env.TOKEN_SECRET_KEY;
+    console.log(secret);
+    if (!secret) {
+      throw new Error('TOKEN_SECRET_KEY is not defined');
+    }
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.REFRESH_TOKEN_SECRET_KEY,
