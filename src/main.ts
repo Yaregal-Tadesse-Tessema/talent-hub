@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
+import * as process from 'node:process';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
@@ -45,6 +46,8 @@ async function bootstrap() {
     deepScanRoutes: true,
   });
   SwaggerModule.setup('/api', app, document, customOptions);
-  await app.listen(3010, () => console.log(`app listening at port :3010 `));
+  await app.listen(+process.env.APPLICATION_PORT, () =>
+    console.log(`app listening at port :3010 `),
+  );
 }
 bootstrap();

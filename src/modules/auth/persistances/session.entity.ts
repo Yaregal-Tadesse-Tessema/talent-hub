@@ -15,6 +15,9 @@ export class SessionEntity extends CommonEntity {
   @Column({ nullable: true, type: 'text' })
   accessToken: string;
   @Column({ nullable: true })
+  @Index()
+  token: string;
+  @Column({ nullable: true })
   ipAddress: string;
   @Column({ nullable: true })
   userAgent: string;

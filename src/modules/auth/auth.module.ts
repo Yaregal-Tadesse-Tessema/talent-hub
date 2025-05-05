@@ -16,6 +16,8 @@ import { UserService } from '../user/usecase/user.usecase.service';
 import { UserEntity } from '../user/persistence/users.entity';
 import { PdfService } from 'src/libs/pdf/pdf.service';
 import { ApplicationEntity } from '../application/persistences/application.entity';
+import { SessionCommand } from './services/session/session.usecase.command';
+import { SessionQuery } from './services/session/session.usecase.query';
 @Global()
 @Module({
   imports: [
@@ -31,7 +33,7 @@ import { ApplicationEntity } from '../application/persistences/application.entit
     forwardRef(() => AccountModule),
     JwtModule.register({
       global: true,
-      secret: 'sjj458a7r4w5AESJKLQHJADKWJMBN',
+      secret: process.env.Default_SECRET_KEY,
       signOptions: { expiresIn: '1d' },
     }),
   ],
@@ -41,6 +43,8 @@ import { ApplicationEntity } from '../application/persistences/application.entit
     JwtStrategy,
     UserService,
     PdfService,
+    SessionCommand,
+    SessionQuery,
   ],
   controllers: [AuthController],
   exports: [AuthService],

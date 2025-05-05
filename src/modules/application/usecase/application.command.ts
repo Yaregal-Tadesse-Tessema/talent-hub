@@ -55,7 +55,6 @@ export class CreateApplicationCommand {
     entity.referenceReason = dto?.referenceReason;
     return entity;
   }
-
   static fromDtos(dto: CreateApplicationCommand[]): ApplicationEntity[] {
     return dto?.map((d) => CreateApplicationCommand.fromDto(d));
   }
