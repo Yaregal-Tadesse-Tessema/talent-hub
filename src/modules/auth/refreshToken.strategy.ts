@@ -13,7 +13,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(private readonly configService: ConfigService) {
-    const secret = configService.get<string>('REFRESH_TOKEN_SECRET_KEY');
+    const secret = process.env.REFRESH_TOKEN_SECRET_KEY;
     console.log(secret);
     if (!secret) {
       throw new Error('TOKEN_SECRET_KEY is not defined');
