@@ -20,8 +20,8 @@ export class AuthService {
     private sessionRepository: Repository<SessionEntity>,
   ) {}
   async generateTokenForEmployee(account: any) {
-    console.log(process.env.TOKEN_SECRET_KEY);
-    console.log(process.env.REFRESH_TOKEN_SECRET_KEY);
+    console.log('vvvvvvv', process.env.TOKEN_SECRET_KEY);
+    console.log('vvvvvvv', process.env.REFRESH_TOKEN_SECRET_KEY);
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
