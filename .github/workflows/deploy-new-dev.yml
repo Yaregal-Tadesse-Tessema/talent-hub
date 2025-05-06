@@ -3,7 +3,7 @@ name: Build & Deploy (new-dev → talent-hub-api)
 
 on:
   push:
-    branches: [ new-dev-3 ]
+    branches: [ new-dev-4 ]
 
 jobs:
   build-and-deploy:
