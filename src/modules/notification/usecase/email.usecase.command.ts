@@ -4,13 +4,14 @@ import * as SendGrid from '@sendgrid/mail';
 import { createEvent } from 'ics';
 import type { MailDataRequired } from '@sendgrid/mail';
 import * as nodemailer from 'nodemailer';
+import * as sgMail from '@sendgrid/mail';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    // SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -123,6 +124,39 @@ export class EmailService {
     } catch (err) {
       this.logger.error('Error sending email', err);
       throw err;
+    }
+  }
+  async sendGridEmail(
+    to: string,
+    subject: string,
+    html: string,
+    icsContent?: string,
+  ): Promise<boolean> {
+    const msg: sgMail.MailDataRequired = {
+      to,
+      from: process.env.SENDGRID_SENDER_EMAIL, // Must be a verified sender
+      subject,
+      html,
+    };
+
+    if (icsContent) {
+      msg.attachments = [
+        {
+          content: Buffer.from(icsContent).toString('base64'),
+          filename: 'invite.ics',
+          type: 'text/calendar',
+          disposition: 'attachment',
+        },
+      ];
+    }
+
+    try {
+      await sgMail.send(msg);
+      this.logger.log(`Email successfully sent to ${to}`);
+      return true;
+    } catch (error) {
+      this.logger.error('Error sending email:', error.response?.body || error);
+      throw error;
     }
   }
 }

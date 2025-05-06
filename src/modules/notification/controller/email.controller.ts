@@ -40,4 +40,13 @@ export class EmailController {
   async send(@Body() body: EmailCommand) {
     return await this.emailService.sendEmail(body.to, body.subject, body.html);
   }
+  @Post('send-grid')
+  @AllowAnonymous()
+  async sendGrid(@Body() body: EmailCommand) {
+    return await this.emailService.sendGridEmail(
+      body.to,
+      body.subject,
+      body.html,
+    );
+  }
 }
