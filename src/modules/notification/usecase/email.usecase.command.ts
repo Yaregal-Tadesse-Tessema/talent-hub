@@ -5,6 +5,7 @@ import { createEvent } from 'ics';
 import type { MailDataRequired } from '@sendgrid/mail';
 import * as nodemailer from 'nodemailer';
 import * as sgMail from '@sendgrid/mail';
+import * as process from 'node:process';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -12,6 +13,7 @@ export class EmailService {
 
   constructor() {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -134,7 +136,7 @@ export class EmailService {
   ): Promise<boolean> {
     const msg: sgMail.MailDataRequired = {
       to,
-      from: process.env.SENDGRID_SENDER_EMAIL, // Must be a verified sender
+      from: 'yayasoles@gmail.com', // Must be a verified sender
       subject,
       html,
     };
