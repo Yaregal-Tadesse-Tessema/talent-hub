@@ -157,7 +157,6 @@ export class EmailService {
 
     try {
       await sgMail.send(msg);
-      this.logger.log(`Email successfully sent to ${to}`);
       return true;
     } catch (error) {
       this.logger.error('Error sending email:', error.response?.body || error);
