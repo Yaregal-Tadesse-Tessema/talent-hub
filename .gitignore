@@ -45,7 +45,7 @@ garri-payroll-0155154b5e32.json
 # temp directory
 .temp
 .tmp
-
+*.swp
 # Runtime data
 pids
 *.pid
