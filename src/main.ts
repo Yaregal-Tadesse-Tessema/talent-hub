@@ -8,7 +8,6 @@ import {
 } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
-import * as process from 'node:process';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
