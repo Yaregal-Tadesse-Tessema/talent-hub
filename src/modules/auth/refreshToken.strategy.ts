@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-import * as process from 'node:process';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';

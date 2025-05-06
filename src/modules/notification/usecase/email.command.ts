@@ -28,3 +28,11 @@ export class SendEmail {
   @ApiProperty()
   replyTo?: string;
 }
+export class EmailCommand {
+  @ApiProperty()
+  to: string;
+  @ApiProperty()
+  subject: string;
+  @ApiProperty()
+  html: string;
+}

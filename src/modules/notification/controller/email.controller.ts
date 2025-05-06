@@ -3,6 +3,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { EmailService } from '../usecase/email.usecase.command';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { ApiTags } from '@nestjs/swagger';
+import { EmailCommand } from '../usecase/email.command';
 
 @Controller('email')
 @ApiTags('email')
@@ -35,7 +36,8 @@ export class EmailController {
     );
   }
   @Post('send')
-  async send(@Body() body: { to: string; subject: string; html: string }) {
+  @AllowAnonymous()
+  async send(@Body() body: EmailCommand) {
     return await this.emailService.sendEmail(body.to, body.subject, body.html);
   }
 }

@@ -14,6 +14,8 @@ export class PreScreeningQuestionEntity extends CommonEntity {
   options: string[];
   @Column({ type: 'boolean', default: false })
   isKnockout: boolean;
+  @Column({ type: 'boolean', default: false })
+  isOptional: boolean;
   @Column({ type: 'int', nullable: true })
   weight: number;
   @Column({ type: 'boolean', nullable: true })

@@ -14,6 +14,8 @@ export class PreScreeningQuestionResponse {
   @ApiProperty()
   isKnockout: boolean;
   @ApiProperty()
+  isOptional: boolean;
+  @ApiProperty()
   weight: number;
   @ApiProperty()
   booleanAnswer: boolean;
@@ -37,6 +39,7 @@ export class PreScreeningQuestionResponse {
     response.type = entity.type;
     response.options = entity.options;
     response.isKnockout = entity.isKnockout;
+    response.isOptional = entity.isOptional;
     response.weight = entity.weight;
     response.booleanAnswer = entity.booleanAnswer;
     response.selectedOptions = entity.selectedOptions;

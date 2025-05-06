@@ -119,7 +119,7 @@ export class EmailService {
     try {
       const info = await this.transporter.sendMail(mailOptions);
       this.logger.log(`Email sent: ${info.response}`);
-      return info;
+      return true;
     } catch (err) {
       this.logger.error('Error sending email', err);
       throw err;

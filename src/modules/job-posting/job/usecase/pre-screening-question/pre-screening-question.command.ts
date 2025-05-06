@@ -15,6 +15,8 @@ export class CreatePreScreeningQuestionCommand {
   @ApiProperty()
   isKnockout: boolean;
   @ApiProperty()
+  isOptional: boolean;
+  @ApiProperty()
   weight: number;
   @ApiProperty()
   booleanAnswer: boolean;
@@ -38,6 +40,7 @@ export class CreatePreScreeningQuestionCommand {
     entity.type = dto.type;
     entity.options = dto.options;
     entity.isKnockout = dto.isKnockout;
+    entity.isOptional = dto?.isOptional;
     entity.weight = dto.weight;
     entity.booleanAnswer = dto.booleanAnswer;
     entity.selectedOptions = dto.selectedOptions;

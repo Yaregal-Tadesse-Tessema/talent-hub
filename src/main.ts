@@ -22,7 +22,7 @@ async function bootstrap() {
       docExpansion: 'none',
       tagsSorter: 'alpha',
     },
-    customSiteTitle: 'IFHCRS',
+    customSiteTitle: 'Ethio Talent Hub',
   };
   const config = new DocumentBuilder()
     .addSecurity('basic', {
