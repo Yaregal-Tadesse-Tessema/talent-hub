@@ -28,8 +28,7 @@ import * as process from 'node:process';
       password: process.env.PUBLIC_DATABASE_PASSWORD,
       database: process.env.PUBLIC_DATABASE_Name,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize:
-        process.env.PUBLIC_DATABASE_SYNCHRONIZATION == 'true' ? true : false,
+      synchronize: true,
     }),
 
     EventEmitterModule.forRoot(),
