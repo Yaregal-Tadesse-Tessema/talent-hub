@@ -1,0 +1,30 @@
+/* eslint-disable prettier/prettier */
+import { CommonEntity } from 'src/libs/Common/common-entity';
+import { Column, Entity, OneToMany } from 'typeorm';
+import { EmployeeTenantEntity } from './employee-tenant.entity';
+import { AccountStatusEnums } from 'src/modules/auth/constants';
+
+@Entity({ name: 'lookup_table' })
+export class LookupEntity extends CommonEntity {
+  @Column({ name: 'full_name', nullable: true })
+  fullName: string;
+  @Column({ name: 'first_name', nullable: true })
+  firstName: string;
+  @Column({ name: 'middle_name', nullable: true })
+  middleName: string;
+  @Column({ name: 'last_name', nullable: true })
+  lastName: string;
+  @Column({ name: 'password', nullable: true })
+  password: string;
+  @Column({ name: 'email', nullable: true, unique: true })
+  email: string;
+  @Column({ name: 'phone_number', unique: true })
+  phoneNumber: string;
+  @Column({ default: AccountStatusEnums.ACTIVE })
+  status: AccountStatusEnums;
+  @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.lookup, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  employeeOrganization: EmployeeTenantEntity[];
+}
