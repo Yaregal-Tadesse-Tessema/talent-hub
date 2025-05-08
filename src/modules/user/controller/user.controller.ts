@@ -99,10 +99,10 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     return res.download('/tmp/' + fileName);
   }
-  @Post('generate-cv-in-pdf-2')
-  async generatePayrollRunPdfTwo(@Res() res: Response, @Body() command: any) {
-    const fileName = await this.userService.generateCv2(command);
-    res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-    return res.download('/tmp/' + fileName);
-  }
+  // @Post('generate-cv-in-pdf-2')
+  // async generatePayrollRunPdfTwo(@Res() res: Response, @Body() command: any) {
+  //   const fileName = await this.userService.generateCv2(command);
+  //   res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+  //   return res.download('/tmp/' + fileName);
+  // }
 }

@@ -6,20 +6,24 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AccountQueryService } from '../../service/account-query.service';
 import { AccountCommandService } from '../../service/account-command.service';
-import { CheckOrganizationFromETrade } from '../../dtos/command.dto/account.dto';
+import {
+  AccountPasswordChange,
+  CheckOrganizationFromETrade,
+} from '../../dtos/command.dto/account.dto';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { AccountResponse } from '../../dtos/response.dto/account.response.dto';
 import { CreateOrganizationCommand } from 'src/modules/organization/usecase/organization.command';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 // import { decodeCollectionQuery } from 'src/libs/collection-query/query-converter';
 
-@Controller('Organizations')
-@ApiTags('Organizations')
+@Controller('accounts')
+@ApiTags('Accounts')
 export class AccountController {
   constructor(
     private commands: AccountCommandService,
@@ -27,7 +31,6 @@ export class AccountController {
   ) {}
   @Post('create-account')
   @AllowAnonymous()
-  // @AllowLocationInterceptor()
   @ApiOkResponse({ type: AccountResponse })
   async createAccount(@Body() command: CreateOrganizationCommand) {
     return await this.commands.CreateAccounts(command);
@@ -63,5 +66,11 @@ export class AccountController {
   @ApiOkResponse({ type: AccountResponse })
   async getAccountByEmail(@Param('email') email: string) {
     return await this.queries.getAccountByEmail(email);
+  }
+  @Put('change-account-password')
+  @AllowAnonymous()
+  @ApiOkResponse({ type: AccountResponse })
+  async changePassword(@Body() command: AccountPasswordChange) {
+    return await this.commands.changePassword(command);
   }
 }

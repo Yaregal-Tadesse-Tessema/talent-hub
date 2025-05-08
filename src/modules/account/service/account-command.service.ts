@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { AccountEntity } from '../persistances/account.entity';
 import {
+  AccountPasswordChange,
   CheckOrganizationFromETrade,
   CreateAccountCommand,
 } from '../dtos/command.dto/account.dto';
@@ -200,6 +201,16 @@ export class AccountCommandService {
       console.log(error);
       throw new BadRequestException('Unable to verify TIN. Please try again');
     }
+  }
+  async changePassword(command: AccountPasswordChange) {
+    const account = await this.accountQueryService.getAccountById(command.id);
+    if (!account)
+      throw new NotFoundException(
+        `Account with id ${command.id} doesn't exist`,
+      );
+    account.password = command.newPassword;
+    await this.accountRepository.save(account);
+    return true;
   }
   private async updateAccountTokens(accountId: string, token: any) {
     const a = await this.accountRepository.update(

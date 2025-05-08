@@ -5,6 +5,7 @@ import { ApplicationEntity } from '../persistences/application.entity';
 import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { JobPostingResponse } from 'src/modules/job-posting/job/usecase/job-posting.response';
 import { ReferralInformation } from './application.command';
+import { ApplicationStatusEnums } from '../constants';
 export class ApplicationResponse {
   @ApiProperty()
   id: string;
@@ -24,6 +25,8 @@ export class ApplicationResponse {
   user: UserResponse;
   @ApiProperty()
   remark: string;
+  @ApiProperty()
+  status: ApplicationStatusEnums;
   @ApiProperty()
   notification: string;
   @ApiProperty()
@@ -50,6 +53,7 @@ export class ApplicationResponse {
     response.userInfo = entity?.userInfo;
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
+    response.status = entity?.status;
     response.notification = entity?.notification;
     response.referralInformation = entity?.referralInformation;
     response.referenceReason = entity?.referenceReason;

@@ -21,6 +21,7 @@ export enum JobPostingStatusEnums {
   ON_Hold = 'On Hold',
   WITHDRAWN = 'Withdrawn',
   CLOSED = 'Closed',
+  HIRED = 'Hired',
 }
 export enum PaymentTypeEnums {
   Fixed = 'Fixed',

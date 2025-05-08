@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { ApplicationEntity } from '../persistences/application.entity';
+import { ApplicationStatusEnums } from '../constants';
 export class ReferralInformation {
   @ApiProperty()
   fullName: string;
@@ -27,6 +28,8 @@ export class CreateApplicationCommand {
   @ApiProperty()
   isViewed?: boolean;
   @ApiProperty()
+  status?: ApplicationStatusEnums;
+  @ApiProperty()
   remark?: string;
   @ApiProperty()
   notification?: string;
@@ -49,6 +52,7 @@ export class CreateApplicationCommand {
     entity.userInfo = dto?.userInfo;
     entity.isViewed = dto?.isViewed;
     entity.remark = dto?.remark;
+    entity.status = dto?.status;
     entity.notification = dto?.notification;
     entity.questionaryScore = dto?.questionaryScore;
     entity.referralInformation = dto?.referralInformation;
@@ -66,4 +70,12 @@ export class UpdateApplicationCommand extends CreateApplicationCommand {
   id: string;
 }
 
-
+export class ChangeApplicationStatus {
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  status: ApplicationStatusEnums;
+}

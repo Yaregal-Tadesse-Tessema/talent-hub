@@ -10,7 +10,6 @@ import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { SessionCommand } from './session/session.usecase.command';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
-import * as process from 'node:process';
 @Injectable()
 export class AuthService {
   constructor(
@@ -22,8 +21,6 @@ export class AuthService {
     private sessionRepository: Repository<SessionEntity>,
   ) {}
   async generateTokenForEmployee(account: any) {
-    console.log('vvvvvvv', process.env.TOKEN_SECRET_KEY);
-    console.log('vvvvvvv', process.env.REFRESH_TOKEN_SECRET_KEY);
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {

@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AccountEntity } from '../../persistances/account.entity';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
-
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateAccountCommand {
   id?: string;
@@ -72,5 +72,18 @@ export class EmailPhoneResetCommand {
   email?: string;
   @ApiProperty()
   phone?: string;
+}
+export class AccountPasswordChange {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  oldPassword?: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  newPassword: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  confirmNewPassword: string;
 }
 

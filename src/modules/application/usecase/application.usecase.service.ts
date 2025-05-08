@@ -5,12 +5,16 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
 import { ApplicationEntity } from '../persistences/application.entity';
-import { CreateApplicationCommand } from './application.command';
+import {
+  ChangeApplicationStatus,
+  CreateApplicationCommand,
+} from './application.command';
 import { ApplicationResponse } from './application.response';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
@@ -68,5 +72,17 @@ export class ApplicationService extends CommonCrudService<ApplicationEntity> {
     });
     const response = ApplicationResponse.toResponse(result);
     return response;
+  }
+  async updateApplicationStatus(command: ChangeApplicationStatus) {
+    const application = await this.applicationRepository.findOne({
+      where: { id: command.id },
+    });
+    if (!application)
+      throw new NotFoundException(
+        `Application with id ${command.id} not found`,
+      );
+    application.status = command.status;
+    await this.applicationRepository.save(application);
+    return true;
   }
 }

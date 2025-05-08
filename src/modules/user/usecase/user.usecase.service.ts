@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,6 +18,7 @@ import { exec } from 'child_process';
 import * as fs from 'fs-extra';
 import * as tmp from 'tmp';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
+import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -84,9 +86,7 @@ export class UserService extends CommonCrudService<UserEntity> {
         where: { cv: { filename: user.resume.filename } },
       });
       if (!resumeAlreadyUsed) {
-        const res = await this.fileService.deleteBucketFile(
-          user.resume.filename,
-        );
+        await this.fileService.deleteBucketFile(user.resume.filename);
       }
     }
 
@@ -111,9 +111,7 @@ export class UserService extends CommonCrudService<UserEntity> {
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user.profile) {
-      const res = await this.fileService.deleteBucketFile(
-        user.profile.filename,
-      );
+      await this.fileService.deleteBucketFile(user.profile.filename);
     }
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
     const fileName = file.originalname;
@@ -180,32 +178,6 @@ export class UserService extends CommonCrudService<UserEntity> {
       throw error;
     }
   }
-  async generateCv2(command: any) {
-    const pdfContext = command;
-    const templateName = 'cv-two';
-    const fileName = `my_cv`;
-    const query = { landscape: 'true' };
-    const Options = {
-      format: 'A4',
-      landscape:
-        query && query.landscape && query.landscape === 'true' ? true : false,
-      displayHeaderFooter: query ? true : false,
-      margin: {
-        top: '10px',
-        bottom: '10px',
-        right: '20px',
-        left: '20px',
-      },
-    };
-    const pdfPath = await this.pdfService.generatePdf(
-      pdfContext,
-      templateName,
-      fileName,
-      Options,
-      null,
-    );
-    return pdfPath;
-  }
   async convertWordToPdf(
     wordBuffer: Buffer,
     fileName: string,
@@ -238,7 +210,18 @@ export class UserService extends CommonCrudService<UserEntity> {
       tempDir.removeCallback(); // Clean up temp files
     }
   }
-
+  async changePassword(command: AccountPasswordChange) {
+    const user = await this.userRepository.findOne({
+      where: { id: command.id },
+    });
+    if (!user)
+      throw new NotFoundException(
+        `Account with id ${command.id} doesn't exist`,
+      );
+    user.password = command.newPassword;
+    await this.userRepository.save(user);
+    return true;
+  }
   private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const command = `soffice --headless --convert-to pdf --outdir "${outputDir}" "${inputPath}"`;

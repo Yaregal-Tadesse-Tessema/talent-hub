@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Post,
+  Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -12,7 +13,10 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { ApplicationService } from '../usecase/application.usecase.service';
-import { CreateApplicationCommand } from '../usecase/application.command';
+import {
+  ChangeApplicationStatus,
+  CreateApplicationCommand,
+} from '../usecase/application.command';
 import { UpdateAccountCommand } from 'src/modules/account/dtos/command.dto/account.dto';
 import { ApplicationResponse } from '../usecase/application.response';
 import { FileService } from 'src/modules/file/services/file.service';
@@ -45,6 +49,13 @@ export class ApplicationController extends CommonCrudController<ApplicationEntit
       command,
       file,
     );
+    return result;
+  }
+  @Put('change-application-status')
+  @UseInterceptors(FileInterceptor('file'))
+  async changeApplicationStatus(@Body() command: ChangeApplicationStatus) {
+    const result =
+      await this.applicationService.updateApplicationStatus(command);
     return result;
   }
 }

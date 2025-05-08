@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
-export enum UserStatusEnums{
-    ACTIVE='Active'
+export enum UserStatusEnums {
+  PENDING = 'Pending',
+  ACTIVE = 'Active',
 }
 export interface SocialMediaLinks {
   gitHub: string;

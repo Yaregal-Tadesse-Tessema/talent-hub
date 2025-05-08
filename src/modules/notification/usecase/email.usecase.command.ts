@@ -135,27 +135,24 @@ export class EmailService {
     html: string,
     icsContent?: string,
   ): Promise<boolean> {
-    console.log('2222222222222222222222222 : ');
-    console.log('333333333333333333 : ', process.env.SENDGRID_API_KEY);
-    const msg: sgMail.MailDataRequired = {
-      to,
-      from: 'yayasoles@gmail.com', // Must be a verified sender
-      subject,
-      html,
-    };
-
-    if (icsContent) {
-      msg.attachments = [
-        {
-          content: Buffer.from(icsContent).toString('base64'),
-          filename: 'invite.ics',
-          type: 'text/calendar',
-          disposition: 'attachment',
-        },
-      ];
-    }
-
     try {
+      const msg: sgMail.MailDataRequired = {
+        to,
+        from: 'yayasoles@gmail.com', // Must be a verified sender
+        subject,
+        html,
+      };
+
+      if (icsContent) {
+        msg.attachments = [
+          {
+            content: Buffer.from(icsContent).toString('base64'),
+            filename: 'invite.ics',
+            type: 'text/calendar',
+            disposition: 'attachment',
+          },
+        ];
+      }
       await sgMail.send(msg);
       return true;
     } catch (error) {

@@ -11,6 +11,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
 import { ReferralInformation } from '../usecase/application.command';
+import { ApplicationStatusEnums } from '../constants';
 
 @Entity({ name: 'applications' })
 @Unique(['userId', 'JobPostId'])
@@ -33,6 +34,8 @@ export class ApplicationEntity extends CommonEntity {
   userInfo: any;
   @Column({ default: false })
   isViewed: boolean;
+  @Column({ default: ApplicationStatusEnums.PENDING })
+  status: ApplicationStatusEnums;
   @Column({ nullable: true })
   remark: string;
   @Column({ nullable: true })

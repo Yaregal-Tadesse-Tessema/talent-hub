@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
 import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
