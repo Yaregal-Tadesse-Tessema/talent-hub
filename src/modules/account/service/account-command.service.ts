@@ -208,6 +208,8 @@ export class AccountCommandService {
       throw new NotFoundException(
         `Account with id ${command.id} doesn't exist`,
       );
+    if (account.password != command.oldPassword)
+      throw new BadRequestException(`Invalid Old Password`);
     account.password = command.newPassword;
     await this.accountRepository.save(account);
     return true;

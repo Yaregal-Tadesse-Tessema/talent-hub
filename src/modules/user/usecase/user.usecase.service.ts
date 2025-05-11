@@ -218,6 +218,8 @@ export class UserService extends CommonCrudService<UserEntity> {
       throw new NotFoundException(
         `Account with id ${command.id} doesn't exist`,
       );
+    if (user.password != command.oldPassword)
+      throw new BadRequestException(`Invalid Old Password`);
     user.password = command.newPassword;
     await this.userRepository.save(user);
     return true;
