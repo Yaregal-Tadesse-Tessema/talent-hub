@@ -6,11 +6,12 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
@@ -25,6 +26,7 @@ import { UserService } from '../usecase/user.usecase.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { Response } from 'express';
+import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
 
 const options: EntityCrudOptions = {
   createDto: CreateUserCommand,
@@ -99,10 +101,10 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
     return res.download('/tmp/' + fileName);
   }
-  // @Post('generate-cv-in-pdf-2')
-  // async generatePayrollRunPdfTwo(@Res() res: Response, @Body() command: any) {
-  //   const fileName = await this.userService.generateCv2(command);
-  //   res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
-  //   return res.download('/tmp/' + fileName);
-  // }
+  @Put('change-user-password')
+  @AllowAnonymous()
+  @ApiOkResponse({ type: UserResponse })
+  async changePassword(@Body() command: AccountPasswordChange) {
+    return await this.userService.changePassword(command);
+  }
 }
