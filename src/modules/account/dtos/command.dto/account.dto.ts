@@ -100,3 +100,15 @@ export class AccountActivation {
   confirmNewPassword: string;
 }
 
+export enum EmployeeStatus {
+  ACTIVE = 'Active',
+  ON_LEAVE = 'On Leave',
+  TERMINATED = 'Terminated',
+  SUSPENDED = 'Suspended',
+  INACTIVE = 'Inactive',
+  RESIGNED = 'Resigned',
+  RETIRED = 'Retired',
+  SECONDED = 'Seconded',
+  ON_PROBATION = 'On Probation',
+  IS_ON_WORK_FROM_HOME = 'Is On Work From Home',
+}

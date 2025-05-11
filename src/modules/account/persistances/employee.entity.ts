@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { AccountEntity } from './account.entity';
-
 
 @Entity({ name: 'employee' })
 export class EmployeeEntity extends CommonEntity {
@@ -36,23 +34,17 @@ export class EmployeeEntity extends CommonEntity {
   dateOfBirth: Date;
   @Column({ nullable: true })
   martialStatus: string;
-
+  @Column({ nullable: true })
+  phoneNumber: string;
   @Column({ type: 'uuid', nullable: true })
   employmentPositionId: string;
 
   @Column({ nullable: true })
   profilePicture: string;
 
-
- 
-
-
-
-
   // @JoinColumn({ name: 'accountId' })
   // @OneToOne(() => AccountEntity, (account) => account.employee, {
   //   cascade: true,
   // })
   // account: AccountEntity;
- 
 }

@@ -26,7 +26,6 @@ import { CommonCrudService } from './common.service';
 import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { decodeCollectionQuery } from '../collection-query/query-converter';
-// import { decodeCollectionQuery } from 'src/libs/collection-query/query-converter';
 export function CommonCrudController<TEntity extends ObjectLiteral>(
   options?: EntityCrudOptions,
 ) {
@@ -39,7 +38,6 @@ export function CommonCrudController<TEntity extends ObjectLiteral>(
     @Post()
     @ApiBody({ type: options?.createDto })
     @UsePipes(new ValidationPipe({ transform: true }))
-    // @ApiBody({ type: options?.createDto || BaseAPIDto })
     @ApiOkResponse({ type: options?.responseFormat })
     async create(
       @Body() itemData: typeof options.createDto,
@@ -86,18 +84,15 @@ export function CommonCrudController<TEntity extends ObjectLiteral>(
     @UsePipes(new ValidationPipe({ transform: true }))
     async update(
       @Param('id') id: string,
-      // @Body() itemData: Partial<TEntity>,
       @Body() itemData: typeof options.updateDto,
-      @Req() req?: any,
     ): Promise<TEntity | undefined> {
-      return this.service.update(id, itemData, req);
+      return this.service.update(id, itemData);
     }
 
     @Delete(':id')
-    async softDelete(@Param('id') id: string, @Req() req?: any): Promise<void> {
-      return this.service.softDelete(id, req);
+    async softDelete(@Param('id') id: string): Promise<void> {
+      return this.service.softDelete(id);
     }
-
     @Patch('restore/:id')
     async restore(@Param('id') id: string): Promise<void> {
       return this.service.restore(id);
@@ -118,6 +113,5 @@ export function CommonCrudController<TEntity extends ObjectLiteral>(
       return this.service.findAllArchived(query);
     }
   }
-
   return CommonCrudControllerHost;
 }
