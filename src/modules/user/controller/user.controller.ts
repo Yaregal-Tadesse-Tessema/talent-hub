@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -106,5 +107,10 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
   @ApiOkResponse({ type: UserResponse })
   async changePassword(@Body() command: AccountPasswordChange) {
     return await this.userService.changePassword(command);
+  }
+  @Post('activate-account')
+  @ApiOkResponse({ type: UserResponse })
+  async activateAccount(@Query('token') token: string, @Res() res: Response) {
+    return await this.userService.activateAccount(token, res);
   }
 }

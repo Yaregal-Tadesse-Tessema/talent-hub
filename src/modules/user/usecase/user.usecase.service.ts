@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Res,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,6 +20,10 @@ import * as fs from 'fs-extra';
 import * as tmp from 'tmp';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
+import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
+import { JwtService } from '@nestjs/jwt';
+import { UserStatusEnums } from '../constants';
+import { Response } from 'express';
 @Injectable()
 export class UserService extends CommonCrudService<UserEntity> {
   constructor(
@@ -28,6 +33,8 @@ export class UserService extends CommonCrudService<UserEntity> {
     private readonly pdfService: PdfService,
     @InjectRepository(ApplicationEntity)
     private readonly applicationRepository: Repository<ApplicationEntity>,
+    private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {
     super(userRepository);
   }
@@ -223,6 +230,59 @@ export class UserService extends CommonCrudService<UserEntity> {
     user.password = command.newPassword;
     await this.userRepository.save(user);
     return true;
+  }
+  async sendActivationMessage(
+    to: string,
+    userFullName: string,
+    token: string,
+  ): Promise<boolean> {
+    const activationLink = `http://138.197.105.31:3010/api/users/activate-account?token=${token}`;
+    const subject = 'Activate Your Account 🚀';
+
+    const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Hello ${userFullName},</h2>
+      <p>Thank you for registering with us! To complete your registration and activate your account, please click the button below:</p>
+      <a href="${activationLink}"
+         style="
+           display: inline-block;
+           padding: 12px 24px;
+           margin: 20px 0;
+           font-size: 16px;
+           color: white;
+           background-color: #007bff;
+           text-decoration: none;
+           border-radius: 6px;
+         "
+         target="_blank">
+        Activate My Account
+      </a>
+      <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
+      <p><a href="${activationLink}">${activationLink}</a></p>
+      <p>This link will expire in 24 hours for your security.</p>
+      <p>Welcome aboard!<br/>— The YourCompany Team</p>
+    </div>
+  `;
+
+    await this.emailService.sendGridEmail(to, subject, html);
+    return true;
+  }
+  async activateAccount(token: string, @Res() res: Response) {
+    if (!token) {
+      throw new BadRequestException('Activation token is required');
+    }
+    const payload = await this.jwtService.verify(token);
+    if (!payload?.id) throw new NotFoundException(`user Id not Found`);
+    const success = await this.userRepository.update(
+      { id: payload.id },
+      { status: UserStatusEnums.ACTIVE },
+    );
+
+    if (success) {
+      return res.redirect('/activation-success'); // frontend success page
+    } else {
+      return res.redirect('/activation-failed'); // frontend error page
+    }
   }
   private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
     return new Promise((resolve, reject) => {

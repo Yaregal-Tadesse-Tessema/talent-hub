@@ -86,4 +86,17 @@ export class AccountPasswordChange {
   @IsNotEmpty()
   confirmNewPassword: string;
 }
+export class AccountActivation {
+  @ApiProperty()
+  @IsNotEmpty()
+  token: string;
+  @ApiProperty()
+  oldPassword?: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  newPassword: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  confirmNewPassword: string;
+}
 

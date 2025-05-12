@@ -23,7 +23,7 @@ export class UserEntity extends CommonEntity {
   technicalSkills: string[];
   @Column({ nullable: true })
   gender: string;
-  @Column({ default: UserStatusEnums.ACTIVE })
+  @Column({ default: UserStatusEnums.PENDING })
   status: UserStatusEnums;
   @Column({ nullable: true })
   password: string;
