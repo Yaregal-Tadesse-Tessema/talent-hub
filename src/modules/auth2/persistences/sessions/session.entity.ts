@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
-@Entity('sessions')
+@Entity('sessions_info')
 // @EntityMeta('ses')
 export class SessionEntity extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')

@@ -42,7 +42,7 @@ export class JobPostingEntity extends CommonEntity {
     nullable: false,
   })
   deadline: Date;
-  @Column()
+  @Column({ null: true })
   requirementId: string;
   @Column('text', { array: true })
   skill: string[];

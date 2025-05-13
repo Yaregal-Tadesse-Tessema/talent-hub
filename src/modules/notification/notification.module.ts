@@ -7,5 +7,6 @@ import { EmailService } from './usecase/email.usecase.command';
   imports: [],
   providers: [EmailService],
   controllers: [EmailController],
+  exports: [EmailService],
 })
 export class NotificationModule {}

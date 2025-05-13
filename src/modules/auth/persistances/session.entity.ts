@@ -7,7 +7,7 @@ export class SessionEntity extends CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Index()
-  @Column({ nullable: true })
+  @Column()
   accountId: string;
   @Index()
   @Column({ type: 'text' })
