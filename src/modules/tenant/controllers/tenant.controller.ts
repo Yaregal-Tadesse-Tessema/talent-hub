@@ -21,7 +21,7 @@ import { CheckOrganizationFromETrade, CreateTenantCommand } from '../usecases/te
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 
-  @Post('create-account')
+  @Post()
   @ApiOkResponse({ type: TenantResponse })
   async createAccount(@Body() command: CreateTenantCommand) {
     return await this.tenantService.CreateAccounts(command);

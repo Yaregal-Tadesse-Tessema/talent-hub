@@ -3,44 +3,46 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
   Res,
   UploadedFile,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
+import {
+  ApiExtraModels,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
 import {
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
 } from '../usecase/user.command';
 import { UserResponse } from '../usecase/user.response';
-import { UserEntity } from '../persistence/users.entity';
 import { UserService } from '../usecase/user.usecase.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { Response } from 'express';
 import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
+import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 
-const options: EntityCrudOptions = {
-  createDto: CreateUserCommand,
-  updateDto: UpdateUserCommand,
-  responseFormat: UserResponse,
-};
 @Controller('users')
 @ApiTags('users')
 @AllowAnonymous()
 @ApiExtraModels(DataResponseFormat)
-export class UserController extends CommonCrudController<UserEntity>(options) {
+export class UserController {
   constructor(private readonly userService: UserService) {
-    super(userService);
+    // super(userService);
   }
   @Post('upload-resume/:userId')
   @UseInterceptors(
@@ -108,9 +110,78 @@ export class UserController extends CommonCrudController<UserEntity>(options) {
   async changePassword(@Body() command: AccountPasswordChange) {
     return await this.userService.changePassword(command);
   }
-  @Post('activate-account')
+  @Get('activate-account/:userId')
   @ApiOkResponse({ type: UserResponse })
-  async activateAccount(@Query('token') token: string, @Res() res: Response) {
-    return await this.userService.activateAccount(token, res);
+  async activateAccount(
+    @Query('token') token: string,
+    @Res() res: Response,
+    @Param('userId') userId: string,
+  ) {
+    return await this.userService.activateAccount(token, res, userId);
+  }
+  @Post()
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async create(@Body() itemData: CreateUserCommand): Promise<UserResponse> {
+    return await this.userService.create(itemData);
+  }
+  @Get()
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  async findAll(
+    @Query('q') q?: string,
+  ): Promise<DataResponseFormat<UserResponse>> {
+    const query = decodeCollectionQuery(q);
+    return await this.userService.findAll(query);
+  }
+
+  @Get(':id')
+  @ApiQuery({
+    name: 'i',
+    type: String,
+    description: 'includes. Optional',
+    required: false,
+  })
+  async findOne(
+    @Param('id') id: string,
+    @Query('i') i?: string,
+  ): Promise<UserResponse> {
+    const relations = i ? i.split(',') : [];
+    return await this.userService.findOne(id, relations);
+  }
+
+  @Put(':id')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async update(
+    @Param('id') id: string,
+    @Body() itemData: UpdateUserCommand,
+  ): Promise<UserResponse> {
+    return await this.userService.update(id, itemData);
+  }
+
+  @Delete(':id')
+  async softDelete(@Param('id') id: string): Promise<void> {
+    return this.userService.softDelete(id);
+  }
+  @Patch('restore/:id')
+  async restore(@Param('id') id: string): Promise<void> {
+    return await this.userService.restore(id);
+  }
+
+  @Get('/archived/items')
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  async findAllArchived(
+    @Query('q') q?: string,
+  ): Promise<DataResponseFormat<UserResponse>> {
+    const query = decodeCollectionQuery(q);
+    return await this.userService.findAllArchived(query);
   }
 }

@@ -27,6 +27,7 @@ export class CreateLookupCommand {
   @ApiProperty()
   startDate?: Date;
   @ApiProperty()
+  @IsNotEmpty()
   tenantId?: string;
   @ApiProperty()
   tenantName?: string;
@@ -41,8 +42,8 @@ export class CreateLookupCommand {
     lookUp.email = command.email;
     lookUp.phoneNumber = command.phoneNumber;
     lookUp.status = command?.status;
-    lookUp.createdBy = command.currentUser.id;
-    lookUp.updatedBy = command.currentUser.id;
+    lookUp.createdBy = command?.currentUser?.id;
+    lookUp.updatedBy = command?.currentUser?.id;
     return lookUp;
   }
 }

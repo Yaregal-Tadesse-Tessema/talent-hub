@@ -1,30 +1,23 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './persistence/users.entity';
 import { UserService } from './usecase/user.usecase.service';
 import { UserController } from './controller/user.controller';
-import { EducationController } from './controller/education.controller';
-import { ExperiencesController } from './controller/experience.controller';
-import { EducationEntity } from './persistence/education.entity';
-import { ExperienceEntity } from './persistence/experience.entity';
-import { EducationService } from './usecase/education.usecase.service';
-import { ExperienceService } from './usecase/experience.usecase.service';
 import { PdfService } from 'src/libs/pdf/pdf.service';
 import { ApplicationEntity } from '../application/persistences/application.entity';
+import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
+import { ApplicationModule } from '../application/application.module';
+import { UserRepository } from './persistence/user.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      UserEntity,
-      EducationEntity,
-      ExperienceEntity,
-      ApplicationEntity,
-    ]),
+    TypeOrmModule.forFeature([UserEntity, ApplicationEntity, SaveJobEntity]),
+    forwardRef(() => ApplicationModule),
   ],
-  providers: [UserService, EducationService, ExperienceService, PdfService],
-  controllers: [UserController, EducationController, ExperiencesController],
-  exports: [UserService],
+  providers: [UserService, UserRepository, PdfService],
+  controllers: [UserController],
+  exports: [UserService, UserRepository],
 })
 export class UserModule {}
 

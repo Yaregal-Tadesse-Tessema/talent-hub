@@ -12,7 +12,6 @@ export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
-    console.log('111111111111 : ', process.env.SENDGRID_API_KEY);
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
     this.transporter = nodemailer.createTransport({

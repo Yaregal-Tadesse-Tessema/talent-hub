@@ -1,117 +1,115 @@
-/* eslint-disable prettier/prettier */
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Put,
-  Delete,
-  UseInterceptors,
-  Query,
-  Req,
-  Patch,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
-import { ObjectLiteral } from 'typeorm';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiOkResponse,
-  ApiQuery,
-} from '@nestjs/swagger';
-import { EntityCrudOptions } from './common-service-options';
-import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
-import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { decodeCollectionQuery } from '../collection-query/query-converter';
-import { BaseRepository } from './base.repository';
-export function CommonCrudController<TEntity extends ObjectLiteral>(
-  options?: EntityCrudOptions,
-) {
-  @Controller()
-  @UseInterceptors(/* your interceptors if any */)
-  @ApiBearerAuth()
-  class BaseController {
-    constructor(public readonly service: BaseRepository<TEntity>) {}
+// /* eslint-disable prettier/prettier */
+// import {
+//   Controller,
+//   Get,
+//   Post,
+//   Body,
+//   Param,
+//   Put,
+//   Delete,
+//   UseInterceptors,
+//   Query,
+//   Req,
+//   Patch,
+//   UsePipes,
+//   ValidationPipe,
+// } from '@nestjs/common';
+// import { ObjectLiteral } from 'typeorm';
+// import {
+//   ApiBearerAuth,
+//   ApiBody,
+//   ApiOkResponse,
+//   ApiQuery,
+// } from '@nestjs/swagger';
+// import { EntityCrudOptions } from './common-service-options';
+// import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
+// import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
+// import { decodeCollectionQuery } from '../collection-query/query-converter';
+// import { BaseService } from './base.service';
 
-    @Post()
-    @ApiBody({ type: options?.createDto })
-    @UsePipes(new ValidationPipe({ transform: true }))
-    @ApiOkResponse({ type: options?.responseFormat })
-    async create(
-      @Body() itemData: typeof options.createDto,
-      @Req() req?: any,
-    ): Promise<TEntity> {
-      return this.service.create(itemData, req);
-    }
+// @Controller()
+// @UseInterceptors(/* your interceptors if any */)
+// @ApiBearerAuth()
+// export class BaseControllerHost {
+//   constructor(
+//     private readonly repository: Repository<T>,
+//     @Inject(REQUEST) private readonly request: Request,
+//   ) {}
 
-    @Get()
-    @ApiQuery({
-      name: 'q',
-      type: String,
-      description: 'Collection Query Parameter. Optional',
-      required: false,
-    })
-    @ApiPaginatedResponse(options?.responseFormat)
-    async findAll(
-      @Query('q') q?: string,
-    ): Promise<DataResponseFormat<TEntity>> {
-      const query = decodeCollectionQuery(q);
-      return this.service.findAll(query);
-    }
+//   @Post()
+//   @ApiBody({ type: options?.createDto })
+//   @UsePipes(new ValidationPipe({ transform: true }))
+//   @ApiOkResponse({ type: options?.responseFormat })
+//   async create(
+//     @Body() itemData: typeof options.createDto,
+//     @Req() req?: any,
+//   ): Promise<TEntity> {
+//     return this.service.create(itemData, req);
+//   }
 
-    @Get(':id')
-    @ApiQuery({
-      name: 'i',
-      type: String,
-      description: 'includes. Optional',
-      required: false,
-    })
-    @ApiOkResponse({ type: options?.responseFormat })
-    async findOne(
-      @Param('id') id: string,
-      @Req() req?: any,
-      @Query('i') i?: string,
-    ): Promise<TEntity | undefined> {
-      const relations = i ? i.split(',') : [];
-      return this.service.findOne(id, relations);
-    }
+//   @Get()
+//   @ApiQuery({
+//     name: 'q',
+//     type: String,
+//     description: 'Collection Query Parameter. Optional',
+//     required: false,
+//   })
+//   @ApiPaginatedResponse(options?.responseFormat)
+//   async findAll(@Query('q') q?: string): Promise<DataResponseFormat<TEntity>> {
+//     const query = decodeCollectionQuery(q);
+//     return this.service.findAll(query);
+//   }
 
-    @Put(':id')
-    @ApiBody({ type: options?.updateDto })
-    @ApiOkResponse({ type: options?.responseFormat })
-    @UsePipes(new ValidationPipe({ transform: true }))
-    async update(
-      @Param('id') id: string,
-      @Body() itemData: typeof options.updateDto,
-    ): Promise<TEntity | undefined> {
-      return this.service.update(id, itemData);
-    }
+//   @Get(':id')
+//   @ApiQuery({
+//     name: 'i',
+//     type: String,
+//     description: 'includes. Optional',
+//     required: false,
+//   })
+//   @ApiOkResponse({ type: options?.responseFormat })
+//   async findOne(
+//     @Param('id') id: string,
+//     @Req() req?: any,
+//     @Query('i') i?: string,
+//   ): Promise<TEntity | undefined> {
+//     const relations = i ? i.split(',') : [];
+//     return this.service.findOne(id, relations);
+//   }
 
-    @Delete(':id')
-    async softDelete(@Param('id') id: string): Promise<void> {
-      return this.service.softDelete(id);
-    }
-    @Patch('restore/:id')
-    async restore(@Param('id') id: string): Promise<void> {
-      return this.service.restore(id);
-    }
+//   @Put(':id')
+//   @ApiBody({ type: options?.updateDto })
+//   @ApiOkResponse({ type: options?.responseFormat })
+//   @UsePipes(new ValidationPipe({ transform: true }))
+//   async update(
+//     @Param('id') id: string,
+//     @Body() itemData: typeof options.updateDto,
+//   ): Promise<TEntity | undefined> {
+//     return this.service.update(id, itemData);
+//   }
 
-    @Get('/archived/items')
-    @ApiQuery({
-      name: 'q',
-      type: String,
-      description: 'Collection Query Parameter. Optional',
-      required: false,
-    })
-    @ApiPaginatedResponse(options?.responseFormat)
-    async findAllArchived(
-      @Query('q') q?: string,
-    ): Promise<DataResponseFormat<TEntity>> {
-      const query = decodeCollectionQuery(q);
-      return this.service.findAllArchived(query);
-    }
-  }
-  return BaseController;
-}
+//   @Delete(':id')
+//   async softDelete(@Param('id') id: string): Promise<void> {
+//     return this.service.softDelete(id);
+//   }
+//   @Patch('restore/:id')
+//   async restore(@Param('id') id: string): Promise<void> {
+//     return this.service.restore(id);
+//   }
+
+//   @Get('/archived/items')
+//   @ApiQuery({
+//     name: 'q',
+//     type: String,
+//     description: 'Collection Query Parameter. Optional',
+//     required: false,
+//   })
+//   @ApiPaginatedResponse(options?.responseFormat)
+//   async findAllArchived(
+//     @Query('q') q?: string,
+//   ): Promise<DataResponseFormat<TEntity>> {
+//     const query = decodeCollectionQuery(q);
+//     return this.service.findAllArchived(query);
+//   }
+// }
+// return BaseControllerHost;

@@ -10,6 +10,8 @@ export class CommonEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   @Column({ nullable: true })
+  tenantId?: string;
+  @Column({ nullable: true })
   createdBy?: string;
   @Column({ nullable: true })
   updatedBy?: string;

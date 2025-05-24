@@ -15,6 +15,7 @@ import * as jwt from 'jsonwebtoken';
 import { Util } from 'src/libs/Common/util';
 import { SessionQuery } from '../services/session/session.usecase.query';
 import * as dotenv from 'dotenv';
+import { UserLoginCommand } from '../auth.command';
 dotenv.config({ path: '.env' });
 @Controller('auth')
 @ApiTags('Auth')
@@ -78,5 +79,13 @@ export class AuthController {
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }
+  }
+  @Post('portal-login')
+  async portalLogin(@Body() body: UserLoginCommand): Promise<any> {
+    return await this.authService.portalLogin(body);
+  }
+  @Post('backOffice-login')
+  async backOfficeLogin(@Body() body: UserLoginCommand): Promise<any> {
+    return await this.authService.backOfficeLogin(body);
   }
 }

@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import {
-  Injectable,
-  Inject,
   forwardRef,
+  Inject,
+  Injectable,
   Logger,
   OnApplicationShutdown,
 } from '@nestjs/common';
@@ -12,9 +12,10 @@ import axios from 'axios';
 import type { Express } from 'express';
 
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
-import { JobPostingService } from 'src/modules/job-posting/job/usecase/job-posting.usecase.service';
-import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
 import { ProfessionEnums } from 'src/modules/job-posting/constants';
+import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/job-post.repository';
 
 @Injectable()
 export class TelegramBotService implements OnApplicationShutdown {
@@ -23,9 +24,10 @@ export class TelegramBotService implements OnApplicationShutdown {
 
   constructor(
     @InjectBot() private readonly bot: Telegraf,
-    private readonly user: UserService,
-    @Inject(forwardRef(() => JobPostingService))
-    private readonly jobPosting: JobPostingService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
+    @Inject(forwardRef(() => JobPostingRepository))
+    private readonly jobPostingRepository: JobPostingRepository,
     private readonly application: ApplicationService,
   ) {
     if (!this.listenersAttached) {
@@ -44,11 +46,13 @@ export class TelegramBotService implements OnApplicationShutdown {
   /* ------------------------------------------------------------------ */
   /*                     LISTENER DEFINITIONS                           */
   /* ------------------------------------------------------------------ */
-  private setupListeners() {
+  private async setupListeners() {
     /* 1 ▪ any text = show menu / ask contact ------------------------ */
     this.bot.on('text', async (ctx) => {
       const tgId = ctx.from.id.toString();
-      const u = await this.user.getOneByCriteria({ telegramUserId: tgId });
+      const u = await this.userService.findOne({
+        where: { telegramUserId: tgId },
+      });
 
       if (!u) {
         await ctx.reply(
@@ -67,11 +71,13 @@ export class TelegramBotService implements OnApplicationShutdown {
       const tgId = ctx.from.id.toString();
       const { phone_number, first_name, last_name } = ctx.message.contact;
 
-      const existing = await this.user.getOneByCriteria({
-        phone: phone_number,
+      const existing = await this.userService.findOne({
+        where: {
+          phone: phone_number,
+        },
       });
       if (!existing) {
-        await this.user.create({
+        await this.userService.save({
           phone: phone_number,
           telegramUserId: tgId,
           firstName: first_name,
@@ -79,7 +85,7 @@ export class TelegramBotService implements OnApplicationShutdown {
         } as any);
       } else if (!existing.telegramUserId) {
         existing.telegramUserId = tgId;
-        await this.user.update(existing.id, existing);
+        await this.userService.update(existing.id, existing);
       }
 
       await ctx.reply(
@@ -122,7 +128,7 @@ export class TelegramBotService implements OnApplicationShutdown {
         path: '',
         stream: null as any,
       };
-      await this.user.uploadResume(multerFile, ctx.from.id.toString());
+      await this.userService.uploadResume(multerFile, ctx.from.id.toString());
       await ctx.reply('✅ Résumé received! You can now apply to jobs.');
     });
 
@@ -146,7 +152,9 @@ export class TelegramBotService implements OnApplicationShutdown {
         const jobId = ctx.match[1];
         const tgId = ctx.from.id.toString();
 
-        const user = await this.user.getOneByCriteria({ telegramUserId: tgId });
+        const user = await this.userService.findOne({
+          where: { telegramUserId: tgId },
+        });
         if (!user) {
           return ctx.reply('🔑 Please /start first so we can identify you.');
         }
@@ -166,7 +174,9 @@ export class TelegramBotService implements OnApplicationShutdown {
         });
         if (dup) return ctx.reply('✅ You already applied for this job.');
 
-        const job = await this.jobPosting.getOneByCriteria({ id: jobId });
+        const job = await this.jobPostingRepository.getOneByCriteria({
+          id: jobId,
+        });
         if (!job) return ctx.reply('❌ Job not found or closed.');
 
         await this.application.create({
@@ -182,7 +192,9 @@ export class TelegramBotService implements OnApplicationShutdown {
         );
       } catch (e) {
         this.log.error('apply action failed', e);
-        await ctx.answerCbQuery('Error – try again later.', { show_alert: true });
+        await ctx.answerCbQuery('Error – try again later.', {
+          show_alert: true,
+        });
       }
     });
 

@@ -19,23 +19,12 @@ export type UserInfo = {
   firstName?: string;
   middleName?: string;
   lastName?: string;
-  userName?: string;
   email?: string;
-  workEmail?: string;
-  departmentId?: string;
   phoneNumber?: string;
   roles?: RoleInfo[];
-  departmentName?: string;
-  organizationName?: string;
-  organizationSchemaName?: string;
-  organizationId?: number;
-  gender?: string;
-  type?: string;
+  tenantName?: string;
+  tenantSchemaName?: string;
   profileImage?: FileDto;
-//   address?: Address;
-  enablePortalAccess?: boolean;
+  address?: any;
   preferredName?: string;
-  hasBackofficeAccess?: boolean;
-  appId?: string;
-//   employeeRoles?:EmployeeRoleResponse[]
 };

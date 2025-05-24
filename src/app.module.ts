@@ -8,12 +8,27 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { UserModule } from './modules/user/user.module';
 import { FileModule } from './modules/file/file.module';
 import { ApplicationModule } from './modules/application/application.module';
-import { TelegramModule } from './modules/telegram/telegram.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import { ConfigModule } from '@nestjs/config';
 import * as process from 'node:process';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { SchemaAddInterceptor } from './libs/Common/interceptor/schema-setup';
+import { TenantModule } from './modules/tenant/tenant.module';
+import { TenantEntity } from './modules/tenant/persistencies/tenant.entity';
+import { LookupEntity } from './modules/tenant/persistencies/lookup.entity';
+import { EmployeeTenantEntity } from './modules/tenant/persistencies/employee-tenant.entity';
+import { UserEntity } from './modules/user/persistence/users.entity';
+import { SessionEntity } from './modules/auth/persistances/session.entity';
+import { JobPostingEntity } from './modules/job-posting/job/persistencies/job-posting.entity';
+import { AccountEntity } from './modules/account/persistances/account.entity';
+import { JobRequirementEntity } from './modules/job-posting/job-requirement/persistance/job-requirement.entity';
+import { ApplicationEntity } from './modules/application/persistences/application.entity';
+import { SaveJobEntity } from './modules/job-posting/job/persistencies/save-job-post.entity';
+import { OrganizationEntity } from './modules/organization/persistencies/organization.entity';
+import { PreScreeningQuestionEntity } from './modules/job-posting/job/persistencies/pre-screening-question.entity';
+import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -27,7 +42,22 @@ import * as process from 'node:process';
       username: process.env.PUBLIC_DATABASE_USERNAME,
       password: process.env.PUBLIC_DATABASE_PASSWORD,
       database: process.env.PUBLIC_DATABASE_Name,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [
+        SessionEntity,
+        TenantEntity,
+        LookupEntity,
+        EmployeeTenantEntity,
+        UserEntity,
+        AccountEntity,
+        JobPostingEntity,
+        JobRequirementEntity,
+        ApplicationEntity,
+        SaveJobEntity,
+        PreScreeningQuestionEntity,
+        OrganizationEntity,
+        AdminUserEntity,
+        // ResetPasswordTokenEntity,
+      ],
       synchronize: true,
     }),
 
@@ -42,10 +72,16 @@ import * as process from 'node:process';
     UserModule,
     FileModule,
     ApplicationModule,
-    TelegramModule,
+    // TelegramModule,
     NotificationModule,
+    TenantModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: SchemaAddInterceptor,
+    },
+  ],
 })
 export class AppModule {}

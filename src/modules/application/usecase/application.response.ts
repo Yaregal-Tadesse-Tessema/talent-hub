@@ -58,9 +58,9 @@ export class ApplicationResponse {
     response.referralInformation = entity?.referralInformation;
     response.referenceReason = entity?.referenceReason;
     response.questionaryScore = entity?.questionaryScore;
-    if (entity?.user) {
-      response.user = UserResponse.toResponse(entity.user);
-    }
+    // if (entity?.user) {
+    //   response.user = UserResponse.toResponse(entity.user);
+    // }
     if (entity.JobPost) {
       response.jobPost = JobPostingResponse.toResponse(entity.JobPost);
     }

@@ -1,12 +1,15 @@
 /* eslint-disable prettier/prettier */
 import {
   BadGatewayException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
+import { CommonCrudService } from 'src/libs/Common/common-services/common.service';
 import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
@@ -20,20 +23,20 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import { JobPostingResponse } from './job-posting.response';
 import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
 import { JobPostingStatusEnums } from '../../constants';
-import { REQUEST } from '@nestjs/core';
-import { UserService } from 'src/modules/user/usecase/user.usecase.service';
-import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
 @Injectable()
-export class JobPostingService {
+export class JobPostingServiceOld extends CommonCrudService<JobPostingEntity> {
   constructor(
     @InjectRepository(JobPostingEntity)
-    private jobPostingRepository: Repository<JobPostingEntity>,
+    private readonly jobPostingRepository: Repository<JobPostingEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly jobRequirementService: JobRequirementService,
     // @Inject(forwardRef(() => TelegramBotService))
     // private readonly telegramBotService: TelegramBotService,
-    private readonly userRepository: UserService,
-    @Inject(REQUEST) private readonly request?: Request,
-  ) {}
+  ) {
+    super(jobPostingRepository);
+  }
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobRequirementCommand: CreateJobRequirementCommand = {
       educationLevel: command.educationLevel,
@@ -47,8 +50,9 @@ export class JobPostingService {
     const jobRequirementResult =
       await this.jobRequirementService.create(jobRequirementEntity);
     command.requirementId = jobRequirementResult.id;
+
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
-    return await this.jobPostingRepository.create(jobPostingEntity);
+    return await this.jobPostingRepository.save(jobPostingEntity);
   }
 
   async getJobPostings(
@@ -56,12 +60,9 @@ export class JobPostingService {
     userInfo: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      const privateCOnnection: DataSource =
-        await this.request['CONNECTION_KEY'];
-      const repository = privateCOnnection.getRepository(JobPostingEntity);
       query.includes.push('savedUsers');
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        repository,
+        this.jobPostingRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
@@ -87,11 +88,8 @@ export class JobPostingService {
     query: CollectionQuery,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      const privateCOnnection: DataSource =
-        await this.request['CONNECTION_KEY'];
-      const repository = privateCOnnection.getRepository(JobPostingEntity);
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        repository,
+        this.jobPostingRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
@@ -126,7 +124,7 @@ export class JobPostingService {
         `Job post with Id ${command.id} is not Found`,
       );
     jobPostDomain.status = command.status;
-    const response = await this.jobPostingRepository.create(jobPostDomain);
+    const response = await this.jobPostingRepository.save(jobPostDomain);
     if (command.status === JobPostingStatusEnums.POSTED) {
       const eligibleUsers = await this.getEligibleUsersForTheJobPost(
         response.skill,
@@ -145,7 +143,7 @@ export class JobPostingService {
       for (let index = 0; index < eligibleUsers?.length; index++) {
         const eligibleUser = eligibleUsers[index];
         if (!eligibleUser.telegramUserId) continue;
-        await this.notifyUsersOnTelegramBoot(
+         await this.notifyUsersOnTelegramBoot(
           eligibleUser.telegramUserId,
           messageCommand,
           jobPostDomain.id,
@@ -155,7 +153,17 @@ export class JobPostingService {
     return JobPostingResponse.toResponse(response);
   }
   async getEligibleUsersForTheJobPost(skills: string[]) {
-    return await this.userRepository.getEligibleUsersForTheJobPost(skills);
+    const query: CollectionQuery = new CollectionQuery();
+    const dataQuery = QueryConstructor.constructQuery<UserEntity>(
+      this.userRepository,
+      query,
+    );
+    dataQuery.andWhere(
+      '(("technicalSkills"&&:skills) OR "technicalSkills" IS NULL OR cardinality("technicalSkills") = 0) ',
+      { skills },
+    );
+    const result = await dataQuery.getMany();
+    return result;
   }
   async getJobPostingsBySkill(
     query: CollectionQuery,
@@ -205,9 +213,9 @@ export class JobPostingService {
     JobPostId: string,
   ) {
     try {
-      // if (!userId || !command) return;
-      // const message = this.constructJobPostMessage(command);
-      // if (!message) return;
+      if (!userId || !command) return;
+      const message = this.constructJobPostMessage(command);
+      if (!message) return;
       // const result = await this.telegramBotService.sendMessage(
       //   userId,
       //   message,
@@ -257,13 +265,13 @@ export class JobPostingService {
     response.isSaved = isSaved;
     return response;
   }
-  async rePostJob(command: RePostJobCommand) {
+  async repostJob(command: RePostJobCommand) {
     const jobPost = await this.jobPostingRepository.findOne({
       where: { id: command.jobPostId },
     });
     if (!jobPost)
       throw new BadGatewayException(
-        `Job post with id ${command.jobPostId} does not exist`,
+        `job post with id ${command.jobPostId} does not exist`,
       );
     const now = new Date();
     const nextMonth = new Date(now.setMonth(now.getMonth() + 1));
@@ -275,7 +283,7 @@ export class JobPostingService {
     jobPost.deadline = command.deadLine ? command.deadLine : nextMonth;
     jobPost.postedDate = new Date();
     jobPost.status = JobPostingStatusEnums.POSTED;
-    const result = await this.jobPostingRepository.create(jobPost);
+    const result = await this.jobPostingRepository.save(jobPost);
     return JobPostingResponse.toResponse(result);
   }
 }

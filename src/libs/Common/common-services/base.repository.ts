@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Repository, DeepPartial, ObjectLiteral, DataSource } from 'typeorm';
+import { Repository, DeepPartial, ObjectLiteral } from 'typeorm';
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
@@ -13,24 +13,29 @@ export class BaseRepository<T extends ObjectLiteral> {
     @Inject(REQUEST) private request: Request,
   ) {}
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
-    const connection: DataSource = await this.request['CONNECTION_KEY'];
-    const repository = connection.getRepository(this.repository.target);
     if (req?.user?.organization) {
       itemData.organizationId = req.user.organization.id;
     }
-    const item = repository.create(itemData);
-    const res = (await this.repository.save(item)) as any;
+    // const item = this.repository.create(itemData);
+    const res = (await this.repository.save(itemData)) as any;
     console.log(res);
-    return item;
+    return res;
   }
   async findAll(query: CollectionQuery) {
-    const connection: DataSource = await this.request['CONNECTION_KEY'];
-    const repository = connection.getRepository(this.repository.target);
-    const dataQuery = QueryConstructor.constructQuery<T>(
-      repository,
-      query,
-    );
-
+    let dataQuery: any = null;
+    const tenantId = await this.request['TENANT_ID'];
+    if (!tenantId) {
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    } else {
+      query.where.push([
+        {
+          column: 'tenantId',
+          operator: '=',
+          value: tenantId,
+        },
+      ]);
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    }
     const response = new DataResponseFormat<T>();
     if (query.count) {
       response.total = await dataQuery.getCount();
@@ -46,11 +51,20 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T | undefined> {
-    return await this.repository.findOne({
-      where: { id },
-      relations,
-      withDeleted,
-    });
+    const tenantId = await this.request['TENANT_ID'];
+    if (!tenantId) {
+      return await this.repository.findOne({
+        where: { id },
+        relations,
+        withDeleted,
+      });
+    } else {
+      return await this.repository.findOne({
+        where: { id: id, tenantId: tenantId },
+        relations,
+        withDeleted,
+      });
+    }
   }
   async update(id: string, itemData: any): Promise<T | undefined> {
     await this.findOneOrFail(id);
@@ -68,6 +82,8 @@ export class BaseRepository<T extends ObjectLiteral> {
     await this.repository.restore(id);
   }
   async findAllArchived(query: CollectionQuery) {
+    const tenantId = await this.request['TENANT_ID'];
+
     if (!query.where) {
       query.where = [];
     }
@@ -75,11 +91,19 @@ export class BaseRepository<T extends ObjectLiteral> {
       { column: 'deletedAt', value: '', operator: 'IsNotNull' },
     ]);
 
-    const dataQuery = QueryConstructor.constructQuery<T>(
-      this.repository,
-      query,
-    );
-
+    let dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    if (!tenantId) {
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    } else {
+      query.where.push([
+        {
+          column: 'tenantId',
+          operator: '=',
+          value: tenantId,
+        },
+      ]);
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    }
     dataQuery.withDeleted();
 
     const response = new DataResponseFormat<T>();
@@ -104,10 +128,9 @@ export class BaseRepository<T extends ObjectLiteral> {
     return item;
   }
   private async findOneOrFailWithDeleted(id: any): Promise<T> {
-    const item = await this.repository.findOne({
-      where: {
-        id,
-      },
+    const item = await this.findOne({
+      id,
+      relations: [],
       withDeleted: true,
     });
 

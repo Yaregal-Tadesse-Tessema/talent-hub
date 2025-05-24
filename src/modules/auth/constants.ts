@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
+import { EmployeeStatus } from '../account/dtos/command.dto/account.dto';
+
 export enum AccountTypeEnums {
   EMPLOYER = 'employer',
   EMPLOYEE = 'employee',
   ADMIN = 'Admin',
 }
-
 export enum AccountStatusEnums {
   PENDING = 'Pending',
   ACTIVE = 'Active',
@@ -12,3 +13,10 @@ export enum AccountStatusEnums {
   DISABLED = 'Disabled',
   DRAFT = 'Draft',
 }
+
+export const activeEmployeesStatus = [
+  EmployeeStatus.ACTIVE,
+  EmployeeStatus.ON_LEAVE,
+  EmployeeStatus.ON_PROBATION,
+  EmployeeStatus.IS_ON_WORK_FROM_HOME,
+];

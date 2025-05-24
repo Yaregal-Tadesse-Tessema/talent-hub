@@ -1,35 +1,29 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { TenantDatabaseService } from '../tenant-database.service';
-import { LookupEntity } from '../../persistencies/lookup.entity';
 import { CreateLookupCommand, UpdateLookupCommand } from './lookup.command';
-import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
+import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
+import { LookupRepository } from '../../persistencies/lookup.repository';
+import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
 @Injectable()
 export class LookupService {
-  constructor(private readonly tenantDatabaseService: TenantDatabaseService) {}
-  async getAll() {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const tenantRepository = publicConnection.getRepository(LookupEntity);
-    return await tenantRepository.find();
+  constructor(
+    private readonly lookupRepository: LookupRepository,
+    private readonly employeeORganizationRepository: EmployeeTenantRepository,
+    private readonly emailService: EmailService,
+  ) {}
+  async getAll(query: CollectionQuery) {
+    return await this.lookupRepository.findAll(query);
   }
   async getById(id: string) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const tenantRepository = publicConnection.getRepository(LookupEntity);
-    return await tenantRepository.find({ where: { id: id } });
+    return await this.lookupRepository.findOne(id);
   }
-  async createLookup(command: CreateLookupCommand) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const tenantRepository = publicConnection.getRepository(LookupEntity);
-    const employeeORganizationRepository = publicConnection.getRepository(
-      EmployeeTenantEntity,
-    );
-    const lookup = await tenantRepository.save(command);
-    const employeeOrganizationCommand: CreateEmployeeTenantCommand= {
+  async createLookupWithTenant(command: CreateLookupCommand) {
+    const lookupEntity = CreateLookupCommand.fromCommand(command);
+    const lookup = await this.lookupRepository.create(lookupEntity);
+    const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
       jobTitle: command.jobTitle,
       lookupId: lookup.id,
       startDate: command.startDate,
@@ -38,33 +32,33 @@ export class LookupService {
       tenantName: command.tenantId,
       currentUser: command?.currentUser,
     };
-    const employeeOrganization = await employeeORganizationRepository.save(
-      employeeOrganizationCommand,
-    );
+    const employeeOrganization =
+      await this.employeeORganizationRepository.create(
+        employeeOrganizationCommand,
+      );
     return {
       lookup,
       employeeOrganization,
     };
   }
+  async createLookup(command: CreateLookupCommand) {
+    const lookupEntity = CreateLookupCommand.fromCommand(command);
+    const lookup = await this.lookupRepository.create(lookupEntity);
+    return lookup;
+  }
   async updateLookup(command: UpdateLookupCommand) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const lookupRepository = publicConnection.getRepository(LookupEntity);
-    const lookup = await lookupRepository.findOne({
+    const lookup = await this.lookupRepository.findOne({
       where: { id: command.id },
     });
     if (!lookup) throw new NotFoundException('employee does not exist');
-    return await lookupRepository.update(command.id, command);
+    return await this.lookupRepository.update(command.id, command);
   }
   async archiveLookup(id: string) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const lookupRepository = publicConnection.getRepository(LookupEntity);
-    const lookup = await lookupRepository.findOne({
+    const lookup = await this.lookupRepository.findOne({
       where: { id: id },
     });
     if (!lookup) throw new NotFoundException('employee does not exist');
-    const result = await lookupRepository.softDelete(id);
+    const result = await this.lookupRepository.softDelete(id);
     return result.affected > 0 ? true : false;
   }
 }

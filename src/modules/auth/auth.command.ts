@@ -7,3 +7,15 @@ export class CreateAccountCommand {
   @ApiProperty()
   password: string;
 }
+export class UserLoginCommand {
+  @ApiProperty()
+  userName: string;
+  @ApiProperty()
+  password: string;
+  @ApiProperty()
+  orgCode?: string;
+  @ApiProperty()
+  phoneNumber?: string;
+  @ApiProperty()
+  email?: string;
+}

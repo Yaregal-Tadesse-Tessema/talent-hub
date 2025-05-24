@@ -1,40 +1,34 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { TenantDatabaseService } from '../tenant-database.service';
-import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
-import { CreateEmployeeTenantCommand, UpdateEmployeeTenantCommand } from './employee-tenant.command';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  CreateEmployeeTenantCommand,
+  UpdateEmployeeTenantCommand,
+} from './employee-tenant.command';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
+import { LookupRepository } from '../../persistencies/lookup.repository';
+import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 
 @Injectable()
 export class EmployeeTenantService {
-  constructor(private readonly tenantDatabaseService: TenantDatabaseService) {}
+  constructor(
+    private readonly employeeORganizationRepository: EmployeeTenantRepository,
+    private readonly lookupRepository: LookupRepository,
+  ) {}
 
-  async getAll() {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const employeeORganizationRepository = publicConnection.getRepository(
-      EmployeeTenantEntity,
-    );
-    return await employeeORganizationRepository.find();
+  async getAll(query: CollectionQuery) {
+    return await this.employeeORganizationRepository.findAll(query);
   }
   async getById(id: string) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const employeeORganizationRepository = publicConnection.getRepository(
-        EmployeeTenantEntity,
-    );
-    return await employeeORganizationRepository.find({ where: { id: id } });
+    return await this.employeeORganizationRepository.findOne(id);
   }
-  async createLookup(command: CreateEmployeeTenantCommand) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const tenantRepository = publicConnection.getRepository(
-      EmployeeTenantEntity,
-    );
-    const employeeORganizationRepository = publicConnection.getRepository(
-      EmployeeTenantEntity,
-    );
-    const lookup = await tenantRepository.save(command);
+  async createEmployeeTenant(command: CreateEmployeeTenantCommand) {
+    const lookup = await this.lookupRepository.findOne(command.lookupId);
+    if (lookup) throw new BadRequestException(`create lookup first`);
     const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
       jobTitle: command.jobTitle,
       lookupId: lookup.id,
@@ -44,37 +38,29 @@ export class EmployeeTenantService {
       currentUser: command?.currentUser,
       status: AccountStatusEnums.ACTIVE,
     };
-    const employeeOrganization = await employeeORganizationRepository.save(
-      employeeOrganizationCommand,
-    );
+    const employeeOrganization =
+      await this.employeeORganizationRepository.create(
+        employeeOrganizationCommand,
+      );
     return {
       lookup,
       employeeOrganization,
     };
   }
   async updateLookup(command: UpdateEmployeeTenantCommand) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const employeeORganizationRepository = publicConnection.getRepository(
-        EmployeeTenantEntity,
+    const lookup = await this.employeeORganizationRepository.findOne(
+      command.id,
     );
-    const lookup = await employeeORganizationRepository.findOne({
-      where: { id: command.id },
-    });
     if (!lookup) throw new NotFoundException('employee does not exist');
-    return await employeeORganizationRepository.update(command.id, command);
+    return await this.employeeORganizationRepository.update(
+      command.id,
+      command,
+    );
   }
   async archive(id: string) {
-    const publicConnection =
-      await this.tenantDatabaseService.getPublicConnection();
-    const employeeORganizationRepository = publicConnection.getRepository(
-        EmployeeTenantEntity,
-    );
-    const lookup = await employeeORganizationRepository.findOne({
-      where: { id: id },
-    });
+    const lookup = await this.employeeORganizationRepository.findOne(id);
     if (!lookup) throw new NotFoundException('employee does not exist');
-    const result = await employeeORganizationRepository.softDelete(id);
+    const result = await this.employeeORganizationRepository.softDelete(id);
     return result.affected > 0 ? true : false;
   }
 }

@@ -1,14 +1,13 @@
 /* eslint-disable prettier/prettier */
-import { Column, Entity, OneToMany } from "typeorm";
-import { FileDto } from "src/libs/Common/dtos/file.dto";
-import { CommonEntity } from "src/libs/Common/common-entity";
-import { AccountStatusEnums } from "src/modules/auth/constants";
-import { EmployeeTenantEntity } from "./employee-tenant.entity";
-import { TEnantSubscriptionTypes } from "../constants";
+import { Column, Entity, OneToMany } from 'typeorm';
+import { FileDto } from 'src/libs/Common/dtos/file.dto';
+import { CommonEntity } from 'src/libs/Common/common-entity';
+import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { EmployeeTenantEntity } from './employee-tenant.entity';
+import { TenantSubscriptionTypes } from '../constants';
 
 @Entity({ name: 'tenants' })
 export class TenantEntity extends CommonEntity {
-
   @Column({ name: 'name' })
   name: string;
   @Column({ name: 'schema_name', nullable: true })
@@ -27,8 +26,8 @@ export class TenantEntity extends CommonEntity {
   phoneNumber: string;
   @Column({ type: 'jsonb' })
   address: any;
-  @Column({ name: 'subscription_type', default: TEnantSubscriptionTypes.FREE })
-  subscriptionType: TEnantSubscriptionTypes;
+  @Column({ name: 'subscription_type', default: TenantSubscriptionTypes.FREE })
+  subscriptionType: TenantSubscriptionTypes;
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;
   @Column()
@@ -49,7 +48,7 @@ export class TenantEntity extends CommonEntity {
   industry: string;
   @Column({ name: 'organization_type', nullable: true })
   organizationType: string;
-  @Column({ name: 'selected_calender', nullable:true })
+  @Column({ name: 'selected_calender', nullable: true })
   selectedCalender: string;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.tenant, {
     cascade: true,

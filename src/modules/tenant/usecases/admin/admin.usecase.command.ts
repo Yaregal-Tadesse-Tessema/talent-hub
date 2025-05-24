@@ -1,12 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AdminUserEntity } from '../../persistencies/admin.entity';
+import { AdminUserRepository } from '../../persistencies/admin.repository';
 @Injectable()
 export class AdminUserService {
-  constructor(
-    @InjectRepository(AdminUserEntity)
-    private readonly adminUserRepository: Repository<AdminUserEntity>,
-  ) {}
+  constructor(private readonly adminUserRepository: AdminUserRepository) {}
 }

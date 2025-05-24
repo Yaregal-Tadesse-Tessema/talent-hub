@@ -4,7 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
-import { TEnantSubscriptionTypes } from '../../constants';
+import { TenantSubscriptionTypes } from '../../constants';
 export class CreateTenantCommand {
   @ApiProperty()
   id?: string;
@@ -27,7 +27,7 @@ export class CreateTenantCommand {
   @ApiProperty()
   address?: any;
   @ApiProperty()
-  subscriptionType?: TEnantSubscriptionTypes;
+  subscriptionType?: TenantSubscriptionTypes;
   @ApiProperty()
   isVerified?: boolean;
   @ApiProperty()

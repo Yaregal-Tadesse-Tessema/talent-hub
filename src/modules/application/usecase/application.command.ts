@@ -20,11 +20,11 @@ export class CreateApplicationCommand {
   @IsNotEmpty()
   JobPostId: string;
   @ApiProperty()
-  coverLetter: string;
+  coverLetter?: string;
   @ApiProperty()
-  referralInformation: ReferralInformation;
+  referralInformation?: ReferralInformation;
   @ApiProperty()
-  referenceReason: string;
+  referenceReason?: string;
   @ApiProperty()
   isViewed?: boolean;
   @ApiProperty()

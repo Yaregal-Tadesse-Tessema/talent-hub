@@ -1,11 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { UserType } from '../constants';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { FileDto } from 'src/libs/Common/dtos/file.dto';
 
 @Entity({ name: 'lookup_table' })
 export class LookupEntity extends CommonEntity {
+  @Column({ name: 'user_id', nullable: true, unique: true })
+  userId: string;
   @Column({ name: 'full_name', nullable: true })
   fullName: string;
   @Column({ name: 'first_name', nullable: true })
@@ -20,11 +25,25 @@ export class LookupEntity extends CommonEntity {
   email: string;
   @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
+  @Column({ name: 'user_type', default: UserType.EMPLOYEE })
+  userType: UserType;
   @Column({ default: AccountStatusEnums.ACTIVE })
   status: AccountStatusEnums;
+  @Column({ name: 'profile_image', nullable: true, type: 'jsonb' })
+  profileImage: FileDto;
+  @Column({ name: 'address', nullable: true, type: 'jsonb' })
+  address: any;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.lookup, {
     cascade: true,
     onDelete: 'CASCADE',
   })
-  employeeOrganization: EmployeeTenantEntity[];
+  employeeTenant: EmployeeTenantEntity[];
+
+  @OneToOne(() => UserEntity, (user) => user.lookup, {
+    orphanedRowAction: 'delete',
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user: UserEntity;
 }

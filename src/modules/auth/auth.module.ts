@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { forwardRef, Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmployeeEntity } from '../account/persistances/employee.entity';
 import { AccountEntity } from '../account/persistances/account.entity';
 import { SessionEntity } from './persistances/session.entity';
 import { PassportModule } from '@nestjs/passport';
@@ -19,20 +18,37 @@ import { ApplicationEntity } from '../application/persistences/application.entit
 import { SessionCommand } from './services/session/session.usecase.command';
 import { SessionQuery } from './services/session/session.usecase.query';
 import * as dotenv from 'dotenv';
+import { ApplicationModule } from '../application/application.module';
+import { LookupEntity } from '../tenant/persistencies/lookup.entity';
+import { TenantEntity } from '../tenant/persistencies/tenant.entity';
+import { EmployeeTenantEntity } from '../tenant/persistencies/employee-tenant.entity';
+import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
+import { JobRequirementEntity } from '../job-posting/job-requirement/persistance/job-requirement.entity';
+import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
+import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
+import { OrganizationEntity } from '../organization/persistencies/organization.entity';
 dotenv.config({ path: '.env' });
-import * as process from 'node:process';
 @Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      EmployeeEntity,
-      AccountEntity,
       SessionEntity,
+      TenantEntity,
+      LookupEntity,
+      EmployeeTenantEntity,
       UserEntity,
+      AccountEntity,
+      JobPostingEntity,
+      JobRequirementEntity,
       ApplicationEntity,
+      SaveJobEntity,
+      PreScreeningQuestionEntity,
+      OrganizationEntity,
+      // ResetPasswordTokenEntity,
     ]),
     PassportModule,
     UserModule,
+    ApplicationModule,
     forwardRef(() => AccountModule),
     JwtModule.register({
       global: true,

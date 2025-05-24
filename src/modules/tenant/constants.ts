@@ -1,4 +1,8 @@
 /* eslint-disable prettier/prettier */
-export enum TEnantSubscriptionTypes{
-    FREE="Free"
+export enum TenantSubscriptionTypes {
+  FREE = 'Free',
+}
+export enum UserType {
+  EMPLOYEE = 'Employee',
+  EMPLOYER = 'Employer',
 }

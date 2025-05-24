@@ -28,7 +28,7 @@ export class EmployeeTenantEntity extends CommonEntity {
   @JoinColumn({ name: 'tenant_id' })
   tenant: TenantEntity;
 
-  @ManyToOne(() => LookupEntity, (tenant) => tenant.employeeOrganization, {
+  @ManyToOne(() => LookupEntity, (tenant) => tenant.employeeTenant, {
     orphanedRowAction: 'delete',
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',

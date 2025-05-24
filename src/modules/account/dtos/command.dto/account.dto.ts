@@ -10,7 +10,7 @@ export class CreateAccountCommand {
   organizationId: string;
   @ApiProperty()
   userName?: string;
-  @ApiProperty({ default: AccountStatusEnums.ACTIVE })
+  @ApiProperty()
   status?: AccountStatusEnums;
   @ApiProperty()
   phone?: string;
