@@ -248,7 +248,7 @@ export class UserService {
     token: string,
     userId: string,
   ): Promise<boolean> {
-    const activationLink = `http://localhost:3010/api/users/activate-account/${userId}?token=${token}`;
+    const activationLink = `http://138.197.105.31:3010/api/users/activate-account/${userId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `
