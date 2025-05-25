@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { EmployeeStatus } from '../account/dtos/command.dto/account.dto';
+
+import { EmployeeStatus } from '../user/usecase/user.command';
 
 export enum AccountTypeEnums {
   EMPLOYER = 'employer',

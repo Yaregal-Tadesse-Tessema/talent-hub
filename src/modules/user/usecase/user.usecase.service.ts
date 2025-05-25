@@ -9,6 +9,7 @@ import {
 import { UserResponse } from './user.response';
 import * as path from 'path';
 import {
+  AccountPasswordChange,
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
@@ -16,7 +17,6 @@ import {
 import { exec } from 'child_process';
 import * as fs from 'fs-extra';
 import * as tmp from 'tmp';
-import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { JwtService } from '@nestjs/jwt';
 import { UserStatusEnums } from '../constants';
@@ -312,7 +312,7 @@ export class UserService {
       status: UserStatusEnums.ACTIVE,
     });
     if (success) {
-      return res.redirect('http://138.197.105.31:3000/'); // frontend success page
+      return res.redirect('http://138.197.105.31:3000/login'); // frontend success page
     } else {
       return res.redirect('http://138.197.105.31:3000/'); // frontend error page
     }
@@ -330,6 +330,9 @@ export class UserService {
     });
   }
   async create(itemData: CreateUserCommand): Promise<UserResponse> {
+    itemData.password = itemData?.password
+      ? Util.hashPassword(itemData.password)
+      : Util.hashPassword('C0mplex!');
     const item: UserEntity = await this.userRepository.create(itemData);
     const uerInfo: UserInfo = {
       id: item.id,

@@ -1,10 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { forwardRef, Global, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccountEntity } from '../account/persistances/account.entity';
 import { SessionEntity } from './persistances/session.entity';
 import { PassportModule } from '@nestjs/passport';
-import { AccountModule } from '../account/account.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './services/auth.service';
 import { RefreshTokenStrategy } from './refreshToken.strategy';
@@ -26,7 +24,6 @@ import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.e
 import { JobRequirementEntity } from '../job-posting/job-requirement/persistance/job-requirement.entity';
 import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
 import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
-import { OrganizationEntity } from '../organization/persistencies/organization.entity';
 dotenv.config({ path: '.env' });
 @Global()
 @Module({
@@ -37,19 +34,16 @@ dotenv.config({ path: '.env' });
       LookupEntity,
       EmployeeTenantEntity,
       UserEntity,
-      AccountEntity,
       JobPostingEntity,
       JobRequirementEntity,
       ApplicationEntity,
       SaveJobEntity,
       PreScreeningQuestionEntity,
-      OrganizationEntity,
       // ResetPasswordTokenEntity,
     ]),
     PassportModule,
     UserModule,
     ApplicationModule,
-    forwardRef(() => AccountModule),
     JwtModule.register({
       global: true,
       secret:

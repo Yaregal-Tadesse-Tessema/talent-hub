@@ -25,7 +25,8 @@ export class CreateUserCommand {
   status: UserStatusEnums;
   @ApiProperty()
   password: string;
-
+  @ApiProperty()
+  address: any;
   @ApiProperty()
   birthDate: Date;
   @ApiProperty()
@@ -80,6 +81,7 @@ export class CreateUserCommand {
     entity.gender = dto?.gender;
     entity.status = dto?.status;
     entity.birthDate = dto?.birthDate;
+    entity.address = dto?.address;
     entity.linkedinUrl = dto?.linkedinUrl;
     entity.portfolioUrl = dto?.portfolioUrl;
     entity.yearOfExperience = dto?.yearOfExperience;
@@ -117,4 +119,28 @@ export enum CvTemplateEnums {
   EuroPass = 'EuroPass',
   GitConnect = 'GitConnect',
 }
-
+export class AccountPasswordChange {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  oldPassword?: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  newPassword: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  confirmNewPassword: string;
+}
+export enum EmployeeStatus {
+  ACTIVE = 'Active',
+  ON_LEAVE = 'On Leave',
+  TERMINATED = 'Terminated',
+  SUSPENDED = 'Suspended',
+  INACTIVE = 'Inactive',
+  RESIGNED = 'Resigned',
+  RETIRED = 'Retired',
+  SECONDED = 'Seconded',
+  ON_PROBATION = 'On Probation',
+  IS_ON_WORK_FROM_HOME = 'Is On Work From Home',
+}

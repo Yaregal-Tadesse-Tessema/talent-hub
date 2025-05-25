@@ -24,6 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import {
+  AccountPasswordChange,
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
@@ -33,7 +34,6 @@ import { UserService } from '../usecase/user.usecase.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { Response } from 'express';
-import { AccountPasswordChange } from 'src/modules/account/dtos/command.dto/account.dto';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 
 @Controller('users')

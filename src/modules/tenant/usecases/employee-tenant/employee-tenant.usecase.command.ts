@@ -8,10 +8,10 @@ import {
   CreateEmployeeTenantCommand,
   UpdateEmployeeTenantCommand,
 } from './employee-tenant.command';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
 import { LookupRepository } from '../../persistencies/lookup.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 
 @Injectable()
 export class EmployeeTenantService {
@@ -36,7 +36,7 @@ export class EmployeeTenantService {
       tenantId: command.tenantId,
       tenantName: command.tenantId,
       currentUser: command?.currentUser,
-      status: AccountStatusEnums.ACTIVE,
+      status: EmployeeStatus.ACTIVE,
     };
     const employeeOrganization =
       await this.employeeORganizationRepository.create(

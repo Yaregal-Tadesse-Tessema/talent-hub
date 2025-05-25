@@ -28,6 +28,8 @@ export class UserEntity extends CommonEntity {
   password: string;
   @Column({ nullable: true, type: 'decimal' })
   gpa: number;
+  @Column({ nullable: true, type: 'jsonb' })
+  address: any;
   @Column({ nullable: true })
   birthDate: Date;
   @Column({ nullable: true })

@@ -5,37 +5,32 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, MoreThanOrEqual, Repository } from 'typeorm';
+import { DataSource, MoreThanOrEqual } from 'typeorm';
 
 import axios from 'axios';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
-import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
-import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import {
   CheckOrganizationFromETrade,
   CreateTenantCommand,
 } from './tenant.command';
 import { TenantResponse } from './tenant.response';
-import { TenantEntity } from '../../persistencies/tenant.entity';
-import { LookupEntity } from '../../persistencies/lookup.entity';
-import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 import { CreateLookupCommand } from '../lookup/lookup.command';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
 import { TenantSubscriptionTypes } from '../../constants';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
+import { TenantRepository } from '../../persistencies/tenant.repository';
+import { LookupRepository } from '../../persistencies/lookup.repository';
+import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
+import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
   constructor(
-    @InjectRepository(TenantEntity)
-    private readonly tenantRepository: Repository<TenantEntity>,
-    @InjectRepository(LookupEntity)
-    private readonly lookupRepository: Repository<LookupEntity>,
-    @InjectRepository(EmployeeTenantEntity)
-    private readonly employeeOrganizationRepository: Repository<EmployeeTenantEntity>,
+    private readonly tenantRepository: TenantRepository,
+    private readonly lookupRepository: LookupRepository,
+    private readonly employeeTenantRepository: EmployeeTenantRepository,
   ) {}
   private readonly axiosInstance = axios.create({
     baseURL: 'https://etrade.gov.et/api',
@@ -105,42 +100,43 @@ export class TenantService {
   }
   async createTenant(command: CreateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = CreateTenantCommand.fromCommand(command);
-    const result = await this.tenantRepository.save(tenantEntity);
-    // const tenants = await this.tenantRepository.find();
-    // const tenantCount = tenants?.length > 0 ? tenants.length : 1;
-    // const schemaName = `_${tenantCount}`;
-    // tenantEntity.schemaName = schemaName;
-    // tenantEntity.code = schemaName;
-    const tenant = await this.tenantRepository.save(tenantEntity);
+    const result = await this.tenantRepository.create(tenantEntity);
     const salt = process.env.BCRYPT_SALT;
-    const lookup: CreateLookupCommand = {
-      email: tenant.email,
-      password: await bcrypt.hash('C0mplex!', salt),
-      phoneNumber: command.phoneNumber,
-      status: command.status,
-      firstName: 'Administrator',
-      middleName: 'Administrator',
-      lastName: 'Administrator',
-      jobTitle: 'Administrator',
-      tenantId: tenant.id,
-      tenantName: tenant.name,
-    };
-    const lookupEntity = await this.lookupRepository.save(lookup);
     const employeeTenant: CreateEmployeeTenantCommand = {
       jobTitle: 'Administrator',
-      lookupId: lookupEntity.id,
-      status: tenant.status,
-      tenantId: tenant.id,
-      tenantName: tenant.name,
+      lookupId: command?.currentUser?.lookupId,
+      status: result.status,
+      tenantId: result.id,
+      tenantName: result.name,
       startDate: new Date(),
     };
+    if (!command?.currentUser) {
+      const lookup: CreateLookupCommand = {
+        email: result.email,
+        password: await bcrypt.hash('C0mplex!', salt),
+        phoneNumber: command.phoneNumber,
+        status: command.status,
+        firstName: 'Administrator',
+        middleName: 'Administrator',
+        lastName: 'Administrator',
+        jobTitle: 'Administrator',
+        tenantId: result.id,
+        tenantName: result.name,
+      };
+      const lookupEntity = await this.lookupRepository.create(lookup);
+      employeeTenant.lookupId = lookupEntity.id;
+    }
+
     const employeeTenantEntity =
-      await this.employeeOrganizationRepository.save(employeeTenant);
+      await this.employeeTenantRepository.create(employeeTenant);
     result.organizationEmployees.push(employeeTenantEntity);
     return TenantResponse.toResponse(result);
   }
-
   async CreateAccounts(command: CreateTenantCommand) {
+    if (command?.currentUser)
+      throw new BadRequestException(
+        `Create You first need to login as Employer`,
+      );
     if (!command.phoneNumber && !command.email) {
       throw new BadRequestException(`Phone or email is mandatory`);
     }
@@ -158,8 +154,10 @@ export class TenantService {
       ],
     });
     if (alreadyExist)
-      throw new ConflictException(`Organization already exists`);
-
+      throw new ConflictException(
+        `Organization already registered with thi email and password`,
+      );
+    const salt = process.env.BCRYPT_SALT;
     const tenantCommand: CreateTenantCommand = {
       name: command.name,
       tin: command.tin,
@@ -174,26 +172,24 @@ export class TenantService {
     };
     const tenantEntity: TenantResponse = await this.createTenant(tenantCommand);
     const entity: CreateLookupCommand = {
-      password: 'C0mplex@123',
+      password: await bcrypt.hash('C0mplex!', salt),
       email: command.email,
       phoneNumber: command.phoneNumber,
       firstName: 'Root',
       middleName: 'Administrator',
       status: AccountStatusEnums.ACTIVE,
     };
-    const lookEntity = await this.lookupRepository.save(entity);
-    const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
+    const lookEntity = await this.lookupRepository.create(entity);
+    const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
       tenantId: tenantEntity.id,
-      lookupId: lookEntity.id,
+      lookupId: command.currentUser.lookupId,
       startDate: new Date(),
-      status: AccountStatusEnums.ACTIVE,
+      status: EmployeeStatus.ACTIVE,
       tenantName: tenantEntity.name,
       jobTitle: 'Administrator',
     };
     const employeeORganizationEntity =
-      await this.employeeOrganizationRepository.save(
-        employeeoRganizationCommand,
-      );
+      await this.employeeTenantRepository.create(employeeOrganizationCommand);
     return { tenantEntity, lookEntity, employeeORganizationEntity };
   }
   async registerOrganizationWithETrade(
@@ -227,6 +223,7 @@ export class TenantService {
         'Emp',
         'ORG',
       );
+      const salt = process.env.BCRYPT_SALT;
       const createCommand: CreateTenantCommand = {
         name: licenseInformation.data.TradeName,
         tin: command.tin,
@@ -242,24 +239,22 @@ export class TenantService {
       const lookupCommand: CreateLookupCommand = {
         email: tenantEntity?.email,
         phoneNumber: tenantEntity.phoneNumber,
-        password: 'C0mplex@123',
+        password: await bcrypt.hash('C0mplex!', salt),
         // user: result?.phoneNumber ? result?.phoneNumber : result?.email,
         status: AccountStatusEnums.ACTIVE,
       };
-      const lookupEntity = await this.lookupRepository.save(lookupCommand);
+      const lookupEntity = await this.lookupRepository.create(lookupCommand);
       console.log(createCommand);
       const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
         tenantId: tenantEntity.id,
         lookupId: lookupEntity.id,
         startDate: new Date(),
-        status: AccountStatusEnums.ACTIVE,
+        status: EmployeeStatus.ACTIVE,
         tenantName: tenantEntity.name,
         jobTitle: 'Administrator',
       };
       const employeeORganizationEntity =
-        await this.employeeOrganizationRepository.save(
-          employeeoRganizationCommand,
-        );
+        await this.employeeTenantRepository.create(employeeoRganizationCommand);
       return {
         tenantEntity,
         lookupEntity,
@@ -273,7 +268,7 @@ export class TenantService {
       throw new BadRequestException('Unable to verify TIN. Please try again');
     }
   }
-  async generateRegistrationNumber(orgCode = 'IFHCRS', serviceCode: string) {
+  async generateRegistrationNumber(orgCode = 'TALHUB', serviceCode: string) {
     const today = new Date();
     const dateFormatted = new Date(
       today.getFullYear(),
@@ -290,9 +285,11 @@ export class TenantService {
       ('0' + (today.getMonth() + 1)).slice(-2) +
       '' +
       ('0' + today.getDate()).slice(-2);
-    const applicationResult = await this.tenantRepository.count({
+    const lastApplication = await this.tenantRepository.findOne({
       where: { createdAt: MoreThanOrEqual(dateFormatted) },
+      order: { createdAt: 'DESC' },
     });
+    const applicationResult = lastApplication.registrationNumber;
     const applicationNo = orgCode.concat(
       '-',
       serviceCode,
@@ -321,25 +318,10 @@ export class TenantService {
     }
   }
   async getTenant(id: string) {
-    return await this.tenantRepository.find({
-      where: { id: id },
-      relations: { organizationEmployees: true },
-    });
+    return await this.tenantRepository.findOne(id, ['organizationEmployees']);
   }
   async getTenants(query: CollectionQuery) {
-    const dataQuery = QueryConstructor.constructQuery<TenantEntity>(
-      this.tenantRepository,
-      query,
-    );
-
-    const response = new DataResponseFormat<TenantResponse>();
-    if (query.count) {
-      response.total = await dataQuery.getCount();
-    } else {
-      const [result, total] = await dataQuery.getManyAndCount();
-      response.total = total;
-      response.items = result;
-    }
+    const response = await this.tenantRepository.findAll(query);
     return response;
   }
 }

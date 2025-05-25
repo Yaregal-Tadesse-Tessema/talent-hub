@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { ApiTags } from '@nestjs/swagger';
-import { LoginDto } from '../dto/login.dto';
 import { AllowAnonymous } from '../allow-anonymous.decorator';
 import * as jwt from 'jsonwebtoken';
 import { Util } from 'src/libs/Common/util';
@@ -25,14 +24,14 @@ export class AuthController {
     private authService: AuthService,
     private sessionQuery: SessionQuery,
   ) {}
-  @Post('login')
-  async login(@Body() body: LoginDto): Promise<any> {
-    return await this.authService.login(body);
-  }
-  @Post('employee-login')
-  async employeeLogin(@Body() body: LoginDto): Promise<any> {
-    return await this.authService.employeeLogin(body);
-  }
+  // @Post('login')
+  // async login(@Body() body: LoginDto): Promise<any> {
+  //   return await this.authService.login(body);
+  // }
+  // @Post('employee-login')
+  // async employeeLogin(@Body() body: LoginDto): Promise<any> {
+  //   return await this.authService.employeeLogin(body);
+  // }
   @Post('refresh')
   async getRefreshToken(@Headers() headers: object) {
     if (!headers['x-refresh-token']) {

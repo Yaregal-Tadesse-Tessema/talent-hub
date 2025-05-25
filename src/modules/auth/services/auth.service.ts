@@ -1,22 +1,16 @@
 /* eslint-disable prettier/prettier */
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { LoginDto } from '../dto/login.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 import { SessionEntity } from '../persistances/session.entity';
 import { JwtService } from '@nestjs/jwt';
 import { SessionCommand } from './session/session.usecase.command';
 import * as dotenv from 'dotenv';
 import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
-import { activeEmployeesStatus } from '../constants';
+import { AccountStatusEnums, activeEmployeesStatus } from '../constants';
 import { Util } from 'src/libs/Common/util';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { UserResponse } from 'src/modules/user/usecase/user.response';
-import { AccountEntity } from 'src/modules/account/persistances/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { UserLoginCommand } from '../auth.command';
@@ -24,8 +18,8 @@ dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(AccountEntity)
-    private readonly accountRepository: Repository<AccountEntity>,
+    // @InjectRepository(AccountEntity)
+    // private readonly accountRepository: Repository<AccountEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private jwtService: JwtService,
@@ -84,39 +78,39 @@ export class AuthService {
       organization: account,
     };
   }
-  async login({ username, password }: LoginDto) {
-    const user = await this.accountRepository.findOne({
-      where: { email: username },
-    });
-    if (!user)
-      throw new UnauthorizedException(`invalid user name : ${username}`);
-    if (password !== user.password)
-      throw new UnauthorizedException(`Incorrect Password`);
-    const token = await this.generateTokenForEmployee(user);
-    await this.sessionRepository.save({
-      accountId: user.id,
-      token: token.accessToken,
-      refreshToken: token.refreshToken,
-    });
-    return token;
-  }
+  // async login({ username, password }: LoginDto) {
+  //   const user = await this.accountRepository.findOne({
+  //     where: { email: username },
+  //   });
+  //   if (!user)
+  //     throw new UnauthorizedException(`invalid user name : ${username}`);
+  //   if (password !== user.password)
+  //     throw new UnauthorizedException(`Incorrect Password`);
+  //   const token = await this.generateTokenForEmployee(user);
+  //   await this.sessionRepository.save({
+  //     accountId: user.id,
+  //     token: token.accessToken,
+  //     refreshToken: token.refreshToken,
+  //   });
+  //   return token;
+  // }
 
-  async employeeLogin({ username, password }: LoginDto) {
-    const employee = await this.userRepository.findOne({
-      where: [{ email: username }, { phone: username }],
-    });
-    if (!employee)
-      throw new UnauthorizedException(` username ${username} does not exist`);
-    if (password !== employee.password)
-      throw new UnauthorizedException(`Incorrect Password`);
-    const token = await this.generateTokenForEmployee(employee);
-    await this.sessionCommand.createSession({
-      accountId: employee.id,
-      token: token.accessToken,
-      refreshToken: token.refreshToken,
-    });
-    return token;
-  }
+  // async employeeLogin({ username, password }: LoginDto) {
+  //   const employee = await this.userRepository.findOne({
+  //     where: [{ email: username }, { phone: username }],
+  //   });
+  //   if (!employee)
+  //     throw new UnauthorizedException(` username ${username} does not exist`);
+  //   if (password !== employee.password)
+  //     throw new UnauthorizedException(`Incorrect Password`);
+  //   const token = await this.generateTokenForEmployee(employee);
+  //   await this.sessionCommand.createSession({
+  //     accountId: employee.id,
+  //     token: token.accessToken,
+  //     refreshToken: token.refreshToken,
+  //   });
+  //   return token;
+  // }
 
   async backOfficeLogin(loginCommand: UserLoginCommand) {
     if (
@@ -126,15 +120,15 @@ export class AuthService {
     ) {
       throw new BadRequestException('Provide your credentials to login');
     }
-    if (loginCommand.orgCode) {
+    if (loginCommand.orgId) {
       const lookupData = await this.lookupRepository.findOne({
         where: {
           phoneNumber: loginCommand.phoneNumber,
           employeeTenant: {
             status: In(activeEmployeesStatus),
             tenant: {
-              schemaName: loginCommand.orgCode,
-              status: In(activeEmployeesStatus),
+              id: loginCommand.orgId,
+              status: AccountStatusEnums.ACTIVE,
             },
           },
         },
@@ -150,56 +144,33 @@ export class AuthService {
         throw new BadRequestException(`Incorrect credentials`);
       }
       const tenant = lookupData.employeeTenant[0].tenant;
-      const user = await this.userRepository.findOne({
-        where: {
-          phone: loginCommand.phoneNumber,
-        },
-        // relations: { department: true, employeeRoles: { role: true } },
-      });
-      if (!user) throw new BadRequestException('user does not exist');
-      // if (loginCommand.appId == 'backOffice') {
-      //   if (!account.hasBackOfficeAccess)
-      //     throw new BadRequestException(
-      //       'you do not have access contact the admin',
-      //     );
-      // }
-      // const employeeRoleResponse: EmployeeRoleResponse[] =
-      //   account?.employeeRoles?.length > 0
-      //     ? account.employeeRoles.map((item) =>
-      //         EmployeeRoleResponse.toResponse(item),
-      //       )
-      //     : null;
       const payload: UserInfo = {
         lookupId: lookupData.id,
         tenantId: lookupData.employeeTenant[0].tenantId,
-        id: user.id,
-        email: user?.email,
-        firstName: user?.firstName,
-        middleName: user?.middleName,
-        lastName: user?.lastName,
-
-        profileImage: user?.profile,
-        // address: user?.address,
-        phoneNumber: user?.phone,
+        id: lookupData.id,
+        email: lookupData?.email,
+        firstName: lookupData?.firstName,
+        middleName: lookupData?.middleName,
+        lastName: lookupData?.lastName,
+        profileImage: lookupData?.profileImage,
+        address: lookupData?.address,
+        phoneNumber: lookupData?.phoneNumber,
         roles: [],
         tenantSchemaName: tenant?.schemaName,
         tenantName: tenant?.name,
       };
       const accessToken = Util.GenerateToken(payload, '60m'); //60m
       const refreshToken = Util.GenerateRefreshToken(payload);
-      await this.sessionCommand.createSession(
-        {
-          accountId: payload.id,
-          token: accessToken,
-          refreshToken,
-        },
-        // connection,
-      );
+      await this.sessionCommand.createSession({
+        accountId: payload.id,
+        token: accessToken,
+        refreshToken,
+      });
       return {
         accessToken,
         refreshToken,
         profile: {
-          ...UserResponse.toResponse(user),
+          ...LookupResponse.toResponse(lookupData),
           tenantId: tenant.id,
         },
       };
@@ -223,7 +194,7 @@ export class AuthService {
       throw new BadRequestException(`Incorrect credentials`);
     }
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
-
+    if ((lookup.employeeTenant.length = 0)) return null;
     const payload: UserInfo = {
       id: lookup.id,
       tenantId: lookup.employeeTenant[0].tenantId,
@@ -235,20 +206,15 @@ export class AuthService {
       address: lookup?.address,
       phoneNumber: lookup?.phoneNumber,
       roles: [],
-
       tenantSchemaName: lookup.employeeTenant[0].tenantName,
-      // tenantName: tenant?.name,
     };
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);
-    await this.sessionCommand.createSession(
-      {
-        accountId: payload.id,
-        token: accessToken,
-        refreshToken,
-      },
-      // connection,
-    );
+    await this.sessionCommand.createSession({
+      accountId: payload.id,
+      token: accessToken,
+      refreshToken,
+    });
     return {
       accessToken,
       refreshToken,
@@ -284,54 +250,34 @@ export class AuthService {
       throw new BadRequestException('Provide your credentials to login');
     }
 
-    const lookup = await this.lookupRepository.findOne({
-      where: {
-        phoneNumber: loginCommand.phoneNumber,
-        status: In(activeEmployeesStatus),
-      },
-      relations: { user: true },
+    const user = await this.userRepository.findOne({
+      where: [
+        {
+          phone: loginCommand.userName,
+          status: In(activeEmployeesStatus),
+        },
+        {
+          email: loginCommand.userName,
+          status: In(activeEmployeesStatus),
+        },
+      ],
     });
-    if (!lookup)
+    if (!user)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (!Util.comparePassword(loginCommand.password.trim(), lookup.password)) {
+    if (!Util.comparePassword(loginCommand.password.trim(), user.password)) {
       throw new BadRequestException(`Incorrect credentials`);
     }
-
-    // if (loginCommand.appId == 'backOffice') {
-    //   if (!user.hasBackOfficeAccess)
-    //     throw new BadRequestException(
-    //       'you do not have access contact the admin',
-    //     );
-    // }
-    // const employeeRoleResponse: EmployeeRoleResponse[] =
-    //   account?.employeeRoles?.length > 0
-    //     ? account.employeeRoles.map((item) =>
-    //         EmployeeRoleResponse.toResponse(item),
-    //       )
-    //     : null;
-    const user = lookup.user;
     const payload: UserInfo = {
-      lookupId: lookup.id,
-      tenantId: lookup.employeeTenant[0].tenantId,
       id: user.id,
       email: user?.email,
       firstName: user?.firstName,
       middleName: user?.middleName,
       lastName: user?.lastName,
-      // userName: user?.userName,
-      // workEmail: user?.workEmail,
-      // hasBackofficeAccess: user?.hasBackOfficeAccess,
-      // type: user?.employmentType,
-      profileImage: user?.profile,
-      // address: user?.address,
       phoneNumber: user?.phone,
-      roles: [],
-      // departmentName: user?.department?.name,
-      // departmentId: user?.department?.id,
-      // employeeRoles: employeeRoleResponse,
-      // tenantSchemaName: tenant?.schemaName,
-      // tenantName: tenant?.name,
-      // appId: loginCommand?.appId ? loginCommand.appId : 'backOffice',
+      profileImage: user?.profile,
+      address: user?.address,
+      skills: user?.technicalSkills,
+      industry: user?.industry,
     };
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);

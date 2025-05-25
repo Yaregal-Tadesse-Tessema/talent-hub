@@ -22,6 +22,8 @@ export class UserResponse {
   @ApiProperty()
   status: UserStatusEnums;
   @ApiProperty()
+  address: Date;
+  @ApiProperty()
   birthDate: Date;
   @ApiProperty()
   linkedinUrl: string;
@@ -74,31 +76,32 @@ export class UserResponse {
     response.phone = entity.phone;
     response.email = entity.email;
     response.password = entity.password;
-    response.firstName = entity?.firstName;
-    response.middleName = entity?.middleName;
-    response.lastName = entity?.lastName;
-    response.gender = entity?.gender;
-    response.status = entity?.status;
-    response.birthDate = entity?.birthDate;
-    response.linkedinUrl = entity?.linkedinUrl;
-    response.portfolioUrl = entity?.portfolioUrl;
-    response.yearOfExperience = entity?.yearOfExperience;
-    response.industry = entity?.industry;
-    response.telegramUserId = entity?.telegramUserId;
-    response.preferredJobLocation = entity?.preferredJobLocation;
-    response.highestLevelOfEducation = entity?.highestLevelOfEducation;
-    response.salaryExpectations = entity?.salaryExpectations;
-    response.aiGeneratedJobFitScore = entity?.aiGeneratedJobFitScore;
-    response.profile = entity?.profile;
-    response.resume = entity?.resume;
-    response.softSkills = entity?.softSkills;
-    response.technicalSkills = entity?.technicalSkills;
-    response.socialMediaLinks = entity?.socialMediaLinks;
-    response.profileHeadLine = entity?.profileHeadLine;
-    response.coverLetter = entity?.coverLetter;
-    response.professionalSummery = entity?.professionalSummery;
-    response.educations = entity?.educations;
-    response.experiences = entity?.experiences;
+    response.firstName = entity.firstName;
+    response.middleName = entity.middleName;
+    response.lastName = entity.lastName;
+    response.gender = entity.gender;
+    response.status = entity.status;
+    response.birthDate = entity.birthDate;
+    response.address = entity.address;
+    response.linkedinUrl = entity.linkedinUrl;
+    response.portfolioUrl = entity.portfolioUrl;
+    response.yearOfExperience = entity.yearOfExperience;
+    response.industry = entity.industry;
+    response.telegramUserId = entity.telegramUserId;
+    response.preferredJobLocation = entity.preferredJobLocation;
+    response.highestLevelOfEducation = entity.highestLevelOfEducation;
+    response.salaryExpectations = entity.salaryExpectations;
+    response.aiGeneratedJobFitScore = entity.aiGeneratedJobFitScore;
+    response.profile = entity.profile;
+    response.resume = entity.resume;
+    response.softSkills = entity.softSkills;
+    response.technicalSkills = entity.technicalSkills;
+    response.socialMediaLinks = entity.socialMediaLinks;
+    response.profileHeadLine = entity.profileHeadLine;
+    response.coverLetter = entity.coverLetter;
+    response.professionalSummery = entity.professionalSummery;
+    response.educations = entity.educations;
+    response.experiences = entity.experiences;
     return response;
   }
 }

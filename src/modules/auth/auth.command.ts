@@ -13,7 +13,7 @@ export class UserLoginCommand {
   @ApiProperty()
   password: string;
   @ApiProperty()
-  orgCode?: string;
+  orgId?: string;
   @ApiProperty()
   phoneNumber?: string;
   @ApiProperty()

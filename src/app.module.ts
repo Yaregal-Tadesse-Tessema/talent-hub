@@ -22,11 +22,9 @@ import { EmployeeTenantEntity } from './modules/tenant/persistencies/employee-te
 import { UserEntity } from './modules/user/persistence/users.entity';
 import { SessionEntity } from './modules/auth/persistances/session.entity';
 import { JobPostingEntity } from './modules/job-posting/job/persistencies/job-posting.entity';
-import { AccountEntity } from './modules/account/persistances/account.entity';
 import { JobRequirementEntity } from './modules/job-posting/job-requirement/persistance/job-requirement.entity';
 import { ApplicationEntity } from './modules/application/persistences/application.entity';
 import { SaveJobEntity } from './modules/job-posting/job/persistencies/save-job-post.entity';
-import { OrganizationEntity } from './modules/organization/persistencies/organization.entity';
 import { PreScreeningQuestionEntity } from './modules/job-posting/job/persistencies/pre-screening-question.entity';
 import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
 @Module({
@@ -48,13 +46,11 @@ import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
         LookupEntity,
         EmployeeTenantEntity,
         UserEntity,
-        AccountEntity,
         JobPostingEntity,
         JobRequirementEntity,
         ApplicationEntity,
         SaveJobEntity,
         PreScreeningQuestionEntity,
-        OrganizationEntity,
         AdminUserEntity,
         // ResetPasswordTokenEntity,
       ],

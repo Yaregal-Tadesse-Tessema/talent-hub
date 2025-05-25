@@ -1,12 +1,12 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLookupCommand, UpdateLookupCommand } from './lookup.command';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { LookupRepository } from '../../persistencies/lookup.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
+import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 @Injectable()
 export class LookupService {
   constructor(
@@ -27,7 +27,7 @@ export class LookupService {
       jobTitle: command.jobTitle,
       lookupId: lookup.id,
       startDate: command.startDate,
-      status: AccountStatusEnums.ACTIVE,
+      status: EmployeeStatus.ACTIVE,
       tenantId: command.tenantId,
       tenantName: command.tenantId,
       currentUser: command?.currentUser,

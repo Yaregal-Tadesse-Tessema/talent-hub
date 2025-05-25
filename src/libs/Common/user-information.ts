@@ -27,4 +27,7 @@ export type UserInfo = {
   profileImage?: FileDto;
   address?: any;
   preferredName?: string;
+
+  industry?: string[];
+  skills?: string[];
 };

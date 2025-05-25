@@ -5,6 +5,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantSubscriptionTypes } from '../../constants';
+import { UserInfo } from 'src/libs/Common/user-information';
 export class CreateTenantCommand {
   @ApiProperty()
   id?: string;
@@ -52,7 +53,7 @@ export class CreateTenantCommand {
   selectedCalender?: string;
   @ApiProperty()
   archiveReason?: string;
-  currentUser?: any;
+  currentUser?: UserInfo;
 
   static fromCommand(command: CreateTenantCommand): TenantEntity {
     const tenant = new TenantEntity();

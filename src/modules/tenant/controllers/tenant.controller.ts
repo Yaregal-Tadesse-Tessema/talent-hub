@@ -13,6 +13,8 @@ import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-co
 import { TenantService } from '../usecases/tenant/tenant.usecase.command';
 import { TenantResponse } from '../usecases/tenant/tenant.response';
 import { CheckOrganizationFromETrade, CreateTenantCommand } from '../usecases/tenant/tenant.command';
+import { userInfo } from 'src/modules/auth/local-auth.guard';
+import { UserInfo } from 'src/libs/Common/user-information';
 
 @Controller('tenants')
 @ApiTags('tenants')
@@ -23,7 +25,11 @@ export class TenantController {
 
   @Post()
   @ApiOkResponse({ type: TenantResponse })
-  async createAccount(@Body() command: CreateTenantCommand) {
+  async createAccount(
+    @Body() command: CreateTenantCommand,
+    @userInfo() currentUser: UserInfo,
+  ) {
+    command.currentUser = currentUser;
     return await this.tenantService.CreateAccounts(command);
   }
   @Post('create-account-from-trade')

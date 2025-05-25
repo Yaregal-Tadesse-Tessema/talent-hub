@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
+import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 export class CreateEmployeeTenantCommand {
   id?: string;
   @ApiProperty()
@@ -12,7 +13,7 @@ export class CreateEmployeeTenantCommand {
   @ApiProperty()
   startDate: Date;
   @ApiProperty()
-  status: string;
+  status: EmployeeStatus;
   @ApiProperty()
   jobTitle: string;
   @ApiProperty()

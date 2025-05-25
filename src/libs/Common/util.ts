@@ -9,10 +9,10 @@ import { CountryCode, parsePhoneNumberFromString } from 'libphonenumber-js';
 import { BadRequestException } from '@nestjs/common';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
-import * as process from 'node:process';
 export class Util {
   static hashPassword(plainPassword: string): string {
-    return bcrypt.hashSync(plainPassword, Number(11));
+    const salt = process.env.BCRYPT_SALT;
+    return bcrypt.hashSync(plainPassword, salt);
   }
   static comparePassword(
     plainPassword: string,
@@ -48,9 +48,13 @@ export class Util {
     return result;
   }
   static GenerateToken(user: any, expiresIn = '1d') {
-    return jwt.sign(user,'669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281', {
-      expiresIn: expiresIn,
-    });
+    return jwt.sign(
+      user,
+      '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
+      {
+        expiresIn: expiresIn,
+      },
+    );
   }
   static GenerateRefreshToken(user: any, expiresIn = '365d') {
     return jwt.sign(

@@ -38,7 +38,7 @@ export class TenantEntity extends CommonEntity {
   registrationNumber: string;
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
-  @Column({ nullable: true })
+  @Column({ default: AccountStatusEnums.ACTIVE })
   status: AccountStatusEnums;
   @Column({ name: 'logo', nullable: true, type: 'jsonb' })
   logo: FileDto;
