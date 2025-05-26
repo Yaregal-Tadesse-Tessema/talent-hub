@@ -8,6 +8,7 @@ import { TelegramBotService } from './usecase/telegram-boot-service';
 /* ── your feature modules ────────────────────────────────────────────── */
 import { JobPostingModule } from '../job-posting/job-posting.module';
 import { ApplicationModule } from '../application/application.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ApplicationModule } from '../application/application.module';
     /* your domain modules */
     forwardRef(() => JobPostingModule),
     forwardRef(() => ApplicationModule),
+    forwardRef(() => UserModule),
   ],
 
   providers: [TelegramBotService],

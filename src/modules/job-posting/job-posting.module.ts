@@ -16,6 +16,7 @@ import { TestController } from './job/controller/test.controller';
 import { UserModule } from '../user/user.module';
 import { JobPostingService } from './job/usecase/job-posting.usecase.service';
 import { JobPostingRepository } from './job/persistencies/job-post.repository';
+import { TelegramModule } from '../telegram/telegram.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -26,6 +27,7 @@ import { JobPostingRepository } from './job/persistencies/job-post.repository';
       PreScreeningQuestionEntity,
     ]),
     forwardRef(() => UserModule),
+    forwardRef(() => TelegramModule),
     // UserModule,
   ],
   providers: [

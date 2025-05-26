@@ -14,7 +14,6 @@ import type { Express } from 'express';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { ProfessionEnums } from 'src/modules/job-posting/constants';
 import { ApplicationService } from 'src/modules/application/usecase/application.usecase.service';
-import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/job-post.repository';
 
 @Injectable()

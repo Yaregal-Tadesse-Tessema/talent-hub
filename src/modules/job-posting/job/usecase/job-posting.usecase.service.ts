@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   BadGatewayException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
@@ -17,19 +18,16 @@ import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { JobPostingStatusEnums } from '../../constants';
-import { REQUEST } from '@nestjs/core';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { JobPostingRepository } from '../persistencies/job-post.repository';
+import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 @Injectable()
 export class JobPostingService {
   constructor(
-    // @InjectRepository(JobPostingEntity)
-    private jobPostingRepository: JobPostingRepository,
+    private readonly jobPostingRepository: JobPostingRepository,
     private readonly jobRequirementService: JobRequirementService,
-    // @Inject(forwardRef(() => TelegramBotService))
-    // private readonly telegramBotService: TelegramBotService,
+    private readonly telegramBotService: TelegramBotService,
     private readonly userRepository: UserService,
-    @Inject(REQUEST) private readonly request?: Request,
   ) {}
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobRequirementCommand: CreateJobRequirementCommand = {
@@ -50,17 +48,10 @@ export class JobPostingService {
 
   async getJobPostings(
     query: CollectionQuery,
-    userInfo: any,
+    userInfo?: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      // const privateCOnnection: DataSource =
-      //   await this.request['CONNECTION_KEY'];
-      // const repository = privateCOnnection.getRepository(JobPostingEntity);
       query.includes.push('savedUsers');
-      // const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-      //   repository,
-      //   query,
-      // );
       const { items, total } = await this.jobPostingRepository.findAll(query);
       const data = items.map((item) => {
         let isSaved = false;
@@ -91,6 +82,7 @@ export class JobPostingService {
       };
       return response;
     } catch (error) {
+      console.log(error);
       throw error;
     }
   }
@@ -191,14 +183,15 @@ export class JobPostingService {
     JobPostId: string,
   ) {
     try {
-      // if (!userId || !command) return;
-      // const message = this.constructJobPostMessage(command);
-      // if (!message) return;
-      // const result = await this.telegramBotService.sendMessage(
-      //   userId,
-      //   message,
-      //   JobPostId,
-      // );
+      if (!userId || !command) return;
+      const message = this.constructJobPostMessage(command);
+      if (!message) return;
+      const result = await this.telegramBotService.sendMessage(
+        userId,
+        message,
+        JobPostId,
+      );
+      console.log(result);
       return true;
     } catch (error) {
       throw error;
