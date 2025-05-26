@@ -2,8 +2,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JobPostingEntity } from './job/persistencies/job-posting.entity';
-import { JobRequirementEntity } from './job-requirement/persistance/job-requirement.entity';
-import { JobRequirementService } from './job-requirement/usecase/job-requirement.usecase.service';
 import { JobPostingController } from './job/controller/job-posting.controller';
 import { UserEntity } from '../user/persistence/users.entity';
 import { SaveJobEntity } from './job/persistencies/save-job-post.entity';
@@ -17,11 +15,12 @@ import { UserModule } from '../user/user.module';
 import { JobPostingService } from './job/usecase/job-posting.usecase.service';
 import { JobPostingRepository } from './job/persistencies/job-post.repository';
 import { TelegramModule } from '../telegram/telegram.module';
+import { PreScreeningQuestionRepository } from './job/persistencies/pre-screening-question.repository';
+import { SaveJobPostingRepository } from './job/persistencies/save-job-post.repository';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       JobPostingEntity,
-      JobRequirementEntity,
       UserEntity,
       SaveJobEntity,
       PreScreeningQuestionEntity,
@@ -33,9 +32,12 @@ import { TelegramModule } from '../telegram/telegram.module';
   providers: [
     JobPostingService,
     JobPostingRepository,
-    JobRequirementService,
+
     SavedJobsService,
+    SaveJobPostingRepository,
+
     PreScreeningQuestionService,
+    PreScreeningQuestionRepository,
   ],
   controllers: [
     JobPostingController,

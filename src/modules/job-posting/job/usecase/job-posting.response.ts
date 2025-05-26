@@ -39,8 +39,6 @@ export class JobPostingResponse {
   @ApiProperty()
   deadline: Date;
   @ApiProperty()
-  requirementId: string;
-  @ApiProperty()
   skill: string[];
   @ApiProperty()
   benefits: string[];
@@ -111,7 +109,6 @@ export class JobPostingResponse {
     response.salaryRange = entity.salaryRange;
     response.organizationId = entity.organizationId;
     response.deadline = entity.deadline;
-    response.requirementId = entity.requirementId;
     response.skill = entity.skill;
     response.benefits = entity.benefits;
     response.responsibilities = entity.responsibilities;

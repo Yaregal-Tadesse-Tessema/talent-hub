@@ -39,8 +39,6 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   deadline: Date;
   @ApiProperty()
-  requirementId: string;
-  @ApiProperty()
   skill: string[];
   @ApiProperty()
   benefits: string[];
@@ -95,7 +93,6 @@ export class CreateJobPostingCommand {
     entity.salaryRange = dto?.salaryRange;
     entity.organizationId = dto?.organizationId;
     entity.deadline = dto?.deadline;
-    entity.requirementId = dto?.requirementId;
     entity.skill = dto?.skill;
     entity.benefits = dto?.benefits;
     entity.responsibilities = dto?.responsibilities;

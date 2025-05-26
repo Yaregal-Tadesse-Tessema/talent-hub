@@ -21,7 +21,6 @@ import { LookupEntity } from '../tenant/persistencies/lookup.entity';
 import { TenantEntity } from '../tenant/persistencies/tenant.entity';
 import { EmployeeTenantEntity } from '../tenant/persistencies/employee-tenant.entity';
 import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
-import { JobRequirementEntity } from '../job-posting/job-requirement/persistance/job-requirement.entity';
 import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
 import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
 dotenv.config({ path: '.env' });
@@ -35,7 +34,6 @@ dotenv.config({ path: '.env' });
       EmployeeTenantEntity,
       UserEntity,
       JobPostingEntity,
-      JobRequirementEntity,
       ApplicationEntity,
       SaveJobEntity,
       PreScreeningQuestionEntity,

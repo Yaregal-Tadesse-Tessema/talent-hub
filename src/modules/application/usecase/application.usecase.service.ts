@@ -114,11 +114,11 @@ export class ApplicationService {
     relations = [],
     withDeleted = false,
   ): Promise<ApplicationResponse[]> {
-    const response = await this.applicationRepository.getManyByCriteria({
-      where: criteria,
+    const response = await this.applicationRepository.getManyByCriteria(
+      criteria,
       relations,
       withDeleted,
-    });
+    );
     return response.map((item) => ApplicationResponse.toResponse(item));
   }
   async createApplication(

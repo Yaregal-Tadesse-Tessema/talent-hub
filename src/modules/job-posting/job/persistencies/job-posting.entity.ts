@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
@@ -8,7 +8,6 @@ import {
   SalaryRangeEnum,
   WorkTypeEnums,
 } from '../../constants';
-import { JobRequirementEntity } from '../../job-requirement/persistance/job-requirement.entity';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SaveJobEntity } from './save-job-post.entity';
@@ -42,8 +41,6 @@ export class JobPostingEntity extends CommonEntity {
     nullable: false,
   })
   deadline: Date;
-  @Column({ nullable: true })
-  requirementId: string;
   @Column('text', { array: true })
   skill: string[];
   @Column('text', { array: true, nullable: true })
@@ -82,12 +79,6 @@ export class JobPostingEntity extends CommonEntity {
   positionNumbers: number;
   @Column({ nullable: true })
   paymentType: PaymentTypeEnums;
-  @ManyToOne(
-    () => JobRequirementEntity,
-    (institutionEntity) => institutionEntity.jobPostings,
-  )
-  @JoinColumn({ name: 'requirementId' })
-  requirement: JobRequirementEntity;
 
   @OneToMany(
     () => ApplicationEntity,

@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
   BadGatewayException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -16,14 +14,13 @@ import {
   JobPostTelegramNotificationCommand,
   RePostJobCommand,
 } from './job-posting.command';
-import { JobRequirementService } from '../../job-requirement/usecase/job-requirement.usecase.service';
-import { CreateJobRequirementCommand } from '../../job-requirement/usecase/job-requirement.command';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 @Injectable()
 export class JobPostingServiceOld extends CommonCrudService<JobPostingEntity> {
   constructor(
@@ -31,25 +28,24 @@ export class JobPostingServiceOld extends CommonCrudService<JobPostingEntity> {
     private readonly jobPostingRepository: Repository<JobPostingEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    private readonly jobRequirementService: JobRequirementService,
     // @Inject(forwardRef(() => TelegramBotService))
-    // private readonly telegramBotService: TelegramBotService,
+    private readonly telegramBotService: TelegramBotService,
   ) {
     super(jobPostingRepository);
   }
   async createJobPosting(command: CreateJobPostingCommand) {
-    const jobRequirementCommand: CreateJobRequirementCommand = {
-      educationLevel: command.educationLevel,
-      experienceLevel: command.experienceLevel,
-      fieldOfStudy: command.fieldOfStudy,
-      gpa: command.minimumGPA,
-    };
-    const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
-      jobRequirementCommand,
-    );
-    const jobRequirementResult =
-      await this.jobRequirementService.create(jobRequirementEntity);
-    command.requirementId = jobRequirementResult.id;
+    // const jobRequirementCommand: CreateJobRequirementCommand = {
+    //   educationLevel: command.educationLevel,
+    //   experienceLevel: command.experienceLevel,
+    //   fieldOfStudy: command.fieldOfStudy,
+    //   gpa: command.minimumGPA,
+    // };
+    // const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
+    //   jobRequirementCommand,
+    // );
+    // const jobRequirementResult =
+    //   await this.jobRequirementService.create(jobRequirementEntity);
+    // command.requirementId = jobRequirementResult.id;
 
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
     return await this.jobPostingRepository.save(jobPostingEntity);
@@ -143,7 +139,7 @@ export class JobPostingServiceOld extends CommonCrudService<JobPostingEntity> {
       for (let index = 0; index < eligibleUsers?.length; index++) {
         const eligibleUser = eligibleUsers[index];
         if (!eligibleUser.telegramUserId) continue;
-         await this.notifyUsersOnTelegramBoot(
+        await this.notifyUsersOnTelegramBoot(
           eligibleUser.telegramUserId,
           messageCommand,
           jobPostDomain.id,
@@ -216,11 +212,12 @@ export class JobPostingServiceOld extends CommonCrudService<JobPostingEntity> {
       if (!userId || !command) return;
       const message = this.constructJobPostMessage(command);
       if (!message) return;
-      // const result = await this.telegramBotService.sendMessage(
-      //   userId,
-      //   message,
-      //   JobPostId,
-      // );
+      const result = await this.telegramBotService.sendMessage(
+        userId,
+        message,
+        JobPostId,
+      );
+      console.log(result);
       return true;
     } catch (error) {
       throw error;

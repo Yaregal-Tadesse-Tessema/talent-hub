@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
   BadGatewayException,
-  forwardRef,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,8 +10,6 @@ import {
   JobPostTelegramNotificationCommand,
   RePostJobCommand,
 } from './job-posting.command';
-import { JobRequirementService } from '../../job-requirement/usecase/job-requirement.usecase.service';
-import { CreateJobRequirementCommand } from '../../job-requirement/usecase/job-requirement.command';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
@@ -25,23 +21,22 @@ import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-s
 export class JobPostingService {
   constructor(
     private readonly jobPostingRepository: JobPostingRepository,
-    private readonly jobRequirementService: JobRequirementService,
     private readonly telegramBotService: TelegramBotService,
     private readonly userRepository: UserService,
   ) {}
   async createJobPosting(command: CreateJobPostingCommand) {
-    const jobRequirementCommand: CreateJobRequirementCommand = {
-      educationLevel: command.educationLevel,
-      experienceLevel: command.experienceLevel,
-      fieldOfStudy: command.fieldOfStudy,
-      gpa: command.minimumGPA,
-    };
-    const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
-      jobRequirementCommand,
-    );
-    const jobRequirementResult =
-      await this.jobRequirementService.create(jobRequirementEntity);
-    command.requirementId = jobRequirementResult.id;
+    // const jobRequirementCommand: CreateJobRequirementCommand = {
+    //   educationLevel: command.educationLevel,
+    //   experienceLevel: command.experienceLevel,
+    //   fieldOfStudy: command.fieldOfStudy,
+    //   gpa: command.minimumGPA,
+    // };
+    // const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
+    //   jobRequirementCommand,
+    // );
+    // const jobRequirementResult =
+    //   await this.jobRequirementService.create(jobRequirementEntity);
+    // command.requirementId = jobRequirementResult.id;
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
     return await this.jobPostingRepository.create(jobPostingEntity);
   }

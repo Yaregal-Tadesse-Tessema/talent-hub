@@ -111,7 +111,6 @@ export class AuthService {
   //   });
   //   return token;
   // }
-
   async backOfficeLogin(loginCommand: UserLoginCommand) {
     if (
       !loginCommand.phoneNumber &&
@@ -188,46 +187,46 @@ export class AuthService {
       ],
       relations: { employeeTenant: { tenant: true } },
     });
-const tenant = lookup.employeeTenant[0]?.tenant;
-if (!lookup)
-  throw new BadRequestException("user Doesn't exist contact administrator");
-if (loginCommand.password.trim() != lookup.password) {
-  throw new BadRequestException(`Incorrect credentials`);
-}
-if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
-if ((lookup.employeeTenant.length = 0)) return null;
-const payload: UserInfo = {
-  id: lookup.id,
-  tenantId: lookup.employeeTenant[0]?.tenantId,
-  email: lookup?.email,
-  firstName: lookup?.firstName,
-  middleName: lookup?.middleName,
-  lastName: lookup?.lastName,
-  profileImage: lookup?.profileImage,
-  address: lookup?.address,
-  phoneNumber: lookup?.phoneNumber,
-  roles: [],
-  tenantSchemaName: lookup.employeeTenant[0]?.tenantName,
-};
-const accessToken = Util.GenerateToken(payload, '60m'); //60m
-const refreshToken = Util.GenerateRefreshToken(payload);
-await this.sessionCommand.createSession({
-  accountId: payload.id,
-  token: accessToken,
-  refreshToken,
-});
+    const tenant = lookup.employeeTenant[0]?.tenant;
+    if (!lookup)
+      throw new BadRequestException("user Doesn't exist contact administrator");
+    if (loginCommand.password.trim() != lookup.password) {
+      throw new BadRequestException(`Incorrect credentials`);
+    }
+    if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
+    if ((lookup.employeeTenant.length = 0)) return null;
+    const payload: UserInfo = {
+      id: lookup.id,
+      tenantId: lookup.employeeTenant[0]?.tenantId,
+      email: lookup?.email,
+      firstName: lookup?.firstName,
+      middleName: lookup?.middleName,
+      lastName: lookup?.lastName,
+      profileImage: lookup?.profileImage,
+      address: lookup?.address,
+      phoneNumber: lookup?.phoneNumber,
+      roles: [],
+      tenantSchemaName: lookup.employeeTenant[0]?.tenantName,
+    };
+    const accessToken = Util.GenerateToken(payload, '60m'); //60m
+    const refreshToken = Util.GenerateRefreshToken(payload);
+    await this.sessionCommand.createSession({
+      accountId: payload.id,
+      token: accessToken,
+      refreshToken,
+    });
 
-return {
-  accessToken,
-  refreshToken,
-  profile: {
-    ...LookupResponse.toResponse(lookup),
-    tenantId: lookup.employeeTenant[0]?.tenantId,
-    tenantName:tenant.name,
-    tenantLogo:tenant.logo
-  },
-  // tenant: tenant,
-};
+    return {
+      accessToken,
+      refreshToken,
+      profile: {
+        ...LookupResponse.toResponse(lookup),
+        tenantId: lookup.employeeTenant[0]?.tenantId,
+        tenantName: tenant.name,
+        tenantLogo: tenant.logo,
+      },
+      // tenant: tenant,
+    };
   }
   async portalLogin(loginCommand: UserLoginCommand) {
     if (

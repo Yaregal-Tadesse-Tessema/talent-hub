@@ -1,33 +1,33 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post, Put } from '@nestjs/common';
-import { ApiExtraModels, ApiTags } from '@nestjs/swagger';
-import { EntityCrudOptions } from 'src/libs/Common/common-services/crud-option.type';
+import { Body, Controller, Get, Put, Query } from '@nestjs/common';
+import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
-import { CommonCrudController } from 'src/libs/Common/common-services/common.controller';
-import {
-  CreateSavedJobsCommand,
-  UnsaveJobPostCommand,
-  UpdateSaveJobCommand,
-} from '../usecase/saved-jobs.command';
-import { SavedJobsResponse } from '../usecase/saved-jobs.response';
-import { SaveJobEntity } from '../persistencies/save-job-post.entity';
+import { UnsaveJobPostCommand } from '../usecase/saved-jobs.command';
 import { SavedJobsService } from '../usecase/saved-jobs.usecase.service';
-const options: EntityCrudOptions = {
-  createDto: CreateSavedJobsCommand,
-  updateDto: UpdateSaveJobCommand,
-  responseFormat: SavedJobsResponse,
-};
+import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+
 @Controller('save-jobs')
 @ApiTags('save-jobs')
 @ApiExtraModels(DataResponseFormat)
-export class SaveJobController extends CommonCrudController<SaveJobEntity>(
-  options,
-) {
-  constructor(private readonly savedJobsService: SavedJobsService) {
-    super(savedJobsService);
+export class SaveJobController {
+  constructor(private readonly savedJobsService: SavedJobsService) {}
+  @Put('save-job-post')
+  async saveJobPost(@Body() command: UnsaveJobPostCommand) {
+    return await this.savedJobsService.saveJobPost(command);
   }
   @Put('unsave-job-post')
   async unsaveJobPost(@Body() command: UnsaveJobPostCommand) {
     return await this.savedJobsService.unsaveJobPost(command);
+  }
+  @Get()
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  async getSavedJobPost(@Query('q') q?: string) {
+    const query = decodeCollectionQuery(q);
+    return await this.savedJobsService.getSavedJobPost(query);
   }
 }
