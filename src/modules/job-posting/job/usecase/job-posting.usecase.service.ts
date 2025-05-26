@@ -5,8 +5,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
@@ -18,16 +16,15 @@ import { CreateJobRequirementCommand } from '../../job-requirement/usecase/job-r
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
-import { QueryConstructor } from 'src/libs/Common/collection-query/query-constructor';
 import { JobPostingStatusEnums } from '../../constants';
 import { REQUEST } from '@nestjs/core';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
-import { InjectRepository } from '@nestjs/typeorm';
+import { JobPostingRepository } from '../persistencies/job-post.repository';
 @Injectable()
 export class JobPostingService {
   constructor(
-    @InjectRepository(JobPostingEntity)
-    private jobPostingRepository: Repository<JobPostingEntity>,
+    // @InjectRepository(JobPostingEntity)
+    private jobPostingRepository: JobPostingRepository,
     private readonly jobRequirementService: JobRequirementService,
     // @Inject(forwardRef(() => TelegramBotService))
     // private readonly telegramBotService: TelegramBotService,
@@ -56,21 +53,21 @@ export class JobPostingService {
     userInfo: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      const privateCOnnection: DataSource =
-        await this.request['CONNECTION_KEY'];
-      const repository = privateCOnnection.getRepository(JobPostingEntity);
+      // const privateCOnnection: DataSource =
+      //   await this.request['CONNECTION_KEY'];
+      // const repository = privateCOnnection.getRepository(JobPostingEntity);
       query.includes.push('savedUsers');
-      const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        repository,
-        query,
-      );
-      const [items, total] = await dataQuery.getManyAndCount();
+      // const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
+      //   repository,
+      //   query,
+      // );
+      const { items, total } = await this.jobPostingRepository.findAll(query);
       const data = items.map((item) => {
         let isSaved = false;
         const response = JobPostingResponse.toResponse(item);
         if (item.savedUsers?.length > 0) {
           const userExists = item.savedUsers.some(
-            (user) => user.userId === userInfo.id,
+            (user) => user.userId === userInfo?.id,
           );
           isSaved = userExists ? true : false;
         }
@@ -87,16 +84,12 @@ export class JobPostingService {
     query: CollectionQuery,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        this.jobPostingRepository,
-        query,
-      );
-      const [items, total] = await dataQuery.getManyAndCount();
-      const data = items.map((item) => {
-        const response = JobPostingResponse.toResponse(item);
-        return response;
-      });
-      return { items: data, total: total };
+      const result = await this.jobPostingRepository.findAll(query);
+      const response: DataResponseFormat<JobPostingResponse> = {
+        items: result.items.map((item) => JobPostingResponse.toResponse(item)),
+        total: result.total,
+      };
+      return response;
     } catch (error) {
       throw error;
     }
@@ -114,9 +107,7 @@ export class JobPostingService {
   async changeJobPostStatus(
     command: ChangeJobPostStatusCommand,
   ): Promise<JobPostingResponse> {
-    const jobPostDomain = await this.jobPostingRepository.findOne({
-      where: { id: command.id },
-    });
+    const jobPostDomain = await this.jobPostingRepository.findOne(command.id);
     if (!jobPostDomain)
       throw new NotFoundException(
         `Job post with Id ${command.id} is not Found`,
@@ -159,16 +150,15 @@ export class JobPostingService {
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
       query.includes.push('savedUsers');
-      query.includes.push('applications');
-      const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        this.jobPostingRepository,
-        query,
-      );
-      const skills = userInfo.skills;
-      if (skills) {
-        dataQuery.andWhere('technicalSkills && :technicalSkills', { skills });
+      if (userInfo.skills?.length) {
+        query.where = query.where || [];
+        query.where.push([
+          { column: 'technicalSkills', value: userInfo.skills, operator: 'In' },
+        ]);
       }
-      const [items, total] = await dataQuery.getManyAndCount();
+
+      const { items, total } = await this.jobPostingRepository.findAll(query);
+
       const data = items.map((item) => {
         let isSaved = false;
         let isApplied = false;
@@ -239,11 +229,11 @@ export class JobPostingService {
     withDeleted = false,
   ): Promise<JobPostingResponse> {
     relations.push('savedUsers');
-    const result = await this.jobPostingRepository.findOne({
-      where: { id },
+    const result = await this.jobPostingRepository.findOne(
+      id,
       relations,
       withDeleted,
-    });
+    );
     if (!result) return null;
     const Saved = result?.savedUsers?.find(
       (item) => item.userId == userId && item.jobPostId == result.id,
@@ -254,9 +244,7 @@ export class JobPostingService {
     return response;
   }
   async rePostJob(command: RePostJobCommand) {
-    const jobPost = await this.jobPostingRepository.findOne({
-      where: { id: command.jobPostId },
-    });
+    const jobPost = await this.jobPostingRepository.findOne(command.jobPostId);
     if (!jobPost)
       throw new BadGatewayException(
         `Job post with id ${command.jobPostId} does not exist`,

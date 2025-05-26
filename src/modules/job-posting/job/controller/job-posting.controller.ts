@@ -34,8 +34,8 @@ export class JobPostingController {
     description: 'Collection Query Parameter. Optional',
     required: false,
   })
-  @Get('get-all-job-postings')
-  async getAllJobPosting(@userInfo() userInfo: any, @Query('q') q?: string) {
+  @Get('get-all-tenant-job-postings')
+  async getAllJobPosting(@userInfo() userInfo?: any, @Query('q') q?: string) {
     const query = decodeCollectionQuery(q);
     const result = await this.jobPostingService.getJobPostings(query, userInfo);
     return result;
@@ -72,6 +72,7 @@ export class JobPostingController {
     required: false,
   })
   @ApiOkResponse({ type: JobPostingResponse })
+  @AllowAnonymous()
   async getOne(
     @Param('id') id: string,
     @Query('i') i?: string,

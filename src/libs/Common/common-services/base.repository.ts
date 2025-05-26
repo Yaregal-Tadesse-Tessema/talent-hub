@@ -52,7 +52,6 @@ export class BaseRepository<T extends ObjectLiteral> {
     withDeleted = false,
   ): Promise<T | undefined> {
     const tenantId = await this.request['TENANT_ID'];
-
     const where: any = { id };
     if (tenantId) {
       where.tenantId = tenantId;

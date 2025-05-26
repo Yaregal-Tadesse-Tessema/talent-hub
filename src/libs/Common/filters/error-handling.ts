@@ -13,11 +13,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status =
       exception instanceof HttpException ? exception.getStatus() : 500;
-    const message = exception.message;
-
+    const message = exception.name;
     response.status(status).json({
       statusCode: status,
       message,
+      error: exception.message,
       timestamp: new Date().toISOString(),
     });
   }
