@@ -188,6 +188,7 @@ export class AuthService {
       ],
       relations: { employeeTenant: { tenant: true } },
     });
+
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (loginCommand.password.trim() != lookup.password) {
@@ -197,7 +198,7 @@ export class AuthService {
     if ((lookup.employeeTenant.length = 0)) return null;
     const payload: UserInfo = {
       id: lookup.id,
-      tenantId: lookup.employeeTenant[0].tenantId,
+      tenantId: lookup.employeeTenant[0]?.tenantId,
       email: lookup?.email,
       firstName: lookup?.firstName,
       middleName: lookup?.middleName,
@@ -206,7 +207,7 @@ export class AuthService {
       address: lookup?.address,
       phoneNumber: lookup?.phoneNumber,
       roles: [],
-      tenantSchemaName: lookup.employeeTenant[0].tenantName,
+      tenantSchemaName: lookup.employeeTenant[0]?.tenantName,
     };
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);
@@ -220,26 +221,9 @@ export class AuthService {
       refreshToken,
       profile: {
         ...LookupResponse.toResponse(lookup),
-        tenantId: lookup.employeeTenant[0].tenantId,
+        tenantId: lookup.employeeTenant[0]?.tenantId,
       },
     };
-    // if (loginCommand?.orgCode) {
-    //   const lookUp=await this.getUserOrganizationByCode(loginCommand)
-    //   return await this.login(loginCommand,lookUp);
-    // } else {
-    // if (await this.hasUserMultipleOrganization(loginCommand.phoneNumber)) {
-    //   const organizations = await this.getUserOrganizations(
-    //     loginCommand.phoneNumber,
-    //   );
-    //   return organizations.map((item) => LookUpResponse.toResponse(item));
-    // } else {
-    //   const lookUp = await this.getUserOrganization(
-    //     loginCommand.phoneNumber,
-    //   );
-    //   loginCommand.orgCode = lookUp.organization.code;
-    //   return await this.login(loginCommand,lookUp);
-    // }
-    // }
   }
   async portalLogin(loginCommand: UserLoginCommand) {
     if (
