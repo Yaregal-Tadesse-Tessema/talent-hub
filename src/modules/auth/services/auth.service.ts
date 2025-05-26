@@ -223,6 +223,7 @@ export class AuthService {
         ...LookupResponse.toResponse(lookup),
         tenantId: lookup.employeeTenant[0]?.tenantId,
       },
+      tenant: lookup.employeeTenant[0]?.tenant,
     };
   }
   async portalLogin(loginCommand: UserLoginCommand) {

@@ -8,9 +8,9 @@ import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 @Entity({ name: 'employee_tenants' })
 @Unique(['tenantId', 'lookupId'])
 export class EmployeeTenantEntity extends CommonEntity {
-  @Column({ name: 'tenant_id' })
+  @Column({ name: 'tenant_id', nullable: false })
   tenantId: string;
-  @Column({ name: 'lookup_id' })
+  @Column({ name: 'lookup_id', nullable: false })
   lookupId: string;
   @Column({ name: 'start_date', type: 'date', nullable: true })
   startDate: Date;
