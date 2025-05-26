@@ -223,8 +223,10 @@ return {
   profile: {
     ...LookupResponse.toResponse(lookup),
     tenantId: lookup.employeeTenant[0]?.tenantId,
+    tenantName:tenant.name,
+    tenantLogo:tenant.logo
   },
-  tenant: tenant,
+  // tenant: tenant,
 };
   }
   async portalLogin(loginCommand: UserLoginCommand) {

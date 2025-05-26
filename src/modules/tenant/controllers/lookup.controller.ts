@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,6 +9,8 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiExtraModels,
@@ -24,6 +27,7 @@ import {
   UpdateLookupCommand,
 } from '../usecases/lookup/lookup.command';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('lookups')
 @ApiTags('lookups')
@@ -62,5 +66,18 @@ export class LookupController {
   @ApiOkResponse({ type: Boolean })
   async delete(@Param('id') id: string) {
     return await this.lookupService.archiveLookup(id);
+  }
+  @Put('upload-profile/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfilePicture(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Only jpeg/png files are allowed');
+    }
+    const result = await this.lookupService.uploadProfile(file, id);
+    return result;
   }
 }

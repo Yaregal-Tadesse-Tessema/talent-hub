@@ -76,6 +76,10 @@ export class UserController {
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+     const allowedMimeTypes = ['image/jpeg', 'image/png'];
+     if (!allowedMimeTypes.includes(file.mimetype)) {
+       throw new BadRequestException('Only jpeg/png files are allowed');
+     }
     const result = await this.userService.uploadProfile(file, userId);
     return result;
   }

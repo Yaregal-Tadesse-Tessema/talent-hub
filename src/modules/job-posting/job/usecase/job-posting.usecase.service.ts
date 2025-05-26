@@ -87,17 +87,13 @@ export class JobPostingService {
     query: CollectionQuery,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      const privateCOnnection: DataSource =
-        await this.request['CONNECTION_KEY'];
-      const repository = privateCOnnection.getRepository(JobPostingEntity);
       const dataQuery = QueryConstructor.constructQuery<JobPostingEntity>(
-        repository,
+        this.jobPostingRepository,
         query,
       );
       const [items, total] = await dataQuery.getManyAndCount();
       const data = items.map((item) => {
         const response = JobPostingResponse.toResponse(item);
-
         return response;
       });
       return { items: data, total: total };

@@ -40,9 +40,8 @@ export class JobPostingController {
     const result = await this.jobPostingService.getJobPostings(query, userInfo);
     return result;
   }
-
-  @Get('get-all-public-job-postings')
   @AllowAnonymous()
+  @Get('get-all-public-job-postings')
   async getAllPublicJobPosting(@Query('q') q?: string) {
     const query = decodeCollectionQuery(q);
     const result = await this.jobPostingService.getAllJobPostings(query);

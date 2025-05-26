@@ -49,11 +49,10 @@ export class ApplicationService {
     relations = [],
     withDeleted = false,
   ): Promise<ApplicationResponse> {
-    const response = await this.applicationRepository.findOne({
-      where: { id },
+    const response = await this.applicationRepository.findOne( id,
       relations,
       withDeleted,
-    });
+    );
     return ApplicationResponse.toResponse(response);
   }
   async update(id: string, itemData: any): Promise<ApplicationResponse> {
@@ -103,11 +102,11 @@ export class ApplicationService {
     relations = [],
     withDeleted = false,
   ): Promise<ApplicationResponse> {
-    const response = await this.applicationRepository.findOne({
-      where: criteria,
+    const response = await this.applicationRepository.getOneByCriteria(
+      criteria,
       relations,
       withDeleted,
-    });
+    );
     return ApplicationResponse.toResponse(response);
   }
   async getManyByCriteria(
@@ -131,9 +130,9 @@ export class ApplicationService {
       throw new ConflictException(`You already applied for this job`);
     const userInfo = await this.userService.findOne(command.userId);
     const count = jobPost.applicationCount + 1;
-    const applicationAlreadyExists = await this.applicationRepository.findOne({
-      where: { JobPostId: command.JobPostId, userId: command.userId },
-    });
+    const applicationAlreadyExists = await this.applicationRepository.getOneByCriteria(
+      { JobPostId: command.JobPostId, userId: command.userId },
+    );
     if (applicationAlreadyExists)
       throw new ConflictException(`You already applied for this job`);
     let res: FileDto = null;
@@ -163,9 +162,7 @@ export class ApplicationService {
     return response;
   }
   async updateApplicationStatus(command: ChangeApplicationStatus) {
-    const application = await this.applicationRepository.findOne({
-      where: { id: command.id },
-    });
+    const application = await this.applicationRepository.findOne(command.id);
     if (!application)
       throw new NotFoundException(
         `Application with id ${command.id} not found`,

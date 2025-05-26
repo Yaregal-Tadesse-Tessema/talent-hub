@@ -12,7 +12,11 @@ export class BaseService<T extends ObjectLiteral> {
     private readonly repository: Repository<T>,
     @Inject(REQUEST) private readonly request: Request,
   ) {}
-  async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
+  async create(
+    itemData: DeepPartial<any>,
+    req?: any,
+    relations?: any[],
+  ): Promise<any> {
     const privateCOnnection: DataSource = await this.request['CONNECTION_KEY'];
     const repository = privateCOnnection.getRepository(this.repository.target);
     if (req?.user?.organization) {
@@ -20,8 +24,11 @@ export class BaseService<T extends ObjectLiteral> {
     }
     const item = repository.create(itemData);
     const res = (await repository.insert(item)) as any;
-    console.log(res);
-    return item;
+    const result = await repository.find({
+      where: { id: res.id },
+      relations: relations,
+    });
+    return result;
   }
   async save(itemData: DeepPartial<any>, req?: any): Promise<any> {
     const privateCOnnection: DataSource = await this.request['CONNECTION_KEY'];

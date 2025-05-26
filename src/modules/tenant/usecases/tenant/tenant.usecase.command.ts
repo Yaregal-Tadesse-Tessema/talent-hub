@@ -140,19 +140,17 @@ export class TenantService {
     if (!command.phoneNumber && !command.email) {
       throw new BadRequestException(`Phone or email is mandatory`);
     }
-    const alreadyExist = await this.tenantRepository.findOne({
-      where: [
-        {
-          email: command.email,
-        },
-        {
-          phoneNumber: command.phoneNumber,
-        },
-        {
-          tin: command.tin,
-        },
-      ],
-    });
+    const alreadyExist = await this.tenantRepository.getOneByCriteria([
+      {
+        email: command.email,
+      },
+      {
+        phoneNumber: command.phoneNumber,
+      },
+      {
+        tin: command.tin,
+      },
+    ]);
     if (alreadyExist)
       throw new ConflictException(
         `Organization already registered with thi email and password`,
@@ -196,9 +194,7 @@ export class TenantService {
     command: CheckOrganizationFromETrade,
   ): Promise<any> {
     try {
-      const alreadyExist = await this.tenantRepository.findOne({
-        where: { tin: command.tin },
-      });
+      const alreadyExist = await this.tenantRepository.getOneByCriteria({ tin: command.tin });
 
       if (alreadyExist)
         throw new BadRequestException(
@@ -285,8 +281,8 @@ export class TenantService {
       ('0' + (today.getMonth() + 1)).slice(-2) +
       '' +
       ('0' + today.getDate()).slice(-2);
-    const lastApplication = await this.tenantRepository.findOne({
-      where: { createdAt: MoreThanOrEqual(dateFormatted) },
+    const lastApplication = await this.tenantRepository.getOneByCriteria({
+      createdAt: MoreThanOrEqual(dateFormatted),
       order: { createdAt: 'DESC' },
     });
     const applicationResult = lastApplication.registrationNumber;

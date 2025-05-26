@@ -47,24 +47,22 @@ export class BaseRepository<T extends ObjectLiteral> {
     return response;
   }
   async findOne(
-    id: any,
+    id: string,
     relations = [],
     withDeleted = false,
   ): Promise<T | undefined> {
     const tenantId = await this.request['TENANT_ID'];
-    if (!tenantId) {
-      return await this.repository.findOne({
-        where: { id },
-        relations,
-        withDeleted,
-      });
-    } else {
-      return await this.repository.findOne({
-        where: { id: id, tenantId: tenantId },
-        relations,
-        withDeleted,
-      });
+
+    const where: any = { id };
+    if (tenantId) {
+      where.tenantId = tenantId;
     }
+
+    return this.repository.findOne({
+      where,
+      relations,
+      withDeleted,
+    });
   }
   async update(id: string, itemData: any): Promise<T | undefined> {
     await this.findOneOrFail(id);
@@ -127,12 +125,12 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     return item;
   }
-  private async findOneOrFailWithDeleted(id: any): Promise<T> {
-    const item = await this.findOne({
-      id,
-      relations: [],
-      withDeleted: true,
-    });
+  private async findOneOrFailWithDeleted(
+    id: any,
+    relations?: any[],
+    withDeleted = false,
+  ): Promise<T> {
+    const item = await this.findOne(id, relations, withDeleted);
 
     if (!item) {
       throw new NotFoundException(`not_found`);

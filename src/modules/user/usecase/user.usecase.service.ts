@@ -44,7 +44,7 @@ export class UserService {
     // @Inject(REQUEST) request?: Request,
   ) {}
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne(id);
 
     if (!user) {
       return { percentage: 0 };
@@ -104,13 +104,15 @@ export class UserService {
     return result;
   }
   async uploadResumeByUserId(file: Express.Multer.File, userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne(userId);
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user?.resume) {
-      const resumeAlreadyUsed = await this.applicationRepository.findOne({
-        where: { cv: { filename: user.resume.filename } },
-      });
+      const resumeAlreadyUsed = await this.applicationRepository.getOneByCriteria(
+        { 
+          cv: { filename: user.resume.filename }
+        },
+      );
       if (!resumeAlreadyUsed) {
         await this.fileService.deleteBucketFile(user.resume.filename);
       }
@@ -131,7 +133,7 @@ export class UserService {
     return UserResponse.toResponse(response);
   }
   async uploadProfile(file: Express.Multer.File, userId: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne(userId);
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user.profile) {
@@ -148,9 +150,9 @@ export class UserService {
     return UserResponse.toResponse(response);
   }
   async uploadResume(file: Express.Multer.File, telegramUserId: string) {
-    const user = await this.userRepository.findOne({
-      where: { telegramUserId: telegramUserId },
-    });
+    const user = await this.userRepository.getOneByCriteria(
+       { telegramUserId: telegramUserId },
+    );
     if (!user)
       throw new BadRequestException(
         `User with id ${telegramUserId} doesn't exist`,
@@ -229,9 +231,7 @@ export class UserService {
     }
   }
   async changePassword(command: AccountPasswordChange) {
-    const user = await this.userRepository.findOne({
-      where: { id: command.id },
-    });
+    const user = await this.userRepository.findOne(command.id);
     if (!user)
       throw new NotFoundException(
         `Account with id ${command.id} doesn't exist`,
@@ -369,11 +369,7 @@ export class UserService {
     relations = [],
     withDeleted = false,
   ): Promise<UserResponse> {
-    return await this.userRepository.findOne({
-      id,
-      relations,
-      withDeleted,
-    });
+    return await this.userRepository.findOne(id, relations, withDeleted);
   }
   async update(id: string, itemData: any): Promise<UserResponse> {
     await this.findOneOrFail(id);
@@ -429,8 +425,8 @@ export class UserService {
     relations = [],
     withDeleted = false,
   ): Promise<UserResponse> {
-    const response = await this.userRepository.findOne({
-      where: criteria,
+    const response = await this.userRepository.getOneByCriteria({
+      criteria,
       relations,
       withDeleted,
     });
