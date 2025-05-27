@@ -26,6 +26,7 @@ import { ApplicationEntity } from './modules/application/persistences/applicatio
 import { SaveJobEntity } from './modules/job-posting/job/persistencies/save-job-post.entity';
 import { PreScreeningQuestionEntity } from './modules/job-posting/job/persistencies/pre-screening-question.entity';
 import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
+import { UserTenantEntity } from './modules/tenant/persistencies/user-tenant.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -50,6 +51,7 @@ import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
         SaveJobEntity,
         PreScreeningQuestionEntity,
         AdminUserEntity,
+        UserTenantEntity,
         // ResetPasswordTokenEntity,
       ],
       synchronize: true,
