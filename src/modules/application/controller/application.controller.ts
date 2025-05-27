@@ -2,26 +2,35 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  Param,
+  Patch,
   Post,
   Put,
   Query,
+  Req,
   UploadedFile,
   UseInterceptors,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
-import { ApiExtraModels, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiExtraModels,
+  ApiOkResponse,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import {
   ChangeApplicationStatus,
   CreateApplicationCommand,
+  UpdateApplicationCommand,
 } from '../usecase/application.command';
 import { FileService } from 'src/modules/file/services/file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApplicationService } from '../usecase/application.usecase.service';
 import { ApplicationResponse } from '../usecase/application.response';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
 @Controller('applications')
 @ApiTags('applications')
 @ApiExtraModels(DataResponseFormat)
@@ -49,14 +58,6 @@ export class ApplicationController {
       await this.applicationService.updateApplicationStatus(command);
     return result;
   }
-  @Post()
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async create(
-    @Body() itemData: CreateApplicationCommand,
-  ): Promise<ApplicationResponse> {
-    return await this.applicationService.create(itemData);
-  }
-
   @Get()
   @ApiQuery({
     name: 'q',
@@ -64,62 +65,59 @@ export class ApplicationController {
     description: 'Collection Query Parameter. Optional',
     required: false,
   })
+  @ApiOkResponse({ type: ApplicationResponse })
   async findAll(
     @Query('q') q?: string,
   ): Promise<DataResponseFormat<ApplicationResponse>> {
     const query = decodeCollectionQuery(q);
     return await this.applicationService.findAll(query);
   }
+  @Get(':id')
+  @ApiQuery({
+    name: 'i',
+    type: String,
+    description: 'includes. Optional',
+    required: false,
+  })
+  @ApiOkResponse({ type: ApplicationResponse })
+  async findOne(
+    @Param('id') id: string,
+    @Req() req?: any,
+    @Query('i') i?: string,
+  ): Promise<ApplicationResponse> {
+    const relations = i ? i.split(',') : [];
+    return this.applicationService.findOne(id, relations);
+  }
+  @Put(':id')
+  @ApiOkResponse({ type: ApplicationResponse })
+  async update(
+    @Param('id') id: string,
+    @Body() itemData: UpdateApplicationCommand,
+  ): Promise<ApplicationResponse> {
+    return this.applicationService.update(id, itemData);
+  }
 
-  //   @Get(':id')
-  //   @ApiQuery({
-  //     name: 'i',
-  //     type: String,
-  //     description: 'includes. Optional',
-  //     required: false,
-  //   })
-  //   @ApiOkResponse({ type: options?.responseFormat })
-  //   async findOne(
-  //     @Param('id') id: string,
-  //     @Req() req?: any,
-  //     @Query('i') i?: string,
-  //   ): Promise<TEntity | undefined> {
-  //     const relations = i ? i.split(',') : [];
-  //     return this.service.findOne(id, relations);
-  //   }
+  @Delete(':id')
+  async softDelete(@Param('id') id: string): Promise<boolean> {
+    return this.applicationService.softDelete(id);
+  }
+  @Patch('restore/:id')
+  async restore(@Param('id') id: string): Promise<boolean> {
+    return this.applicationService.restore(id);
+  }
 
-  //   @Put(':id')
-  //   @ApiBody({ type: options?.updateDto })
-  //   @ApiOkResponse({ type: options?.responseFormat })
-  //   @UsePipes(new ValidationPipe({ transform: true }))
-  //   async update(
-  //     @Param('id') id: string,
-  //     @Body() itemData: typeof options.updateDto,
-  //   ): Promise<TEntity | undefined> {
-  //     return this.service.update(id, itemData);
-  //   }
-
-  //   @Delete(':id')
-  //   async softDelete(@Param('id') id: string): Promise<void> {
-  //     return this.service.softDelete(id);
-  //   }
-  //   @Patch('restore/:id')
-  //   async restore(@Param('id') id: string): Promise<void> {
-  //     return this.service.restore(id);
-  //   }
-
-  //   @Get('/archived/items')
-  //   @ApiQuery({
-  //     name: 'q',
-  //     type: String,
-  //     description: 'Collection Query Parameter. Optional',
-  //     required: false,
-  //   })
-  //   @ApiPaginatedResponse(options?.responseFormat)
-  //   async findAllArchived(
-  //     @Query('q') q?: string,
-  //   ): Promise<DataResponseFormat<TEntity>> {
-  //     const query = decodeCollectionQuery(q);
-  //     return this.service.findAllArchived(query);
-  //   }
+  @Get('/archived/items')
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  @ApiPaginatedResponse(ApplicationResponse)
+  async findAllArchived(
+    @Query('q') q?: string,
+  ): Promise<DataResponseFormat<any>> {
+    const query = decodeCollectionQuery(q);
+    return this.applicationService.findAllArchived(query);
+  }
 }

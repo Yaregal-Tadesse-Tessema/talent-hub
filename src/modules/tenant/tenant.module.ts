@@ -17,6 +17,10 @@ import { TenantRepository } from './persistencies/tenant.repository';
 import { LookupRepository } from './persistencies/lookup.repository';
 import { EmployeeTenantRepository } from './persistencies/employee-tenant.repository';
 import { AdminUserRepository } from './persistencies/admin.repository';
+import { UserTenantService } from './usecases/user-enant/user-tenant.usecase.command';
+import { UserTenantRepository } from './persistencies/user-tenant.repository';
+import { UserTenantController } from './controllers/user-tenant.controller';
+import { UserTenantEntity } from './persistencies/user-tenant.entity';
 
 @Global()
 @Module({
@@ -26,6 +30,7 @@ import { AdminUserRepository } from './persistencies/admin.repository';
       LookupEntity,
       EmployeeTenantEntity,
       AdminUserEntity,
+      UserTenantEntity,
     ]),
   ],
   providers: [
@@ -37,12 +42,16 @@ import { AdminUserRepository } from './persistencies/admin.repository';
     EmployeeTenantRepository,
     AdminUserService,
     AdminUserRepository,
+
+    UserTenantService,
+    UserTenantRepository,
   ],
   controllers: [
     TenantController,
     LookupController,
     EmployeeTenantController,
     AdminUserController,
+    UserTenantController,
   ],
   exports: [TenantService],
 })
