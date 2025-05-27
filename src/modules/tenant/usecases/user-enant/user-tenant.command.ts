@@ -6,18 +6,16 @@ export class CreateUserTenantCommand {
   id?: string;
   @ApiProperty()
   @IsNotEmpty()
-  tenantId: string;
+  organizationId: string;
   @ApiProperty()
   userId: string;
   @ApiProperty()
   remark: string;
   currentUser?: any;
-  static fromCommand(
-    command: CreateUserTenantCommand,
-  ): UserTenantEntity {
+  static fromCommand(command: CreateUserTenantCommand): UserTenantEntity {
     const entity = new UserTenantEntity();
     entity.id = command?.id;
-    entity.tenantId = command.tenantId;
+    entity.organizationId = command.organizationId;
     entity.userId = command.userId;
     entity.remark = command.remark;
     return entity;

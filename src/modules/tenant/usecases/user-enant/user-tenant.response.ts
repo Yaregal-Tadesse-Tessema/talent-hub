@@ -9,9 +9,9 @@ export class UserTenantResponse extends CreateUserTenantCommand {
   @IsNotEmpty()
   id: string;
   static toResponse(entity: UserTenantEntity): UserTenantResponse {
-    const response = new UserTenantEntity();
+    const response = new UserTenantResponse();
     response.id = entity?.id;
-    response.tenantId = entity.tenantId;
+    response.organizationId = entity.organizationId;
     response.userId = entity.userId;
     response.remark = entity.remark;
     return response;

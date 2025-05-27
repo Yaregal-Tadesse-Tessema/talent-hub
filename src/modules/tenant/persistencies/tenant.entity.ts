@@ -5,6 +5,7 @@ import { CommonEntity } from 'src/libs/Common/common-entity';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { TenantSubscriptionTypes } from '../constants';
+import { UserTenantEntity } from './user-tenant.entity';
 
 @Entity({ name: 'tenants' })
 export class TenantEntity extends CommonEntity {
@@ -54,5 +55,10 @@ export class TenantEntity extends CommonEntity {
     cascade: true,
     onDelete: 'CASCADE',
   })
-  organizationEmployees: EmployeeTenantEntity[];
+  organizationEmployees: UserTenantEntity[];
+  @OneToMany(() => UserTenantEntity, (userTenant) => userTenant.tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  tenantUsers: UserTenantEntity[];
 }
