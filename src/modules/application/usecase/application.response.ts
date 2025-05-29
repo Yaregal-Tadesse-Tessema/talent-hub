@@ -37,6 +37,8 @@ export class ApplicationResponse {
   referralInformation: ReferralInformation;
   @ApiProperty()
   referenceReason: string;
+  @ApiProperty()
+  tenantId: string;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   static toResponse(entity: ApplicationEntity): ApplicationResponse {
@@ -54,6 +56,7 @@ export class ApplicationResponse {
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
     response.status = entity?.status;
+    response.tenantId = entity?.tenantId;
     response.notification = entity?.notification;
     response.referralInformation = entity?.referralInformation;
     response.referenceReason = entity?.referenceReason;

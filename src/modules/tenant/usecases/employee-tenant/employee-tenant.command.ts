@@ -7,7 +7,7 @@ export class CreateEmployeeTenantCommand {
   id?: string;
   @ApiProperty()
   @IsNotEmpty()
-  tenantId: string;
+  tenant_Id: string;
   @ApiProperty()
   lookupId: string;
   @ApiProperty()
@@ -25,7 +25,7 @@ export class CreateEmployeeTenantCommand {
   ): EmployeeTenantEntity {
     const entity = new EmployeeTenantEntity();
     entity.id = command?.id;
-    entity.tenantId = command.tenantId;
+    entity.tenantId = command.tenant_Id;
     entity.lookupId = command.lookupId;
     entity.startDate = command.startDate;
     entity.status = command.status;

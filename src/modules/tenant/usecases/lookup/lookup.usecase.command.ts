@@ -12,6 +12,8 @@ import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.re
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 import { FileService } from 'src/modules/file/services/file.service';
 import { LookupResponse } from './lookup.response';
+import { TenantEntity } from '../../persistencies/tenant.entity';
+import { TenantResponse } from '../tenant/tenant.response';
 @Injectable()
 export class LookupService {
   constructor(
@@ -33,7 +35,7 @@ export class LookupService {
       lookupId: lookup.id,
       startDate: command.startDate,
       status: EmployeeStatus.ACTIVE,
-      tenantId: command.tenantId,
+      tenant_Id: command.tenantId,
       tenantName: command.tenantId,
       currentUser: command?.currentUser,
     };
@@ -61,6 +63,21 @@ export class LookupService {
     if (!lookup) throw new NotFoundException('employee does not exist');
     const result = await this.lookupRepository.softDelete(id);
     return result.affected > 0 ? true : false;
+  }
+  async getTenantsByLookupId(lookupId: string) {
+    const lookup = await this.employeeORganizationRepository.getManyByCriteria(
+      {
+        lookupId: lookupId,
+      },
+      ['tenant'],
+    );
+    if (!lookup) throw new NotFoundException('Lookup does not exist');
+    const tenants: TenantEntity[] = [];
+    for (let index = 0; index < lookup.length; index++) {
+      const lookupEntity = lookup[index];
+      tenants.push(lookupEntity.tenant);
+    }
+    return tenants.map((item) => TenantResponse.toResponse(item));
   }
   async uploadProfile(file: Express.Multer.File, id: string) {
     const lookup = await this.lookupRepository.findOne(id);

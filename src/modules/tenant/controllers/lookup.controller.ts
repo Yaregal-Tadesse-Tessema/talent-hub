@@ -80,4 +80,9 @@ export class LookupController {
     const result = await this.lookupService.uploadProfile(file, id);
     return result;
   }
+  @Put('get-tenants-by-lookup-id/:lookupId')
+  async getTenantsByLookupId(@Param('lookupId') lookupId: string) {
+    const result = await this.lookupService.getTenantsByLookupId(lookupId);
+    return result;
+  }
 }

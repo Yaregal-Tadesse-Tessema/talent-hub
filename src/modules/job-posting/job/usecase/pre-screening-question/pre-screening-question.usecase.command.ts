@@ -4,6 +4,7 @@ import { PreScreeningQuestionRepository } from '../../persistencies/pre-screenin
 import { DeepPartial } from 'typeorm';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { PreScreeningQuestionResponse } from './pre-screening-question.response';
+import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 @Injectable()
 export class PreScreeningQuestionService {
   constructor(
@@ -18,7 +19,13 @@ export class PreScreeningQuestionService {
     return item;
   }
   async findAll(query: CollectionQuery) {
-    const response = await this.preScreeningQuestionRepository.findAll(query);
+    const result = await this.preScreeningQuestionRepository.findAll(query);
+    const response: DataResponseFormat<PreScreeningQuestionResponse> = {
+      items: result.items.map((item) =>
+        PreScreeningQuestionResponse.toResponse(item),
+      ),
+      total: result.total,
+    };
     return response;
   }
   async findOne(
@@ -26,11 +33,12 @@ export class PreScreeningQuestionService {
     relations = [],
     withDeleted = false,
   ): Promise<PreScreeningQuestionResponse> {
-    return await this.preScreeningQuestionRepository.findOne(
+    const response = await this.preScreeningQuestionRepository.findOne(
       id,
       relations,
       withDeleted,
     );
+    return PreScreeningQuestionResponse.toResponse(response);
   }
   async update(
     id: string,
@@ -58,7 +66,13 @@ export class PreScreeningQuestionService {
     query.where.push([
       { column: 'deletedAt', value: '', operator: 'IsNotNull' },
     ]);
-    const response = await this.preScreeningQuestionRepository.findAll(query);
+    const result = await this.preScreeningQuestionRepository.findAll(query);
+    const response: DataResponseFormat<PreScreeningQuestionResponse> = {
+      items: result.items.map((item) =>
+        PreScreeningQuestionResponse.toResponse(item),
+      ),
+      total: result.total,
+    };
     return response;
   }
   private async findOneOrFail(
@@ -84,7 +98,7 @@ export class PreScreeningQuestionService {
     if (!item) {
       throw new NotFoundException(`not_found`);
     }
-    return item;
+    return PreScreeningQuestionResponse.toResponse(item);
   }
   async getOneByCriteria(
     criteria: object,
@@ -96,7 +110,7 @@ export class PreScreeningQuestionService {
       relations,
       withDeleted,
     );
-    return response;
+    return PreScreeningQuestionResponse.toResponse(response);
   }
   async getManyByCriteria(
     criteria: object,
@@ -109,6 +123,8 @@ export class PreScreeningQuestionService {
         relations,
         withDeleted,
       );
-    return response;
+    return response.map((item) =>
+      PreScreeningQuestionResponse.toResponse(item),
+    );
   }
 }

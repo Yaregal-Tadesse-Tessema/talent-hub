@@ -229,7 +229,7 @@ export class UserService {
         `Account with id ${command.id} doesn't exist`,
       );
     if (user.password != command.oldPassword)
-      throw new BadRequestException(`Invalid Old Password`);
+      throw new BadRequestException(`Incorrect Old Password`);
     user.password = command.newPassword;
     await this.userRepository.create(user);
     return true;

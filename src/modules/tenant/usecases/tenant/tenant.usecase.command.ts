@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DataSource, MoreThanOrEqual } from 'typeorm';
+import { MoreThanOrEqual } from 'typeorm';
 
 import axios from 'axios';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
@@ -17,13 +17,13 @@ import { TenantResponse } from './tenant.response';
 import { CreateLookupCommand } from '../lookup/lookup.command';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
-import { TenantSubscriptionTypes } from '../../constants';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 import { TenantRepository } from '../../persistencies/tenant.repository';
 import { LookupRepository } from '../../persistencies/lookup.repository';
 import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
+import { FileService } from 'src/modules/file/services/file.service';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -31,6 +31,7 @@ export class TenantService {
     private readonly tenantRepository: TenantRepository,
     private readonly lookupRepository: LookupRepository,
     private readonly employeeTenantRepository: EmployeeTenantRepository,
+    private readonly fileService: FileService,
   ) {}
   private readonly axiosInstance = axios.create({
     baseURL: 'https://etrade.gov.et/api',
@@ -39,59 +40,6 @@ export class TenantService {
       Referer: 'https://etrade.gov.et/business-license-checker',
     },
   });
-  async migrateTenantSchema(
-    newSchemaName: string,
-    oldSchemaName: string,
-  ): Promise<void> {
-    const dataSource = new DataSource({
-      type: 'postgres',
-      host: process.env.PUBLIC_DATABASE_HOST,
-      port: +process.env.PUBLIC_DATABASE_PORT,
-      username: process.env.PUBLIC_DATABASE_USERNAME,
-      password: process.env.PUBLIC_DATABASE_PASSWORD,
-      database: process.env.PUBLIC_DATABASE_Name,
-      entities: [],
-      synchronize: false,
-    });
-    await dataSource.initialize();
-    const queryRunner = dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      await queryRunner.query(`CREATE SCHEMA  "${newSchemaName}";`);
-      const tables = await queryRunner.query(`
-                SELECT table_name
-                FROM information_schema.tables
-                WHERE table_schema = '${oldSchemaName}';
-            `);
-
-      for (const table of tables) {
-        const tableName = table.table_name;
-
-        // Step 3.1: Create the table in the new schema using `LIKE` to copy structure
-        // if()
-        await queryRunner.query(`
-                    CREATE TABLE "${newSchemaName}"."${tableName}" 
-                    (LIKE "${oldSchemaName}"."${tableName}" INCLUDING ALL);
-                `);
-
-        // Step 3.2: Copy data from the old schema to the new schema
-        await queryRunner.query(`
-              INSERT INTO "${newSchemaName}"."${tableName}"
-              SELECT * FROM "${oldSchemaName}"."${tableName}";
-          `);
-      }
-      await queryRunner.commitTransaction();
-    } catch (error) {
-      console.log(error);
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      console.log('finally');
-      // await queryRunner.release();
-    }
-  }
   async updateTenant(command: CreateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = CreateTenantCommand.fromCommand(command);
     tenantEntity.code = tenantEntity.schemaName;
@@ -101,39 +49,10 @@ export class TenantService {
   async createTenant(command: CreateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = CreateTenantCommand.fromCommand(command);
     const result = await this.tenantRepository.create(tenantEntity);
-    const salt = process.env.BCRYPT_SALT;
-    const employeeTenant: CreateEmployeeTenantCommand = {
-      jobTitle: 'Administrator',
-      lookupId: command?.currentUser?.lookupId,
-      status: result.status,
-      tenantId: result.id,
-      tenantName: result.name,
-      startDate: new Date(),
-    };
-    if (!command?.currentUser) {
-      const lookup: CreateLookupCommand = {
-        email: result.email,
-        password: await bcrypt.hash('C0mplex!', salt),
-        phoneNumber: command.phoneNumber,
-        status: command.status,
-        firstName: 'Administrator',
-        middleName: 'Administrator',
-        lastName: 'Administrator',
-        jobTitle: 'Administrator',
-        tenantId: result.id,
-        tenantName: result.name,
-      };
-      const lookupEntity = await this.lookupRepository.create(lookup);
-      employeeTenant.lookupId = lookupEntity.id;
-    }
-
-    const employeeTenantEntity =
-      await this.employeeTenantRepository.create(employeeTenant);
-    result.organizationEmployees.push(employeeTenantEntity);
     return TenantResponse.toResponse(result);
   }
   async CreateAccounts(command: CreateTenantCommand) {
-    if (command?.currentUser)
+    if (!command?.currentUser)
       throw new BadRequestException(
         `Create You first need to login as Employer`,
       );
@@ -155,46 +74,25 @@ export class TenantService {
       throw new ConflictException(
         `Organization already registered with thi email and password`,
       );
-    const salt = process.env.BCRYPT_SALT;
-    const tenantCommand: CreateTenantCommand = {
-      name: command.name,
-      tin: command.tin,
-      phoneNumber: command.phoneNumber,
-      email: command.email,
-      companySize: command.companySize,
-      industry: command.industry,
-      address: command.address,
-      isActive: true,
-      logo: command.logo,
-      subscriptionType: TenantSubscriptionTypes.FREE,
-    };
-    const tenantEntity: TenantResponse = await this.createTenant(tenantCommand);
-    const entity: CreateLookupCommand = {
-      password: await bcrypt.hash('C0mplex!', salt),
-      email: command.email,
-      phoneNumber: command.phoneNumber,
-      firstName: 'Root',
-      middleName: 'Administrator',
-      status: AccountStatusEnums.ACTIVE,
-    };
-    const lookEntity = await this.lookupRepository.create(entity);
+    const tenantEntity: TenantResponse = await this.createTenant(command);
     const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
-      tenantId: tenantEntity.id,
-      lookupId: command.currentUser.lookupId,
+      tenant_Id: tenantEntity.id,
+      lookupId: command.currentUser.id,
       startDate: new Date(),
       status: EmployeeStatus.ACTIVE,
       tenantName: tenantEntity.name,
       jobTitle: 'Administrator',
     };
-    const employeeORganizationEntity =
-      await this.employeeTenantRepository.create(employeeOrganizationCommand);
-    return { tenantEntity, lookEntity, employeeORganizationEntity };
+    await this.employeeTenantRepository.create(employeeOrganizationCommand);
+    return tenantEntity;
   }
   async registerOrganizationWithETrade(
     command: CheckOrganizationFromETrade,
   ): Promise<any> {
     try {
-      const alreadyExist = await this.tenantRepository.getOneByCriteria({ tin: command.tin });
+      const alreadyExist = await this.tenantRepository.getOneByCriteria({
+        tin: command.tin,
+      });
 
       if (alreadyExist)
         throw new BadRequestException(
@@ -236,13 +134,12 @@ export class TenantService {
         email: tenantEntity?.email,
         phoneNumber: tenantEntity.phoneNumber,
         password: await bcrypt.hash('C0mplex!', salt),
-        // user: result?.phoneNumber ? result?.phoneNumber : result?.email,
         status: AccountStatusEnums.ACTIVE,
       };
       const lookupEntity = await this.lookupRepository.create(lookupCommand);
       console.log(createCommand);
       const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
-        tenantId: tenantEntity.id,
+        tenant_Id: tenantEntity.id,
         lookupId: lookupEntity.id,
         startDate: new Date(),
         status: EmployeeStatus.ACTIVE,
@@ -319,5 +216,22 @@ export class TenantService {
   async getTenants(query: CollectionQuery) {
     const response = await this.tenantRepository.findAll(query);
     return response;
+  }
+  async uploadLogo(file: Express.Multer.File, id: string) {
+    const tenant = await this.tenantRepository.findOne(id);
+    if (!tenant)
+      throw new BadRequestException(`Tenant with id ${id} doesn't exist`);
+    if (tenant.logo) {
+      await this.fileService.deleteBucketFile(tenant.logo.filename);
+    }
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    const fileName = file.originalname;
+    const fileId = `${id}/logo/${randomNumber}_${fileName}`;
+    // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
+    const res = await this.fileService.uploadAttachment(fileId, file);
+    if (!res) throw new BadRequestException('file upload failed');
+    tenant.logo = res;
+    const response = await this.tenantRepository.create(tenant);
+    return TenantResponse.toResponse(response);
   }
 }

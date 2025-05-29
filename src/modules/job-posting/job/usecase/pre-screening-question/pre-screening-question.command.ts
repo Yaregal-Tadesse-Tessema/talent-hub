@@ -26,7 +26,7 @@ export class CreatePreScreeningQuestionCommand {
   essayAnswer: string;
   @ApiProperty()
   score: number;
-
+  tenantId: string;
   static fromDto(
     dto: CreatePreScreeningQuestionCommand,
   ): PreScreeningQuestionEntity {
@@ -42,10 +42,11 @@ export class CreatePreScreeningQuestionCommand {
     entity.isKnockout = dto.isKnockout;
     entity.isOptional = dto?.isOptional;
     entity.weight = dto.weight;
-    entity.booleanAnswer = dto.booleanAnswer;
-    entity.selectedOptions = dto.selectedOptions;
-    entity.essayAnswer = dto.essayAnswer;
-    entity.score = dto.score;
+    entity.booleanAnswer = dto?.booleanAnswer;
+    entity.selectedOptions = dto?.selectedOptions;
+    entity.essayAnswer = dto?.essayAnswer;
+    entity.score = dto?.score;
+    entity.tenantId = dto?.tenantId;
     return entity;
   }
   static fromDtos(

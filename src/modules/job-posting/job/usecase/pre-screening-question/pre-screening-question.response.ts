@@ -25,6 +25,8 @@ export class PreScreeningQuestionResponse {
   essayAnswer: string;
   @ApiProperty()
   score: number;
+  @ApiProperty()
+  tenantId: string;
 
   static toResponse(
     entity: PreScreeningQuestionEntity,
@@ -45,6 +47,7 @@ export class PreScreeningQuestionResponse {
     response.selectedOptions = entity.selectedOptions;
     response.essayAnswer = entity.essayAnswer;
     response.score = entity.score;
+    response.tenantId = entity.tenantId;
     return response;
   }
 }

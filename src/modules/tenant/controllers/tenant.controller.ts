@@ -1,5 +1,16 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiExtraModels,
   ApiOkResponse,
@@ -12,14 +23,17 @@ import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { TenantService } from '../usecases/tenant/tenant.usecase.command';
 import { TenantResponse } from '../usecases/tenant/tenant.response';
-import { CheckOrganizationFromETrade, CreateTenantCommand } from '../usecases/tenant/tenant.command';
+import {
+  CheckOrganizationFromETrade,
+  CreateTenantCommand,
+} from '../usecases/tenant/tenant.command';
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { UserInfo } from 'src/libs/Common/user-information';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('tenants')
 @ApiTags('tenants')
 @ApiExtraModels(DataResponseFormat)
-@AllowAnonymous()
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 
@@ -36,7 +50,9 @@ export class TenantController {
   @ApiOkResponse({ type: TenantResponse })
   async registerOrganizationWithETrade(
     @Body() command: CheckOrganizationFromETrade,
+    @userInfo() currentUser: UserInfo,
   ) {
+    command.currentUser = currentUser;
     return await this.tenantService.registerOrganizationWithETrade(command);
   }
   @Get()
@@ -59,5 +75,18 @@ export class TenantController {
   @ApiOkResponse({ type: TenantResponse })
   async getTenant(@Param('id') id: string) {
     return await this.tenantService.getTenant(id);
+  }
+  @Put('upload-logo/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadProfilePicture(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Only jpeg/png files are allowed');
+    }
+    const result = await this.tenantService.uploadLogo(file, id);
+    return result;
   }
 }

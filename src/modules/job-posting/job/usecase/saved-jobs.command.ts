@@ -8,6 +8,7 @@ export class CreateSavedJobsCommand {
   jobPostId: string;
   @ApiProperty()
   userId: string;
+  tenantId: string;
 
   static fromDto(dto: CreateSavedJobsCommand): SaveJobEntity {
     const entity = new SaveJobEntity();
@@ -17,6 +18,7 @@ export class CreateSavedJobsCommand {
     entity.id = dto?.id;
     entity.jobPostId = dto.jobPostId;
     entity.userId = dto.userId;
+    entity.tenantId = dto?.tenantId;
     return entity;
   }
 
@@ -40,4 +42,5 @@ export class UnsaveJobPostCommand {
   jobPostId: string;
   @ApiProperty()
   userId: string;
+  tenantId: string;
 }

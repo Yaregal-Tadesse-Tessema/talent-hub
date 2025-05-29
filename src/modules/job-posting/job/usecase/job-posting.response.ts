@@ -87,6 +87,8 @@ export class JobPostingResponse {
   positionNumbers: number;
   @ApiProperty()
   paymentType: PaymentTypeEnums;
+  @ApiProperty()
+  tenantId: string;
 
   @ApiProperty()
   createdAt: Date;
@@ -128,6 +130,7 @@ export class JobPostingResponse {
     response.applicationCount = entity.applicationCount;
     response.positionNumbers = entity.positionNumbers;
     response.paymentType = entity.paymentType;
+    response.tenantId = entity.tenantId;
 
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;

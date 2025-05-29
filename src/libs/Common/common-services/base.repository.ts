@@ -13,6 +13,10 @@ export class BaseRepository<T extends ObjectLiteral> {
     @Inject(REQUEST) private request: Request,
   ) {}
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
+    const tenantId = await this.request['TENANT_ID'];
+    if (!tenantId) {
+      itemData.tenantId = tenantId;
+    }
     if (req?.user?.organization) {
       itemData.organizationId = req.user.organization.id;
     }
@@ -140,8 +144,16 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T> {
+    const tenantId = await this.request['TENANT_ID'];
+    const baseCriteria: any = {
+      ...(criteria || {}), // if you have other criteria
+    };
+
+    if (tenantId) {
+      baseCriteria.tenantId = tenantId;
+    }
     const response = await this.repository.findOne({
-      where: criteria,
+      where: baseCriteria,
       relations,
       withDeleted,
     });
@@ -152,8 +164,16 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T[]> {
+     const tenantId = await this.request['TENANT_ID'];
+    const baseCriteria: any = {
+      ...(criteria || {}), // if you have other criteria
+    };
+
+    if (tenantId) {
+      baseCriteria.tenantId = tenantId;
+    }
     const response = await this.repository.find({
-      where: criteria,
+      where: baseCriteria,
       relations,
       withDeleted,
     });

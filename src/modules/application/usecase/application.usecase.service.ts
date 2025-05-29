@@ -19,7 +19,6 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/job-post.repository';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
-import { ApplicationStatusEnums } from '../constants';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 @Injectable()
@@ -177,7 +176,7 @@ export class ApplicationService {
       throw new NotFoundException(
         `Application with id ${command.id} not found`,
       );
-      
+
     application.status = command.status;
     await this.applicationRepository.update(application.id, application);
     return true;

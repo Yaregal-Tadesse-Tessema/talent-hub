@@ -33,8 +33,8 @@ export class EmployeeTenantService {
       jobTitle: command.jobTitle,
       lookupId: lookup.id,
       startDate: command.startDate,
-      tenantId: command.tenantId,
-      tenantName: command.tenantId,
+      tenant_Id: command.tenant_Id,
+      tenantName: command.tenantName,
       currentUser: command?.currentUser,
       status: EmployeeStatus.ACTIVE,
     };

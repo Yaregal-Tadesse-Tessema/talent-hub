@@ -11,7 +11,7 @@ export class EmployeeTenantResponse extends CreateEmployeeTenantCommand {
   static toResponse(entity: EmployeeTenantEntity): EmployeeTenantResponse {
     const response = new EmployeeTenantEntity();
     response.id = entity?.id;
-    response.tenantId = entity.tenantId;
+    response.tenant_Id = entity.tenant_Id;
     response.lookupId = entity.lookupId;
     response.startDate = entity.startDate;
     response.status = entity.status;

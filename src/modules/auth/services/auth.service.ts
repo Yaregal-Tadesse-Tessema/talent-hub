@@ -122,7 +122,7 @@ export class AuthService {
     if (loginCommand.orgId) {
       const lookupData = await this.lookupRepository.findOne({
         where: {
-          phoneNumber: loginCommand.phoneNumber,
+          phoneNumber: loginCommand.userName,
           employeeTenant: {
             status: In(activeEmployeesStatus),
             tenant: {
@@ -146,9 +146,13 @@ export class AuthService {
         lookupData?.employeeTenant.length > 0
           ? lookupData.employeeTenant[0].tenant
           : null;
+      if (!tenant)
+        throw new BadRequestException(
+          `Something is went wrong please contact admin`,
+        );
       const payload: UserInfo = {
         lookupId: lookupData.id,
-        tenantId: lookupData.employeeTenant[0].tenantId,
+        tenantId: tenant.id,
         id: lookupData.id,
         email: lookupData?.email,
         firstName: lookupData?.firstName,
@@ -193,7 +197,7 @@ export class AuthService {
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (loginCommand.password.trim() != lookup.password) {
+    if (!Util.comparePassword(loginCommand.password.trim(), lookup.password)) {
       throw new BadRequestException(`Incorrect credentials`);
     }
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;

@@ -6,13 +6,14 @@ import {
 } from './saved-jobs.command';
 import { SaveJobPostingRepository } from '../persistencies/save-job-post.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { SavedJobsResponse } from './saved-jobs.response';
 @Injectable()
 export class SavedJobsService {
   constructor(private readonly saveJobRepository: SaveJobPostingRepository) {}
   async saveJobPost(command: CreateSavedJobsCommand) {
     const saveJobPostEntity = CreateSavedJobsCommand.fromDto(command);
     const result = await this.saveJobRepository.create(saveJobPostEntity);
-    return result;
+    return SavedJobsResponse.toResponse(result);
   }
   async unsaveJobPost(command: UnsaveJobPostCommand) {
     const jobPostExists = await this.saveJobRepository.getOneByCriteria({

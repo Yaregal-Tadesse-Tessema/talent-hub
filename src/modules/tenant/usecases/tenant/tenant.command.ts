@@ -87,7 +87,6 @@ export class UpdateTenantCommand extends CreateTenantCommand {
   @IsNotEmpty()
   id: string;
 }
-
 export class ArchiveTenantCommand {
   @ApiProperty()
   @IsNotEmpty()
@@ -115,4 +114,6 @@ export class CheckOrganizationFromETrade {
   tin: string;
   @ApiProperty()
   licenseNumber: string;
+
+  currentUser?: UserInfo;
 }

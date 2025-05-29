@@ -19,11 +19,11 @@ export class TenantEntity extends CommonEntity {
   type: string;
   @Column({ name: 'trade_name', nullable: true })
   tradeName: string;
-  @Column({ name: 'email', nullable: true })
+  @Column({ name: 'email', nullable: true, unique: true })
   email: string;
-  @Column({ name: 'code', nullable: false })
+  @Column({ name: 'code', nullable: true })
   code: string;
-  @Column({ name: 'phone_number' })
+  @Column({ name: 'phone_number', unique: true })
   phoneNumber: string;
   @Column({ type: 'jsonb' })
   address: any;
@@ -31,7 +31,7 @@ export class TenantEntity extends CommonEntity {
   subscriptionType: TenantSubscriptionTypes;
   @Column({ name: 'is_verified', default: false })
   isVerified: boolean;
-  @Column()
+  @Column({ unique: true })
   tin: string;
   @Column({ nullable: true })
   licenseNumber: string;
@@ -55,7 +55,7 @@ export class TenantEntity extends CommonEntity {
     cascade: true,
     onDelete: 'CASCADE',
   })
-  organizationEmployees: UserTenantEntity[];
+  organizationEmployees: EmployeeTenantEntity[];
   @OneToMany(() => UserTenantEntity, (userTenant) => userTenant.tenant, {
     cascade: true,
     onDelete: 'CASCADE',
