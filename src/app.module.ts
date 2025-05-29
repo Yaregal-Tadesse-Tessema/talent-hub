@@ -56,7 +56,6 @@ import { UserTenantEntity } from './modules/tenant/persistencies/user-tenant.ent
       ],
       synchronize: true,
     }),
-
     EventEmitterModule.forRoot(),
     JwtModule.register({
       secret: process.env.TOKEN_SECRET_KEY,

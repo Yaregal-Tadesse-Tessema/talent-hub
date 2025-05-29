@@ -79,3 +79,17 @@ export class ChangeApplicationStatus {
   @IsNotEmpty()
   status: ApplicationStatusEnums;
 }
+export class PrepareScheduleCommand {
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  jobPostId: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  interviewersEmail: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  oneInterviewDuration: number;
+  @ApiProperty()
+  numberOfInterviewingGroup: number;
+}

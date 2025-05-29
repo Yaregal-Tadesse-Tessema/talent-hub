@@ -23,6 +23,7 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import {
   ChangeApplicationStatus,
   CreateApplicationCommand,
+  PrepareScheduleCommand,
   UpdateApplicationCommand,
 } from '../usecase/application.command';
 import { FileService } from 'src/modules/file/services/file.service';
@@ -119,5 +120,12 @@ export class ApplicationController {
   ): Promise<DataResponseFormat<any>> {
     const query = decodeCollectionQuery(q);
     return this.applicationService.findAllArchived(query);
+  }
+  @Post('schedule')
+  @ApiPaginatedResponse(ApplicationResponse)
+  async PrepareAndSendEmail(
+    @Body() command: PrepareScheduleCommand,
+  ): Promise<any> {
+    return await this.applicationService.PrepareAndSendEmail(command);
   }
 }

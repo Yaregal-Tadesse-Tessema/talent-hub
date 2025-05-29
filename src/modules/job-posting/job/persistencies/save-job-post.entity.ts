@@ -7,6 +7,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { JobPostingEntity } from '../../job/persistencies/job-posting.entity';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
 // import { UserEntity } from 'src/modules/user/persistence/users.entity';
 
 @Entity({ name: 'save_job_post' })
@@ -22,10 +23,7 @@ export class SaveJobEntity extends CommonEntity {
   @JoinColumn({ name: 'jobPostId' })
   jobPosting: JobPostingEntity;
 
-  // @ManyToOne(
-  //   () => UserEntity,
-  //   (userEntity) => userEntity.savedJobs,
-  // )
-  // @JoinColumn({name:'userId'})
-  // user: UserEntity;
+  @ManyToOne(() => UserEntity, (userEntity) => userEntity.savedJobs)
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 }

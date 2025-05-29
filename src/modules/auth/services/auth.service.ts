@@ -142,7 +142,10 @@ export class AuthService {
       ) {
         throw new BadRequestException(`Incorrect credentials`);
       }
-      const tenant = lookupData.employeeTenant[0].tenant;
+      const tenant =
+        lookupData?.employeeTenant.length > 0
+          ? lookupData.employeeTenant[0].tenant
+          : null;
       const payload: UserInfo = {
         lookupId: lookupData.id,
         tenantId: lookupData.employeeTenant[0].tenantId,
@@ -170,7 +173,7 @@ export class AuthService {
         refreshToken,
         profile: {
           ...LookupResponse.toResponse(lookupData),
-          tenantId: tenant.id,
+          tenantId: tenant?.id,
         },
       };
     }
@@ -206,7 +209,7 @@ export class AuthService {
       address: lookup?.address,
       phoneNumber: lookup?.phoneNumber,
       roles: [],
-      tenantSchemaName: lookup.employeeTenant[0]?.tenantName,
+      tenantSchemaName: tenant.name,
     };
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);
@@ -221,11 +224,10 @@ export class AuthService {
       refreshToken,
       profile: {
         ...LookupResponse.toResponse(lookup),
-        tenantId: lookup.employeeTenant[0]?.tenantId,
+        tenantId: tenant.id,
         tenantName: tenant.name,
         tenantLogo: tenant.logo,
       },
-      // tenant: tenant,
     };
   }
   async portalLogin(loginCommand: UserLoginCommand) {

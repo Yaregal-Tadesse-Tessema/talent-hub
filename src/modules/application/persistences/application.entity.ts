@@ -11,6 +11,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
 import { ReferralInformation } from '../usecase/application.command';
 import { ApplicationStatusEnums } from '../constants';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
 
 @Entity({ name: 'applications' })
 @Unique(['userId', 'JobPostId'])
@@ -47,8 +48,7 @@ export class ApplicationEntity extends CommonEntity {
   )
   @JoinColumn({ name: 'JobPostId' })
   JobPost: JobPostingEntity;
-
-  // @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
-  // @JoinColumn({ name: 'userId' })
-  // user: UserEntity;
+  @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
+  @JoinColumn({ name: 'userId' })
+  user: UserEntity;
 }

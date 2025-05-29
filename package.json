@@ -43,6 +43,7 @@
     "dotenv": "^16.4.7",
     "googleapis": "^148.0.0",
     "grammy": "^1.35.0",
+    "ical-generator": "^9.0.0",
     "ics": "^3.8.1",
     "libreoffice-convert": "^1.6.1",
     "mammoth": "^1.9.0",

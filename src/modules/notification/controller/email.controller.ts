@@ -49,4 +49,13 @@ export class EmailController {
       body.html,
     );
   }
+  @Post('send-grid-calendor')
+  @AllowAnonymous()
+  async sendGridEmailCalendors(@Body() body: EmailCommand) {
+    return await this.emailService.sendGridEmailCalendors(
+      body.to,
+      body.subject,
+      body.html,
+    );
+  }
 }

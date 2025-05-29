@@ -6,6 +6,7 @@ import type { MailDataRequired } from '@sendgrid/mail';
 import * as nodemailer from 'nodemailer';
 import * as sgMail from '@sendgrid/mail';
 import * as process from 'node:process';
+import ical, { ICalCalendarMethod } from 'ical-generator';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -158,5 +159,147 @@ export class EmailService {
       this.logger.error('Error sending email:', error.response?.body || error);
       throw error;
     }
+  }
+  async sendGridEmailCalendors(
+    to: string,
+    subject: string,
+    html: string,
+  ): Promise<boolean> {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 3);
+    const icsContents: string[] = [];
+    icsContents.push(
+      this.buildIcs({
+        attendeeEmail: to,
+        description:
+          'we will have a first phase Job Interview be prpare and be on time ',
+        end: tomorrow,
+        start: tomorrow,
+        organizerEmail: 'yayasoles@gmail.com',
+        organizerName: 'TalentHub',
+        summary: 'Job Interview Appointment',
+        uid: '57bf0aca-8e83-4e0e-9736-b37ac66f5810',
+        location: 'Jemo  Medhanyalem Lebu Musica sefer',
+      }),
+    );
+    icsContents.push(
+      this.buildIcs({
+        attendeeEmail: to,
+        description:
+          'we will have a first phase Job Interview be prpare and be on time ',
+        end: tomorrow,
+        start: tomorrow,
+        organizerEmail: 'yayasoles@gmail.com',
+        organizerName: 'TalentHub',
+        summary: 'Job Interview Appointment',
+        uid: '57bf0aca-9e83-4e0e-9736-b37ac66f5810',
+        location: 'Jemo  Medhanyalem Lebu Musica sefer',
+      }),
+    );
+    const result = await this.sendGridEmailCalendor(
+      to,
+      subject,
+      html,
+      icsContents,
+    );
+    return true;
+  }
+  async sendGridEmailCalendor(
+    to: string,
+    subject: string,
+    html: string,
+    icsContent?: string[],
+  ): Promise<boolean> {
+    try {
+      const plain = html.replace(/<[^>]*>/g, '');
+      /** ---------- 1. Build the core message ---------- */
+      const msg: sgMail.MailDataRequired = {
+        to,
+        from: 'yayasoles@gmail.com', // verified sender
+        subject,
+        content: [
+          // 👈 satisfies MailDataRequired
+          { type: 'text/plain', value: plain },
+          { type: 'text/html', value: html },
+        ],
+      };
+
+      if (icsContent) {
+        // 1️⃣ inline calendar part
+        msg.content.push({
+          type: 'text/calendar', // ⚠️ no semicolons here
+          value: icsContent[0],
+        });
+        msg.content.push({
+          type: 'text/calendar', // ⚠️ no semicolons here
+          value: icsContent[1],
+        });
+        // 2️⃣ attachment (fallback for older clients)
+        msg.attachments = [
+          {
+            content: Buffer.from(icsContent[0]).toString('base64'),
+            filename: 'invite.ics',
+            type: 'text/calendar', // ⚠️ no semicolons here
+            disposition: 'attachment',
+          },
+        ];
+        msg.attachments = [
+          {
+            content: Buffer.from(icsContent[1]).toString('base64'),
+            filename: 'invite.ics',
+            type: 'text/calendar', // ⚠️ no semicolons here
+            disposition: 'attachment',
+          },
+        ];
+        // 3️⃣ optional Outlook hint
+        msg.headers = {
+          'Content-Class': 'urn:content-classes:calendarmessage',
+        };
+      }
+
+      /** ---------- 4. Fire away ---------- */
+      await sgMail.send(msg);
+      return true;
+    } catch (error: any) {
+      this.logger.error('Error sending email:', error?.response?.body || error);
+      throw error;
+    }
+  }
+
+  buildIcs(dto: {
+    uid: string;
+    start: Date;
+    end: Date;
+    summary: string;
+    description: string;
+    location?: string;
+    organizerName: string;
+    organizerEmail: string;
+    attendeeEmail: string;
+  }) {
+    const cal = ical({
+      name: 'Talent-Hub Schedules',
+      method: ICalCalendarMethod.REQUEST,
+    });
+    cal.createEvent({
+      id: dto.uid,
+      start: dto.start,
+      end: dto.end,
+      summary: dto.summary,
+      description: dto.description,
+      location: dto.location,
+      organizer: {
+        name: dto.organizerName,
+        email: dto.organizerEmail,
+      },
+      attendees: [
+        {
+          email: dto.attendeeEmail,
+          name: dto.attendeeEmail.split('@')[0],
+          rsvp: true,
+        },
+      ],
+    });
+    return cal.toString(); // already CRLF-safe
   }
 }

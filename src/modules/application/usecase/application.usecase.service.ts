@@ -8,6 +8,7 @@ import {
 import {
   ChangeApplicationStatus,
   CreateApplicationCommand,
+  PrepareScheduleCommand,
 } from './application.command';
 import { ApplicationRepository } from '../persistences/application.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
@@ -17,6 +18,10 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { FileService } from 'src/modules/file/services/file.service';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/job-post.repository';
+import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
+import { ApplicationStatusEnums } from '../constants';
+import { ApplicationEntity } from '../persistences/application.entity';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -24,6 +29,7 @@ export class ApplicationService {
     private readonly fileService: FileService,
     private readonly jobPostingRepository: JobPostingRepository,
     private readonly userService: UserService,
+    private readonly emailService: EmailService,
   ) {}
   async create(
     command: CreateApplicationCommand,
@@ -175,4 +181,94 @@ export class ApplicationService {
     await this.applicationRepository.create(application);
     return true;
   }
+  async PrepareAndSendEmail(command: PrepareScheduleCommand) {
+    const shorlistedApplications =
+      await this.applicationRepository.getManyByCriteria(
+        {
+          // status: ApplicationStatusEnums.SELECTED,
+          JobPostId: command.jobPostId,
+        },
+        ['user'],
+      );
+    if (shorlistedApplications?.length > 0) {
+      const Schedules = await this.generateSchedule(
+        command.oneInterviewDuration,
+        command.numberOfInterviewingGroup,
+        shorlistedApplications,
+      );
+      return Schedules;
+    } else {
+      return null;
+    }
+  }
+  generateSchedule(
+    interviewDuration: number,
+    teamCount: number,
+    applications: ApplicationEntity[],
+  ): ScheduledInterview[] {
+    const schedule: ScheduledInterview[] = [];
+    const baseDate = new Date();
+    baseDate.setUTCHours(0, 0, 0, 0); // Start of today in UTC
+
+    const workStartUTC = new Date(baseDate);
+    workStartUTC.setUTCHours(0, 0, 0, 0); // 3:00 ET == 00:00 UTC
+
+    const workEndUTC = new Date(baseDate);
+    workEndUTC.setUTCHours(8, 30, 0, 0); // 11:30 ET == 08:30 UTC
+
+    const breakStartUTC = new Date(baseDate);
+    breakStartUTC.setUTCHours(3, 0, 0, 0); // 6:00 ET == 03:00 UTC
+
+    const breakEndUTC = new Date(baseDate);
+    breakEndUTC.setUTCHours(4, 30, 0, 0); // 7:30 ET == 04:30 UTC
+
+    let current = new Date(workStartUTC);
+    let index = 0;
+
+    while (
+      index < applications.length &&
+      current.getTime() < workEndUTC.getTime()
+    ) {
+      const slotEnd = new Date(current.getTime() + interviewDuration * 60000);
+
+      // If interview overlaps with break, move to after break
+      if (slotEnd > breakStartUTC && current < breakEndUTC) {
+        current = new Date(breakEndUTC);
+        continue;
+      }
+
+      // If beyond working hour, stop
+      if (slotEnd > workEndUTC) break;
+
+      for (
+        let team = 1;
+        team <= teamCount && index < applications.length;
+        team++
+      ) {
+        schedule.push({
+          jobPostId: applications[index++].JobPostId,
+          user: applications[index++]?.userInfo,
+          startTime: this.toEthiopianTime(current),
+          endTime: this.toEthiopianTime(slotEnd),
+          team,
+        });
+      }
+
+      current = new Date(current.getTime() + interviewDuration * 60000);
+    }
+
+    return schedule;
+  }
+
+  private toEthiopianTime(date: Date): string {
+    const etDate = new Date(date.getTime() + 3 * 60 * 60 * 1000); // UTC+3
+    return etDate.toISOString().substring(11, 16); // HH:mm
+  }
+}
+interface ScheduledInterview {
+  user: UserEntity;
+  jobPostId: string;
+  startTime: string; // ET in HH:mm
+  endTime: string; // ET in HH:mm
+  team: number;
 }
