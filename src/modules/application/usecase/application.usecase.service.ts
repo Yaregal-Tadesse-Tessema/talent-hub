@@ -177,8 +177,9 @@ export class ApplicationService {
       throw new NotFoundException(
         `Application with id ${command.id} not found`,
       );
+      
     application.status = command.status;
-    await this.applicationRepository.create(application);
+    await this.applicationRepository.update(application.id, application);
     return true;
   }
   async PrepareAndSendEmail(command: PrepareScheduleCommand) {

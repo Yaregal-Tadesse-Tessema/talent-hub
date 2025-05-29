@@ -9,6 +9,7 @@ import {
 import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
+  UpdateJobPostingCommand,
 } from '../usecase/job-posting.command';
 import { JobPostingResponse } from '../usecase/job-posting.response';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
@@ -26,6 +27,12 @@ export class JobPostingController {
   async createJobPosting(@Body() command: CreateJobPostingCommand) {
     command.currentUser = userInfo;
     const result = await this.jobPostingService.createJobPosting(command);
+    return result;
+  }
+  @Post('update-job-posting')
+  async updateJobPosting(@Body() command: UpdateJobPostingCommand) {
+    command.currentUser = userInfo;
+    const result = await this.jobPostingService.updateJobPosting(command);
     return result;
   }
   @ApiQuery({

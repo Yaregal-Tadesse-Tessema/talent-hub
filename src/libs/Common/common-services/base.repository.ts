@@ -16,7 +16,6 @@ export class BaseRepository<T extends ObjectLiteral> {
     if (req?.user?.organization) {
       itemData.organizationId = req.user.organization.id;
     }
-    // const item = this.repository.create(itemData);
     const res = (await this.repository.save(itemData)) as any;
     console.log(res);
     return res;
@@ -149,7 +148,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     return response;
   }
   async getManyByCriteria(
-    criteria: object,
+    criteria: any,
     relations = [],
     withDeleted = false,
   ): Promise<T[]> {

@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   BadGatewayException,
+  BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,6 +10,7 @@ import {
   CreateJobPostingCommand,
   JobPostTelegramNotificationCommand,
   RePostJobCommand,
+  UpdateJobPostingCommand,
 } from './job-posting.command';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
@@ -25,22 +27,21 @@ export class JobPostingService {
     private readonly userRepository: UserService,
   ) {}
   async createJobPosting(command: CreateJobPostingCommand) {
-    // const jobRequirementCommand: CreateJobRequirementCommand = {
-    //   educationLevel: command.educationLevel,
-    //   experienceLevel: command.experienceLevel,
-    //   fieldOfStudy: command.fieldOfStudy,
-    //   gpa: command.minimumGPA,
-    // };
-    // const jobRequirementEntity = CreateJobRequirementCommand.fromDto(
-    //   jobRequirementCommand,
-    // );
-    // const jobRequirementResult =
-    //   await this.jobRequirementService.create(jobRequirementEntity);
-    // command.requirementId = jobRequirementResult.id;
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
     return await this.jobPostingRepository.create(jobPostingEntity);
   }
-
+  async updateJobPosting(command: UpdateJobPostingCommand) {
+    if (!command.id) throw new BadRequestException(`Id is Mandatory`);
+    const jobPost = await this.jobPostingRepository.findOne(command.id);
+    if (!jobPost)
+      throw new BadRequestException(
+        `job post with id ${command.id} doesn't exist`,
+      );
+    if (jobPost.status == JobPostingStatusEnums.POSTED)
+      throw new BadRequestException(`Can't edit  approved jobPosts`);
+    const jobPostingEntity = UpdateJobPostingCommand.fromDto(command);
+    return await this.jobPostingRepository.create(jobPostingEntity);
+  }
   async getJobPostings(
     query: CollectionQuery,
     userInfo?: any,
@@ -94,14 +95,20 @@ export class JobPostingService {
   async changeJobPostStatus(
     command: ChangeJobPostStatusCommand,
   ): Promise<JobPostingResponse> {
-    const jobPostDomain = await this.jobPostingRepository.findOne(command.id);
+    const jobPostDomain = await this.jobPostingRepository.findOne(
+      command.id,
+      [],
+    );
     if (!jobPostDomain)
       throw new NotFoundException(
         `Job post with Id ${command.id} is not Found`,
       );
     jobPostDomain.status = command.status;
     const response = await this.jobPostingRepository.create(jobPostDomain);
-    if (command.status === JobPostingStatusEnums.POSTED) {
+    if (
+      command.status === JobPostingStatusEnums.POSTED &&
+      response.skill.length > 0
+    ) {
       const eligibleUsers = await this.getEligibleUsersForTheJobPost(
         response.skill,
       );

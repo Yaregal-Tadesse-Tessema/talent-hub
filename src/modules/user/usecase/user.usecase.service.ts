@@ -27,7 +27,6 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { PdfService } from 'src/libs/pdf/pdf.service';
 import { Util } from 'src/libs/Common/util';
 import { UserRepository } from '../persistence/user.repository';
-import { In } from 'typeorm';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { UserEntity } from '../persistence/users.entity';
 @Injectable()
@@ -90,17 +89,11 @@ export class UserService {
     return { percentage };
   }
   async getEligibleUsersForTheJobPost(skills: string[]) {
-    const query: CollectionQuery = new CollectionQuery();
-
-    // dataQuery.andWhere(
-    //   '(("technicalSkills"&&:skills) OR "technicalSkills" IS NULL OR cardinality("technicalSkills") = 0) ',
-    //   { skills },
-    // );
-    query.where.push([
-      { column: 'deletedAt', value: '', operator: 'IsNotNull' },
-    ]);
-    const criteria = { skills: In(skills) };
-    const result = await this.userRepository.getManyByCriteria(criteria);
+    const skillsData = skills;
+    const data = {
+      technicalSkills: skillsData, // Just an array — JSON-safe
+    };
+    const result = await this.userRepository.getManyByCriteria(data);
     return result;
   }
   async uploadResumeByUserId(file: Express.Multer.File, userId: string) {
@@ -108,11 +101,10 @@ export class UserService {
     if (!user)
       throw new BadRequestException(`User with id ${userId} doesn't exist`);
     if (user?.resume) {
-      const resumeAlreadyUsed = await this.applicationRepository.getOneByCriteria(
-        { 
-          cv: { filename: user.resume.filename }
-        },
-      );
+      const resumeAlreadyUsed =
+        await this.applicationRepository.getOneByCriteria({
+          cv: { filename: user.resume.filename },
+        });
       if (!resumeAlreadyUsed) {
         await this.fileService.deleteBucketFile(user.resume.filename);
       }
@@ -150,9 +142,9 @@ export class UserService {
     return UserResponse.toResponse(response);
   }
   async uploadResume(file: Express.Multer.File, telegramUserId: string) {
-    const user = await this.userRepository.getOneByCriteria(
-       { telegramUserId: telegramUserId },
-    );
+    const user = await this.userRepository.getOneByCriteria({
+      telegramUserId: telegramUserId,
+    });
     if (!user)
       throw new BadRequestException(
         `User with id ${telegramUserId} doesn't exist`,
