@@ -14,6 +14,7 @@ import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { UserLoginCommand } from '../auth.command';
+import { SwitchOrganizationCommand } from '../dto/login.dto';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
@@ -95,22 +96,89 @@ export class AuthService {
   //   return token;
   // }
 
-  // async employeeLogin({ username, password }: LoginDto) {
-  //   const employee = await this.userRepository.findOne({
-  //     where: [{ email: username }, { phone: username }],
-  //   });
-  //   if (!employee)
-  //     throw new UnauthorizedException(` username ${username} does not exist`);
-  //   if (password !== employee.password)
-  //     throw new UnauthorizedException(`Incorrect Password`);
-  //   const token = await this.generateTokenForEmployee(employee);
-  //   await this.sessionCommand.createSession({
-  //     accountId: employee.id,
-  //     token: token.accessToken,
-  //     refreshToken: token.refreshToken,
-  //   });
-  //   return token;
-  // }
+  async regenerateToken(decodedToken: any, command: SwitchOrganizationCommand) {
+    const lookUpData = await this.lookupRepository.findOne({
+      where: {
+        phoneNumber: decodedToken.phoneNumber,
+      },
+      relations: { employeeTenant: { tenant: true } },
+    });
+    const loginCommand: UserLoginCommand = {
+      orgId: command.orgId,
+      userName: lookUpData.phoneNumber,
+      password: lookUpData.password,
+    };
+    return await this.backOfficeReLogin(loginCommand);
+  }
+  async backOfficeReLogin(loginCommand: UserLoginCommand) {
+    if (
+      !loginCommand.phoneNumber &&
+      !loginCommand.email &&
+      !loginCommand.userName
+    ) {
+      throw new BadRequestException('Provide your credentials to login');
+    }
+    if (loginCommand.orgId) {
+      const lookupData = await this.lookupRepository.findOne({
+        where: {
+          phoneNumber: loginCommand.userName,
+          employeeTenant: {
+            status: In(activeEmployeesStatus),
+            tenant: {
+              id: loginCommand.orgId,
+              status: AccountStatusEnums.ACTIVE,
+            },
+          },
+        },
+        relations: { employeeTenant: { tenant: true } },
+      });
+      if (!lookupData)
+        throw new BadRequestException(
+          "user Doesn't exist contact administrator",
+        );
+      if (loginCommand.password != lookupData.password) {
+        throw new BadRequestException(`Incorrect credentials`);
+      }
+      const tenant =
+        lookupData?.employeeTenant.length > 0
+          ? lookupData.employeeTenant[0].tenant
+          : null;
+      if (!tenant)
+        throw new BadRequestException(
+          `Something is went wrong please contact admin`,
+        );
+      const payload: UserInfo = {
+        lookupId: lookupData.id,
+        tenantId: tenant.id,
+        id: lookupData.id,
+        email: lookupData?.email,
+        firstName: lookupData?.firstName,
+        middleName: lookupData?.middleName,
+        lastName: lookupData?.lastName,
+        profileImage: lookupData?.profileImage,
+        address: lookupData?.address,
+        phoneNumber: lookupData?.phoneNumber,
+        roles: [],
+        tenantSchemaName: tenant?.schemaName,
+        tenantName: tenant?.name,
+      };
+      const accessToken = Util.GenerateToken(payload, '60m'); //60m
+      const refreshToken = Util.GenerateRefreshToken(payload);
+      await this.sessionCommand.createSession({
+        accountId: payload.id,
+        token: accessToken,
+        refreshToken,
+      });
+      return {
+        accessToken,
+        refreshToken,
+        profile: {
+          ...LookupResponse.toResponse(lookupData),
+          tenantId: tenant?.id,
+        },
+      };
+    }
+  }
   async backOfficeLogin(loginCommand: UserLoginCommand) {
     if (
       !loginCommand.phoneNumber &&

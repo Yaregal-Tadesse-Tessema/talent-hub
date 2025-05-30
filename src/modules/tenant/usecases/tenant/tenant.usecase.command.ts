@@ -24,6 +24,7 @@ import { LookupRepository } from '../../persistencies/lookup.repository';
 import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.repository';
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 import { FileService } from 'src/modules/file/services/file.service';
+import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -233,5 +234,17 @@ export class TenantService {
     tenant.logo = res;
     const response = await this.tenantRepository.create(tenant);
     return TenantResponse.toResponse(response);
+  }
+  async getTenantsByToken(decodedToken: any) {
+    const employeeTenant: EmployeeTenantEntity[] =
+      await this.employeeTenantRepository.getManyByCriteriaWithOutToken(
+        {
+          lookupId: decodedToken.id,
+          status: EmployeeStatus.ACTIVE,
+        },
+        ['tenant'],
+      );
+    const tenants = employeeTenant.map((item) => item.tenant);
+    return tenants.map((item) => TenantResponse.toResponse(item));
   }
 }

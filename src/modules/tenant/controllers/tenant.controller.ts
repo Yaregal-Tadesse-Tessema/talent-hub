@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -30,7 +31,7 @@ import {
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { FileInterceptor } from '@nestjs/platform-express';
-
+import * as jwt from 'jsonwebtoken';
 @Controller('tenants')
 @ApiTags('tenants')
 @ApiExtraModels(DataResponseFormat)
@@ -88,5 +89,12 @@ export class TenantController {
     }
     const result = await this.tenantService.uploadLogo(file, id);
     return result;
+  }
+
+  @Get('get-tenants/by-token')
+  async getTenantsByToken(@Headers() headers: object) {
+    const authorization: string = headers['authorization'];
+    const token = jwt.decode(authorization.split(' ')[1]);
+    return await this.tenantService.getTenantsByToken(token);
   }
 }

@@ -164,7 +164,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T[]> {
-     const tenantId = await this.request['TENANT_ID'];
+    const tenantId = await this.request['TENANT_ID'];
     const baseCriteria: any = {
       ...(criteria || {}), // if you have other criteria
     };
@@ -174,6 +174,18 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     const response = await this.repository.find({
       where: baseCriteria,
+      relations,
+      withDeleted,
+    });
+    return response;
+  }
+  async getManyByCriteriaWithOutToken(
+    criteria: any,
+    relations = [],
+    withDeleted = false,
+  ): Promise<T[]> {
+    const response = await this.repository.find({
+      where: criteria,
       relations,
       withDeleted,
     });

@@ -15,10 +15,10 @@ import { Util } from 'src/libs/Common/util';
 import { SessionQuery } from '../services/session/session.usecase.query';
 import * as dotenv from 'dotenv';
 import { UserLoginCommand } from '../auth.command';
+import { SwitchOrganizationCommand } from '../dto/login.dto';
 dotenv.config({ path: '.env' });
 @Controller('auth')
 @ApiTags('Auth')
-@AllowAnonymous()
 export class AuthController {
   constructor(
     private authService: AuthService,
@@ -33,6 +33,7 @@ export class AuthController {
   //   return await this.authService.employeeLogin(body);
   // }
   @Post('refresh')
+  @AllowAnonymous()
   async getRefreshToken(@Headers() headers: object) {
     if (!headers['x-refresh-token']) {
       throw new ForbiddenException(`Refresh token required`);
@@ -80,11 +81,22 @@ export class AuthController {
     }
   }
   @Post('portal-login')
+  @AllowAnonymous()
   async portalLogin(@Body() body: UserLoginCommand): Promise<any> {
     return await this.authService.portalLogin(body);
   }
   @Post('backOffice-login')
+  @AllowAnonymous()
   async backOfficeLogin(@Body() body: UserLoginCommand): Promise<any> {
     return await this.authService.backOfficeLogin(body);
+  }
+  @Post('regenerate-token')
+  async regenerateToken(
+    @Headers() headers: object,
+    @Body() command: SwitchOrganizationCommand,
+  ) {
+    const authorization: string = headers['authorization'];
+    const token = jwt.decode(authorization.split(' ')[1]);
+    return await this.authService.regenerateToken(token, command);
   }
 }

@@ -25,3 +25,8 @@ export class LoginDto2 extends LoginDto {
   @IsNotEmpty()
   expiresIn: string;
 }
+export class SwitchOrganizationCommand {
+  @ApiProperty()
+  @IsNotEmpty()
+  orgId: string;
+}
