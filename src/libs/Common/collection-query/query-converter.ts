@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CollectionQuery, FilterOperator, Order, Where } from './query';
 
 // Function to encode a CollectionQuery object to a custom URL query string

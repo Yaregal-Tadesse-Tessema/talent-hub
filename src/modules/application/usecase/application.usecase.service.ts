@@ -8,8 +8,11 @@ import {
 import {
   ChangeApplicationStatus,
   CreateApplicationCommand,
+  ICalenderCommand,
+  NotificationInformation,
   PrepareScheduleCommand,
 } from './application.command';
+import { v4 as uuidv4 } from 'uuid';
 import { ApplicationRepository } from '../persistences/application.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { ApplicationResponse } from './application.response';
@@ -182,23 +185,65 @@ export class ApplicationService {
     return true;
   }
   async PrepareAndSendEmail(command: PrepareScheduleCommand) {
-    const shorlistedApplications =
+    const shortListedApplications =
       await this.applicationRepository.getManyByCriteria(
         {
-          // status: ApplicationStatusEnums.SELECTED,
+          // status: ApplicationStatusEnums.SELECTED, // to be enabled when stabed
           JobPostId: command.jobPostId,
         },
         ['user'],
       );
-    if (shorlistedApplications?.length > 0) {
+    if (shortListedApplications?.length > 0) {
       const Schedules = await this.generateSchedule(
         command.oneInterviewDuration,
         command.numberOfInterviewingGroup,
-        shorlistedApplications,
+        shortListedApplications,
       );
       return Schedules;
     } else {
       return null;
+    }
+  }
+  async notifySchedule(command: NotificationInformation) {
+    const scheduleInformation = command.scheduleInformation;
+    const dataCommand = command.data;
+    for (let index = 0; index < dataCommand.length; index++) {
+      const element = dataCommand[index];
+      const html = `
+  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Hello ${scheduleInformation.userFullName},</h2>
+    <p>We are pleased to inform you that your interview for the <strong>${scheduleInformation.jobPostTitle}</strong> role has been scheduled.</p>
+
+    <p><strong>Interview Details:</strong></p>
+    <ul>
+      <li><strong>Date:</strong> ${element.startTime}</li>
+      <li><strong>Start Time:</strong> ${element.startTime}</li>
+      <li><strong>End Time:</strong> ${element.endTime}</li>
+      <li><strong>Location:</strong> ${scheduleInformation.orgLocation}</li>
+    </ul>
+
+    <p>Please be prepared and arrive a few minutes early. If you need to reschedule, feel free to contact us in advance.</p>
+
+    <p>Best regards,<br/>— The ${scheduleInformation.orgName} Team</p>
+  </div>
+`;
+      const id = uuidv4();
+      const data: ICalenderCommand = {
+        description: scheduleInformation.description,
+        end: element.endTime,
+        start: element.startTime,
+        organizerEmail: element.interviewEmail,
+        organizerName: scheduleInformation.orgName,
+        summary: scheduleInformation.emailTitle,
+        uid: id,
+        location: scheduleInformation.orgLocation,
+      };
+      await this.emailService.sendGridEmailToEmployeesCalenders(
+        element.interviewEmail,
+        element.Subject,
+        html,
+        data,
+      );
     }
   }
   generateSchedule(

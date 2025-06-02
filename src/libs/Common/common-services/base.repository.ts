@@ -14,7 +14,7 @@ export class BaseRepository<T extends ObjectLiteral> {
   ) {}
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
     const tenantId = await this.request['TENANT_ID'];
-    if (!tenantId) {
+    if (tenantId) {
       itemData.tenantId = tenantId;
     }
     if (req?.user?.organization) {

@@ -90,7 +90,6 @@ export class TenantController {
     const result = await this.tenantService.uploadLogo(file, id);
     return result;
   }
-
   @Get('get-tenants/by-token')
   async getTenantsByToken(@Headers() headers: object) {
     const authorization: string = headers['authorization'];

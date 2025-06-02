@@ -12,7 +12,7 @@ import {
   RePostJobCommand,
   UpdateJobPostingCommand,
 } from './job-posting.command';
-import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { CollectionQuery, Where } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { JobPostingStatusEnums } from '../../constants';
@@ -71,6 +71,7 @@ export class JobPostingService {
     query: CollectionQuery,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
+      query.where.push();
       const result = await this.jobPostingRepository.findAll(query);
       const response: DataResponseFormat<JobPostingResponse> = {
         items: result.items.map((item) => JobPostingResponse.toResponse(item)),

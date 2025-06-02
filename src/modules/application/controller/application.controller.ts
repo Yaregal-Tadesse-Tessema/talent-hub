@@ -23,6 +23,7 @@ import { DataResponseFormat } from 'src/libs/response-format/data-response-forma
 import {
   ChangeApplicationStatus,
   CreateApplicationCommand,
+  NotificationInformation,
   PrepareScheduleCommand,
   UpdateApplicationCommand,
 } from '../usecase/application.command';
@@ -127,5 +128,10 @@ export class ApplicationController {
     @Body() command: PrepareScheduleCommand,
   ): Promise<any> {
     return await this.applicationService.PrepareAndSendEmail(command);
+  }
+  @Post('notify-schedule')
+  @ApiPaginatedResponse(ApplicationResponse)
+  async notifySchedule(@Body() command: NotificationInformation): Promise<any> {
+    return await this.applicationService.notifySchedule(command);
   }
 }

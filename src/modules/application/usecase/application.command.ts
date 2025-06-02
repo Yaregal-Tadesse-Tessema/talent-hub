@@ -93,3 +93,44 @@ export class PrepareScheduleCommand {
   @ApiProperty()
   numberOfInterviewingGroup: number;
 }
+export class NotifyScheduleCommand {
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  jobPostId: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  interviewEmail: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  startTime: Date;
+  @ApiProperty()
+  @IsNotEmpty()
+  endTime: Date;
+  @ApiProperty()
+  @IsNotEmpty()
+  Subject: string;
+}
+export class NotificationInformation {
+  data: NotifyScheduleCommand[];
+  scheduleInformation: ScheduleInformation;
+}
+export class ScheduleInformation {
+  orgLocation: string;
+  userFullName: string;
+  orgName: string;
+  jobPostTitle: string;
+  description: string;
+  emailTitle: string;
+}
+export class ICalenderCommand {
+  description: string;
+  end: Date;
+  start: Date;
+  organizerEmail: string;
+  organizerName: string;
+  summary: string;
+  uid: string;
+  location: string;
+}
+

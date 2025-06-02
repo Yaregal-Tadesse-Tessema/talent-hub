@@ -7,6 +7,7 @@ import * as nodemailer from 'nodemailer';
 import * as sgMail from '@sendgrid/mail';
 import * as process from 'node:process';
 import ical, { ICalCalendarMethod } from 'ical-generator';
+import { ICalenderCommand } from 'src/modules/application/usecase/application.command';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
@@ -160,7 +161,7 @@ export class EmailService {
       throw error;
     }
   }
-  async sendGridEmailCalendors(
+  async sendGridEmailCalenders(
     to: string,
     subject: string,
     html: string,
@@ -185,8 +186,7 @@ export class EmailService {
     icsContents.push(
       this.buildIcs({
         attendeeEmail: to,
-        description:
-          'we will have a first phase Job Interview be prpare and be on time ',
+        description: 'we will have aJob Interview be prepare and be on time ',
         end: tomorrow,
         start: tomorrow,
         organizerEmail: 'yayasoles@gmail.com',
@@ -196,15 +196,48 @@ export class EmailService {
         location: 'Jemo  Medhanyalem Lebu Musica sefer',
       }),
     );
-    const result = await this.sendGridEmailCalendor(
-      to,
-      subject,
-      html,
-      icsContents,
-    );
+    await this.sendGridEmailCalender(to, subject, html, icsContents);
     return true;
   }
-  async sendGridEmailCalendor(
+  async sendGridEmailToEmployeesCalenders(
+    to: string,
+    subject: string,
+    html: string,
+    data: ICalenderCommand,
+  ): Promise<boolean> {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 3);
+    const icsContents: string[] = [];
+    icsContents.push(
+      this.buildIcs({
+        attendeeEmail: to,
+        description: data.description,
+        end: data.end,
+        start: data.start,
+        organizerEmail: data.organizerEmail,
+        organizerName: data.organizerName,
+        summary: data.summary,
+        uid: data.uid,
+        location: data.location,
+      }),
+    );
+    icsContents.push(
+      this.buildIcs({
+        attendeeEmail: to,
+        description: 'we will have aJob Interview be prepare and be on time ',
+        end: tomorrow,
+        start: tomorrow,
+        organizerEmail: 'yayasoles@gmail.com',
+        organizerName: 'TalentHub',
+        summary: 'Job Interview Appointment',
+        uid: '57bf0aca-9e83-4e0e-9736-b37ac66f5810',
+        location: 'Jemo  Medhanyalem Lebu Musica sefer',
+      }),
+    );
+    await this.sendGridEmailCalender(to, subject, html, icsContents);
+    return true;
+  }
+  async sendGridEmailCalender(
     to: string,
     subject: string,
     html: string,

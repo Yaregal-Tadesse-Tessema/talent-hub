@@ -40,6 +40,7 @@ import { UserTenantEntity } from './persistencies/user-tenant.entity';
     LookupRepository,
     EmployeeTenantService,
     EmployeeTenantRepository,
+
     AdminUserService,
     AdminUserRepository,
 
