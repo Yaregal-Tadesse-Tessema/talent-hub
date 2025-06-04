@@ -161,3 +161,11 @@ export class RePostJobCommand {
   @ApiProperty()
   deadLine?: Date;
 }
+export class JobPostFeaturingCOmmand {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  status: boolean;
+}

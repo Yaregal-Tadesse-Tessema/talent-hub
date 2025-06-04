@@ -8,6 +8,7 @@ import {
 import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
+  JobPostFeaturingCOmmand,
   JobPostTelegramNotificationCommand,
   RePostJobCommand,
   UpdateJobPostingCommand,
@@ -285,5 +286,13 @@ export class JobPostingService {
       .groupBy('job.title')
       .getRawMany();
     return result;
+  }
+  async makeJobPostFeatured(
+    command: JobPostFeaturingCOmmand,
+  ): Promise<JobPostingResponse> {
+    const result = await this.jobPostingRepository.update(command.id, {
+      isFeatured: command.status,
+    });
+    return JobPostingResponse.toResponse(result);
   }
 }

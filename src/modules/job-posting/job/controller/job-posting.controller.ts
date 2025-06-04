@@ -9,6 +9,7 @@ import {
 import {
   ChangeJobPostStatusCommand,
   CreateJobPostingCommand,
+  JobPostFeaturingCOmmand,
   UpdateJobPostingCommand,
 } from '../usecase/job-posting.command';
 import { JobPostingResponse } from '../usecase/job-posting.response';
@@ -97,5 +98,11 @@ export class JobPostingController {
   @AllowAnonymous()
   async getJobTitleStatistics(): Promise<any> {
     return await this.jobPostingService.getJobTitleStatistics();
+  }
+  @Put('make-job-post-featured')
+  async makeJobPostFeatured(
+    @Body() command: JobPostFeaturingCOmmand,
+  ): Promise<any> {
+    return await this.jobPostingService.makeJobPostFeatured(command);
   }
 }
