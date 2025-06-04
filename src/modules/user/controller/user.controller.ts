@@ -76,10 +76,10 @@ export class UserController {
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-     const allowedMimeTypes = ['image/jpeg', 'image/png'];
-     if (!allowedMimeTypes.includes(file.mimetype)) {
-       throw new BadRequestException('Only jpeg/png files are allowed');
-     }
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Only jpeg/png files are allowed');
+    }
     const result = await this.userService.uploadProfile(file, userId);
     return result;
   }
@@ -157,13 +157,10 @@ export class UserController {
     return await this.userService.findOne(id, relations);
   }
 
-  @Put(':id')
+  @Put()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async update(
-    @Param('id') id: string,
-    @Body() itemData: UpdateUserCommand,
-  ): Promise<UserResponse> {
-    return await this.userService.update(id, itemData);
+  async update(@Body() itemData: UpdateUserCommand): Promise<UserResponse> {
+    return await this.userService.update(itemData);
   }
 
   @Delete(':id')

@@ -27,8 +27,10 @@ import { SaveJobEntity } from './modules/job-posting/job/persistencies/save-job-
 import { PreScreeningQuestionEntity } from './modules/job-posting/job/persistencies/pre-screening-question.entity';
 import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
 import { UserTenantEntity } from './modules/tenant/persistencies/user-tenant.entity';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',

@@ -161,6 +161,8 @@ export class AuthService {
         roles: [],
         tenantSchemaName: tenant?.schemaName,
         tenantName: tenant?.name,
+        tenantAddress: tenant?.address,
+        tenantLogo: tenant?.logo,
       };
       const accessToken = Util.GenerateToken(payload, '60m'); //60m
       const refreshToken = Util.GenerateRefreshToken(payload);

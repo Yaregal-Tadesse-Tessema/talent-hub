@@ -122,6 +122,8 @@ export class ScheduleInformation {
   jobPostTitle: string;
   description: string;
   emailTitle: string;
+  orgEmail: string;
+  // date: Date;
 }
 export class ICalenderCommand {
   description: string;
@@ -132,5 +134,7 @@ export class ICalenderCommand {
   summary: string;
   uid: string;
   location: string;
+  orgEmail: string;
+  // date: Date;
 }
 

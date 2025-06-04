@@ -74,6 +74,8 @@ export class CreateJobPostingCommand {
   positionNumbers: number;
   @ApiProperty()
   paymentType: PaymentTypeEnums;
+  @ApiProperty()
+  isFeatured: boolean;
   tenantId?: string;
   currentUser?: any;
 
@@ -113,6 +115,7 @@ export class CreateJobPostingCommand {
     entity.positionNumbers = dto?.positionNumbers;
     entity.paymentType = dto?.paymentType;
     entity.tenantId = dto?.tenantId;
+    entity.isFeatured = dto?.isFeatured;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

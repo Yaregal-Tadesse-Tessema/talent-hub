@@ -210,23 +210,23 @@ export class ApplicationService {
     for (let index = 0; index < dataCommand.length; index++) {
       const element = dataCommand[index];
       const html = `
-  <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-    <h2>Hello ${scheduleInformation.userFullName},</h2>
-    <p>We are pleased to inform you that your interview for the <strong>${scheduleInformation.jobPostTitle}</strong> role has been scheduled.</p>
+      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2>Hello ${scheduleInformation.userFullName},</h2>
+          <p>We are pleased to inform you that your interview for the <strong>${scheduleInformation.jobPostTitle}</strong> role has been scheduled.</p>
 
-    <p><strong>Interview Details:</strong></p>
-    <ul>
-      <li><strong>Date:</strong> ${element.startTime}</li>
-      <li><strong>Start Time:</strong> ${element.startTime}</li>
-      <li><strong>End Time:</strong> ${element.endTime}</li>
-      <li><strong>Location:</strong> ${scheduleInformation.orgLocation}</li>
-    </ul>
+          <p><strong>Interview Details:</strong></p>
+          <ul>
+            <li><strong>Date:</strong> ${element.startTime}</li>
+            <li><strong>Start Time:</strong> ${element.startTime}</li>
+            <li><strong>End Time:</strong> ${element.endTime}</li>
+            <li><strong>Location:</strong> ${scheduleInformation.orgLocation}</li>
+          </ul>
 
-    <p>Please be prepared and arrive a few minutes early. If you need to reschedule, feel free to contact us in advance.</p>
+         <p>Please be prepared and arrive a few minutes early. If you need to reschedule, feel free to contact us in advance.</p>
 
-    <p>Best regards,<br/>— The ${scheduleInformation.orgName} Team</p>
-  </div>
-`;
+         <p>Best regards,<br/>— The ${scheduleInformation.orgName} Team</p>
+      </div>
+       `;
       const id = uuidv4();
       const data: ICalenderCommand = {
         description: scheduleInformation.description,
@@ -237,6 +237,7 @@ export class ApplicationService {
         summary: scheduleInformation.emailTitle,
         uid: id,
         location: scheduleInformation.orgLocation,
+        orgEmail: scheduleInformation.orgEmail,
       };
       await this.emailService.sendGridEmailToEmployeesCalenders(
         element.interviewEmail,
@@ -245,6 +246,7 @@ export class ApplicationService {
         data,
       );
     }
+    return true;
   }
   generateSchedule(
     interviewDuration: number,
@@ -304,7 +306,6 @@ export class ApplicationService {
 
     return schedule;
   }
-
   private toEthiopianTime(date: Date): string {
     const etDate = new Date(date.getTime() + 3 * 60 * 60 * 1000); // UTC+3
     return etDate.toISOString().substring(11, 16); // HH:mm

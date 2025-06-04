@@ -214,6 +214,13 @@ export class TenantService {
   async getTenant(id: string) {
     return await this.tenantRepository.findOne(id, ['organizationEmployees']);
   }
+  async getTenantAndCandidatesCount(
+    query: CollectionQuery,
+  ): Promise<{ tenants: number; candidates: number }> {
+    const result = await this.tenantRepository.findAll(query);
+    const candidates = await this.lookupRepository.findAll(query);
+    return { tenants: result.total, candidates: candidates.total };
+  }
   async getTenants(query: CollectionQuery) {
     const response = await this.tenantRepository.findAll(query);
     return response;

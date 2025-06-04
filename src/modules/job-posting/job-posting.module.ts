@@ -17,6 +17,7 @@ import { JobPostingRepository } from './job/persistencies/job-post.repository';
 import { TelegramModule } from '../telegram/telegram.module';
 import { PreScreeningQuestionRepository } from './job/persistencies/pre-screening-question.repository';
 import { SaveJobPostingRepository } from './job/persistencies/save-job-post.repository';
+import { MyCronService } from './job/usecase/job-post-cron-service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -38,6 +39,8 @@ import { SaveJobPostingRepository } from './job/persistencies/save-job-post.repo
 
     PreScreeningQuestionService,
     PreScreeningQuestionRepository,
+
+    MyCronService,
   ],
   controllers: [
     JobPostingController,

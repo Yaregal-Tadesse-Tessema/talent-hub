@@ -29,7 +29,7 @@ export class JobPostingController {
     const result = await this.jobPostingService.createJobPosting(command);
     return result;
   }
-  @Post('update-job-posting')
+  @Put('update-job-posting')
   async updateJobPosting(@Body() command: UpdateJobPostingCommand) {
     command.currentUser = userInfo;
     const result = await this.jobPostingService.updateJobPosting(command);
@@ -85,6 +85,17 @@ export class JobPostingController {
     @Query('i') i?: string,
   ): Promise<JobPostingResponse> {
     const relations = i ? i.split(',') : [];
-    return this.jobPostingService.getOne(id, relations);
+    return await this.jobPostingService.getOne(id, relations);
+  }
+  @Get('get-active-job-post/count')
+  @AllowAnonymous()
+  async getActiveJobPostCount(@Query('q') q?: string): Promise<number> {
+    const query = decodeCollectionQuery(q);
+    return await this.jobPostingService.getActiveJobsCount(query);
+  }
+  @Get('get-job-title/statistics')
+  @AllowAnonymous()
+  async getJobTitleStatistics(): Promise<any> {
+    return await this.jobPostingService.getJobTitleStatistics();
   }
 }

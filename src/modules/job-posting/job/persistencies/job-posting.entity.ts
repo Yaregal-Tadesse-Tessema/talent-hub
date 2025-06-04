@@ -80,6 +80,8 @@ export class JobPostingEntity extends CommonEntity {
   @Column({ nullable: true })
   paymentType: PaymentTypeEnums;
 
+  @Column({ default: false })
+  isFeatured: boolean;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,

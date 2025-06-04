@@ -89,7 +89,8 @@ export class JobPostingResponse {
   paymentType: PaymentTypeEnums;
   @ApiProperty()
   tenantId: string;
-
+  @ApiProperty()
+  isFeatured: boolean;
   @ApiProperty()
   createdAt: Date;
   @ApiProperty()
@@ -131,6 +132,7 @@ export class JobPostingResponse {
     response.positionNumbers = entity.positionNumbers;
     response.paymentType = entity.paymentType;
     response.tenantId = entity.tenantId;
+    response.isFeatured = entity.isFeatured;
 
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;

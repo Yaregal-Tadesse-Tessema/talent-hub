@@ -57,7 +57,6 @@ export class TenantController {
     return await this.tenantService.registerOrganizationWithETrade(command);
   }
   @Get()
-  @AllowAnonymous()
   @ApiOkResponse({ type: TenantResponse })
   @ApiQuery({
     name: 'q',
@@ -76,6 +75,19 @@ export class TenantController {
   @ApiOkResponse({ type: TenantResponse })
   async getTenant(@Param('id') id: string) {
     return await this.tenantService.getTenant(id);
+  }
+  @AllowAnonymous()
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  @Get('get-tenant-and-candidates/count')
+  @ApiOkResponse({ type: TenantResponse })
+  async getTenantCounts(@Query('q') q?: string) {
+    const query = decodeCollectionQuery(q);
+    return await this.tenantService.getTenantAndCandidatesCount(query);
   }
   @Put('upload-logo/:id')
   @UseInterceptors(FileInterceptor('file'))

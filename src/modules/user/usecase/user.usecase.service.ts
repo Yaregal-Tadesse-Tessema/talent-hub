@@ -363,10 +363,11 @@ export class UserService {
   ): Promise<UserResponse> {
     return await this.userRepository.findOne(id, relations, withDeleted);
   }
-  async update(id: string, itemData: any): Promise<UserResponse> {
-    await this.findOneOrFail(id);
-    await this.userRepository.update(id, itemData);
-    const res = await this.findOne(id);
+  async update(itemData: any): Promise<UserResponse> {
+    if (!itemData.id) throw new BadRequestException(`Id id mandatory`);
+    await this.findOneOrFail(itemData.id);
+    await this.userRepository.update(itemData.id, itemData);
+    const res = await this.findOne(itemData.id);
     return res;
   }
   async softDelete(id: string): Promise<any> {

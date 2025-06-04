@@ -12,19 +12,24 @@ import {
   RePostJobCommand,
   UpdateJobPostingCommand,
 } from './job-posting.command';
-import { CollectionQuery, Where } from 'src/libs/Common/collection-query/query';
+import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { JobPostingRepository } from '../persistencies/job-post.repository';
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { JobPostingEntity } from '../persistencies/job-posting.entity';
+import { Repository } from 'typeorm';
 @Injectable()
 export class JobPostingService {
   constructor(
     private readonly jobPostingRepository: JobPostingRepository,
     private readonly telegramBotService: TelegramBotService,
     private readonly userRepository: UserService,
+    @InjectRepository(JobPostingEntity)
+    private readonly joPoRepo: Repository<JobPostingEntity>,
   ) {}
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
@@ -138,6 +143,18 @@ export class JobPostingService {
   }
   async getEligibleUsersForTheJobPost(skills: string[]) {
     return await this.userRepository.getEligibleUsersForTheJobPost(skills);
+  }
+  async getActiveJobsCount(query: CollectionQuery) {
+    query.where = query.where || [];
+    query.where.push([
+      {
+        column: 'status',
+        operator: '=',
+        value: JobPostingStatusEnums.POSTED,
+      },
+    ]);
+    const result = await this.jobPostingRepository.findAll(query);
+    return result.total;
   }
   async getJobPostingsBySkill(
     query: CollectionQuery,
@@ -257,5 +274,16 @@ export class JobPostingService {
     jobPost.status = JobPostingStatusEnums.POSTED;
     const result = await this.jobPostingRepository.create(jobPost);
     return JobPostingResponse.toResponse(result);
+  }
+  async getJobTitleStatistics(): Promise<
+    { title: string; openPositions: number }[]
+  > {
+    const result = await this.joPoRepo
+      .createQueryBuilder('job')
+      .select('job.title', 'title')
+      .addSelect('SUM(job.positionNumbers)', 'openPositions')
+      .groupBy('job.title')
+      .getRawMany();
+    return result;
   }
 }

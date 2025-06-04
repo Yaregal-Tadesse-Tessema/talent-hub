@@ -30,7 +30,6 @@ export class EmailService {
   }
   async basicEmail(data, resolve, reject) {
     console.log('try sending email');
-
     // 1. Generate calendar event using `ics`
     const { error, value: icsContent } = createEvent({
       title: data.subject,
@@ -205,15 +204,16 @@ export class EmailService {
     html: string,
     data: ICalenderCommand,
   ): Promise<boolean> {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 3);
+    const start = new Date(data.start);
+    const end = new Date(data.end);
+    // tomorrow.setDate(tomorrow.getDate() + 3);
     const icsContents: string[] = [];
     icsContents.push(
       this.buildIcs({
         attendeeEmail: to,
         description: data.description,
-        end: data.end,
-        start: data.start,
+        end: end,
+        start: start,
         organizerEmail: data.organizerEmail,
         organizerName: data.organizerName,
         summary: data.summary,
@@ -225,8 +225,8 @@ export class EmailService {
       this.buildIcs({
         attendeeEmail: to,
         description: 'we will have aJob Interview be prepare and be on time ',
-        end: tomorrow,
-        start: tomorrow,
+        end: end,
+        start: start,
         organizerEmail: 'yayasoles@gmail.com',
         organizerName: 'TalentHub',
         summary: 'Job Interview Appointment',

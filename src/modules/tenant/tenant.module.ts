@@ -21,6 +21,10 @@ import { UserTenantService } from './usecases/user-enant/user-tenant.usecase.com
 import { UserTenantRepository } from './persistencies/user-tenant.repository';
 import { UserTenantController } from './controllers/user-tenant.controller';
 import { UserTenantEntity } from './persistencies/user-tenant.entity';
+import { TestimonialsEntity } from './persistencies/testimonials.entity';
+import { TestimonialsRepository } from './persistencies/testimonials.repository';
+import { TestimonialsService } from './usecases/testimonial/testimonial.usecase.command';
+import { TestimonialsController } from './controllers/testimonials.controller';
 
 @Global()
 @Module({
@@ -31,6 +35,7 @@ import { UserTenantEntity } from './persistencies/user-tenant.entity';
       EmployeeTenantEntity,
       AdminUserEntity,
       UserTenantEntity,
+      TestimonialsEntity,
     ]),
   ],
   providers: [
@@ -40,12 +45,14 @@ import { UserTenantEntity } from './persistencies/user-tenant.entity';
     LookupRepository,
     EmployeeTenantService,
     EmployeeTenantRepository,
-
     AdminUserService,
     AdminUserRepository,
 
     UserTenantService,
     UserTenantRepository,
+
+    TestimonialsRepository,
+    TestimonialsService,
   ],
   controllers: [
     TenantController,
@@ -53,6 +60,7 @@ import { UserTenantEntity } from './persistencies/user-tenant.entity';
     EmployeeTenantController,
     AdminUserController,
     UserTenantController,
+    TestimonialsController,
   ],
   exports: [TenantService],
 })

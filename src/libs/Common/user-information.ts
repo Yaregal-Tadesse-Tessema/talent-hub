@@ -30,4 +30,6 @@ export type UserInfo = {
 
   industry?: string[];
   skills?: string[];
+  tenantAddress?: any;
+  tenantLogo?: any;
 };

@@ -84,7 +84,7 @@ export class TelegramBotService implements OnApplicationShutdown {
         } as any);
       } else if (!existing.telegramUserId) {
         existing.telegramUserId = tgId;
-        await this.userService.update(existing.id, existing);
+        await this.userService.update(existing);
       }
 
       await ctx.reply(
