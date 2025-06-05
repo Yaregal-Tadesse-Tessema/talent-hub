@@ -6,6 +6,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
+import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -84,4 +85,10 @@ export class UserEntity extends CommonEntity {
     onDelete: 'CASCADE',
   })
   lookup: LookupEntity;
+
+  @OneToMany(
+    () => UserFavoriteJobEntity,
+    (userFavoriteJobEntity) => userFavoriteJobEntity.user,
+  )
+  favoriteJobs: UserFavoriteJobEntity[];
 }

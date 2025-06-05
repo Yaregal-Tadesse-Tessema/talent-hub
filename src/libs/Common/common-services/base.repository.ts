@@ -49,6 +49,32 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     return response;
   }
+  async getCount(query: CollectionQuery) {
+    let dataQuery: any = null;
+    const tenantId = await this.request['TENANT_ID'];
+    // query.where.push([
+    //   {
+    //     column: 'count',
+    //     operator: '=',
+    //     value: true,
+    //   },
+    // ]);
+    if (!tenantId) {
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    } else {
+      query.where.push([
+        {
+          column: 'tenantId',
+          operator: '=',
+          value: tenantId,
+        },
+      ]);
+      dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    }
+    console.log(dataQuery.getSql());
+    const response = await dataQuery.getCount();
+    return response;
+  }
   async findOne(
     id: string,
     relations = [],
@@ -75,6 +101,11 @@ export class BaseRepository<T extends ObjectLiteral> {
   async softDelete(id: string): Promise<any> {
     const item = await this.findOneOrFail(id);
     await this.repository.softRemove(item);
+    return true;
+  }
+  async delete(id: string): Promise<any> {
+    await this.findOneOrFail(id);
+    await this.repository.delete(id);
     return true;
   }
   async restore(id: string): Promise<void> {

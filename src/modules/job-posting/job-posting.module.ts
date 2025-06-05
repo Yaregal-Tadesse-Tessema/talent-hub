@@ -18,9 +18,14 @@ import { TelegramModule } from '../telegram/telegram.module';
 import { PreScreeningQuestionRepository } from './job/persistencies/pre-screening-question.repository';
 import { SaveJobPostingRepository } from './job/persistencies/save-job-post.repository';
 import { MyCronService } from './job/usecase/job-post-cron-service';
+import { UserFavoriteJobEntity } from './job/persistencies/user-favorite-job.entity';
+import { UserFavoriteJobRepository } from './job/persistencies/user-favorite-job.repository';
+import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.service';
+import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
+      UserFavoriteJobEntity,
       JobPostingEntity,
       UserEntity,
       SaveJobEntity,
@@ -41,12 +46,16 @@ import { MyCronService } from './job/usecase/job-post-cron-service';
     PreScreeningQuestionRepository,
 
     MyCronService,
+
+    UserFavoriteJobRepository,
+    UserFavoriteJobService,
   ],
   controllers: [
     JobPostingController,
     SaveJobController,
     PreScreeningQuestionController,
     TestController,
+    UserFavoriteJobController,
   ],
   exports: [JobPostingService, JobPostingRepository],
 })

@@ -9,10 +9,16 @@ import { ApplicationEntity } from '../application/persistences/application.entit
 import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
 import { ApplicationModule } from '../application/application.module';
 import { UserRepository } from './persistence/user.repository';
+import { UserFavoriteJobEntity } from '../job-posting/job/persistencies/user-favorite-job.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, ApplicationEntity, SaveJobEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      ApplicationEntity,
+      SaveJobEntity,
+      UserFavoriteJobEntity,
+    ]),
     forwardRef(() => ApplicationModule),
   ],
   providers: [UserService, UserRepository, PdfService],

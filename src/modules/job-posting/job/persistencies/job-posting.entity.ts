@@ -12,6 +12,7 @@ import { ApplicationEntity } from 'src/modules/application/persistences/applicat
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SaveJobEntity } from './save-job-post.entity';
 import { PreScreeningQuestionEntity } from './pre-screening-question.entity';
+import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 
 @Entity({ name: 'job_postings' })
 export class JobPostingEntity extends CommonEntity {
@@ -99,4 +100,10 @@ export class JobPostingEntity extends CommonEntity {
     (applicationEntity) => applicationEntity.jobPosting,
   )
   preScreeningQuestions: PreScreeningQuestionEntity[];
+
+  @OneToMany(
+    () => UserFavoriteJobEntity,
+    (userFavoriteJobEntity) => userFavoriteJobEntity.jobPost,
+  )
+  favoriteJobs: UserFavoriteJobEntity[];
 }

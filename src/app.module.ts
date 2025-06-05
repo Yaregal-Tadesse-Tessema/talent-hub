@@ -28,6 +28,7 @@ import { PreScreeningQuestionEntity } from './modules/job-posting/job/persistenc
 import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
 import { UserTenantEntity } from './modules/tenant/persistencies/user-tenant.entity';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/user-favorite-job.entity';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -54,6 +55,7 @@ import { ScheduleModule } from '@nestjs/schedule';
         PreScreeningQuestionEntity,
         AdminUserEntity,
         UserTenantEntity,
+        UserFavoriteJobEntity,
         // ResetPasswordTokenEntity,
       ],
       synchronize: true,
