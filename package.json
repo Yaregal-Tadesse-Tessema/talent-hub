@@ -75,6 +75,7 @@
     "@types/jest": "^29.5.2",
     "@types/node": "^20.17.32",
     "@types/puppeteer": "^7.0.4",
+    "@types/socket.io": "^3.0.2",
     "@types/supertest": "^6.0.0",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
