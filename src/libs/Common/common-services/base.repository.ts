@@ -49,6 +49,19 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     return response;
   }
+  async findAllPublic(query: CollectionQuery) {
+    let dataQuery: any = null;
+    dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
+    const response = new DataResponseFormat<T>();
+    if (query.count) {
+      response.total = await dataQuery.getCount();
+    } else {
+      const [result, total] = await dataQuery.getManyAndCount();
+      response.total = total;
+      response.items = result;
+    }
+    return response;
+  }
   async getCount(query: CollectionQuery) {
     let dataQuery: any = null;
     const tenantId = await this.request['TENANT_ID'];
@@ -80,11 +93,11 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T | undefined> {
-    const tenantId = await this.request['TENANT_ID'];
-    const where: any = { id };
-    if (tenantId) {
-      where.tenantId = tenantId;
-    }
+    // const tenantId = await this.request['TENANT_ID'];
+    const where: any = { id: id };
+    // if (tenantId) {
+    //   where.tenantId = tenantId;
+    // }
 
     return this.repository.findOne({
       where,

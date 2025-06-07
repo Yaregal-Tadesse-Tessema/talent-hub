@@ -44,7 +44,7 @@ export class ApplicationService {
   async findAll(
     query: CollectionQuery,
   ): Promise<DataResponseFormat<ApplicationResponse>> {
-    const response = await this.applicationRepository.findAll(query);
+    const response = await this.applicationRepository.findAllPublic(query);
     const d = new DataResponseFormat<ApplicationResponse>();
     d.items = response?.items?.map((item) =>
       ApplicationResponse.toResponse(item),
