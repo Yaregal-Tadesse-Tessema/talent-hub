@@ -65,13 +65,6 @@ export class BaseRepository<T extends ObjectLiteral> {
   async getCount(query: CollectionQuery) {
     let dataQuery: any = null;
     const tenantId = await this.request['TENANT_ID'];
-    // query.where.push([
-    //   {
-    //     column: 'count',
-    //     operator: '=',
-    //     value: true,
-    //   },
-    // ]);
     if (!tenantId) {
       dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
     } else {

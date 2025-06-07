@@ -98,7 +98,6 @@ export class ApplicationController {
   ): Promise<ApplicationResponse> {
     return this.applicationService.update(id, itemData);
   }
-
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<boolean> {
     return this.applicationService.softDelete(id);
