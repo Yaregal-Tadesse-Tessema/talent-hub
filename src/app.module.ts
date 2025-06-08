@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
@@ -29,6 +29,9 @@ import { AdminUserEntity } from './modules/tenant/persistencies/admin.entity';
 import { UserTenantEntity } from './modules/tenant/persistencies/user-tenant.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/user-favorite-job.entity';
+import { NotificationEntity } from './modules/notification/persistencies/notification.entity';
+import { MessageEntity } from './modules/notification/persistencies/message.entity';
+
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -56,7 +59,8 @@ import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/u
         AdminUserEntity,
         UserTenantEntity,
         UserFavoriteJobEntity,
-        // ResetPasswordTokenEntity,
+        NotificationEntity,
+        MessageEntity,
       ],
       synchronize: true,
     }),

@@ -36,3 +36,14 @@ export class EmailCommand {
   @ApiProperty()
   html: string;
 }
+export enum NotificationTypeEnums {
+  MESSAGE = 'Message',
+  NOTIFICATION = 'Notification',
+  REMINDER = 'Reminder',
+  WARNING = 'Warning',
+  NOTICE = 'Notice',
+}
+export enum DeliveryTypeEnums {
+  INDIVIDUAL = 'Individual',
+  BROADCAST = 'Broadcast',
+}

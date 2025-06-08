@@ -8,10 +8,11 @@ import { JobPostingModule } from '../job-posting/job-posting.module';
 import { UserModule } from '../user/user.module';
 import { ApplicationService } from './usecase/application.usecase.service';
 import { ApplicationRepository } from './persistences/application.repository';
+import { MessageEntity } from '../notification/persistencies/message.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ApplicationEntity]),
+    TypeOrmModule.forFeature([ApplicationEntity, MessageEntity]),
     FileModule,
     forwardRef(() => JobPostingModule),
     forwardRef(() => UserModule),

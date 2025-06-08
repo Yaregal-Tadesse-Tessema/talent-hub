@@ -7,6 +7,7 @@ import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
+import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
 @Entity({ name: 'user' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -91,4 +92,10 @@ export class UserEntity extends CommonEntity {
     (userFavoriteJobEntity) => userFavoriteJobEntity.user,
   )
   favoriteJobs: UserFavoriteJobEntity[];
+
+  @OneToMany(
+    () => NotificationEntity,
+    (notificationEntity) => notificationEntity.user,
+  )
+  notifications: NotificationEntity[];
 }

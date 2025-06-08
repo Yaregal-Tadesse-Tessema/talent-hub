@@ -6,12 +6,14 @@ import {
   Unique,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
 import { ReferralInformation } from '../usecase/application.command';
 import { ApplicationStatusEnums } from '../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { MessageEntity } from 'src/modules/notification/persistencies/message.entity';
 
 @Entity({ name: 'applications' })
 @Unique(['userId', 'JobPostId'])
@@ -51,4 +53,7 @@ export class ApplicationEntity extends CommonEntity {
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @OneToMany(() => MessageEntity, (messageEntity) => messageEntity.application)
+  applicationMessages: MessageEntity[];
 }

@@ -6,6 +6,7 @@ import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { JobPostingResponse } from 'src/modules/job-posting/job/usecase/job-posting.response';
 import { ReferralInformation } from './application.command';
 import { ApplicationStatusEnums } from '../constants';
+import { MessageResponse } from 'src/modules/notification/usecase/message/message.response';
 export class ApplicationResponse {
   @ApiProperty()
   id: string;
@@ -41,6 +42,8 @@ export class ApplicationResponse {
   tenantId: string;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
+  @ApiProperty()
+  applicationMessages: MessageResponse[];
   static toResponse(entity: ApplicationEntity): ApplicationResponse {
     const response = new ApplicationResponse();
     if (!entity) {
@@ -66,6 +69,11 @@ export class ApplicationResponse {
     // }
     if (entity.JobPost) {
       response.jobPost = JobPostingResponse.toResponse(entity.JobPost);
+    }
+    if (entity.applicationMessages.length > 0) {
+      response.applicationMessages = entity.applicationMessages.map((item) =>
+        MessageResponse.toResponse(item),
+      );
     }
     return response;
   }

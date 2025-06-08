@@ -23,6 +23,7 @@ import { EmployeeTenantEntity } from '../tenant/persistencies/employee-tenant.en
 import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
 import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
 import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
+import { NotificationEntity } from '../notification/persistencies/notification.entity';
 dotenv.config({ path: '.env' });
 @Global()
 @Module({
@@ -37,6 +38,7 @@ dotenv.config({ path: '.env' });
       ApplicationEntity,
       SaveJobEntity,
       PreScreeningQuestionEntity,
+      NotificationEntity,
       // ResetPasswordTokenEntity,
     ]),
     PassportModule,

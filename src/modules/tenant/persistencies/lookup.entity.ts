@@ -6,6 +6,7 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { UserType } from '../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
+import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
 
 @Entity({ name: 'lookup_table' })
 export class LookupEntity extends CommonEntity {
@@ -46,4 +47,10 @@ export class LookupEntity extends CommonEntity {
   })
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @OneToMany(
+    () => NotificationEntity,
+    (notificationEntity) => notificationEntity.sender,
+  )
+  notifications: NotificationEntity[];
 }

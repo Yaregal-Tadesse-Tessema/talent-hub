@@ -217,12 +217,12 @@ export class TenantService {
   async getTenantAndCandidatesCount(
     query: CollectionQuery,
   ): Promise<{ tenants: number; candidates: number }> {
-    const result = await this.tenantRepository.findAll(query);
-    const candidates = await this.lookupRepository.findAll(query);
+    const result = await this.tenantRepository.findAllPublic(query);
+    const candidates = await this.lookupRepository.findAllPublic(query);
     return { tenants: result.total, candidates: candidates.total };
   }
   async getTenants(query: CollectionQuery) {
-    const response = await this.tenantRepository.findAll(query);
+    const response = await this.tenantRepository.findAllPublic(query);
     return response;
   }
   async uploadLogo(file: Express.Multer.File, id: string) {
