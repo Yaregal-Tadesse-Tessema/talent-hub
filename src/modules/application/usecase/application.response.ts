@@ -70,7 +70,7 @@ export class ApplicationResponse {
     if (entity.JobPost) {
       response.jobPost = JobPostingResponse.toResponse(entity.JobPost);
     }
-    if (entity.applicationMessages.length > 0) {
+    if (entity?.applicationMessages?.length > 0) {
       response.applicationMessages = entity.applicationMessages.map((item) =>
         MessageResponse.toResponse(item),
       );
