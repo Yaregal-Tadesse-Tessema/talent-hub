@@ -353,6 +353,7 @@ export class UserService {
     return UserResponse.toResponse(res);
   }
   async findAll(query: CollectionQuery) {
+     query.where.push();
     const response = await this.userRepository.findAll(query);
     return response;
   }
