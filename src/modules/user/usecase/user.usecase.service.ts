@@ -353,7 +353,12 @@ export class UserService {
     return UserResponse.toResponse(res);
   }
   async findAll(query: CollectionQuery) {
-     query.where.push();
+    query.where.push();
+    //  query.orderBy.push({
+    //    column: 'updatedAt',
+    //    direction: 'DESC',
+    //    nulls: 'NULLS LAST',
+    //  });
     const response = await this.userRepository.findAll(query);
     return response;
   }
