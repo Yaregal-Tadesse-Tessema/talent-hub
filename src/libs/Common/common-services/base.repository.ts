@@ -25,18 +25,18 @@ export class BaseRepository<T extends ObjectLiteral> {
     return res;
   }
   async findAll(query: CollectionQuery) {
-    if (
-      !query?.orderBy ||
-      query?.orderBy == null ||
-      query?.orderBy.length == 0
-    ) {
-      query.orderBy = [];
-      query.orderBy.push({
-        column: 'updatedAt',
-        direction: 'DESC',
-        nulls: 'NULLS LAST',
-      });
-    }
+    // if (
+    //   !query?.orderBy ||
+    //   query?.orderBy == null ||
+    //   query?.orderBy.length == 0
+    // ) {
+    //   query.orderBy = [];
+    //   query.orderBy.push({
+    //     column: 'updatedAt',
+    //     direction: 'DESC',
+    //     nulls: 'NULLS LAST',
+    //   });
+    // }
     let dataQuery: any = null;
     const tenantId = await this.request['TENANT_ID'];
     if (!tenantId) {
@@ -62,18 +62,18 @@ export class BaseRepository<T extends ObjectLiteral> {
     return response;
   }
   async findAllPublic(query: CollectionQuery) {
-    if (
-      !query?.orderBy ||
-      query?.orderBy == null ||
-      query?.orderBy.length == 0
-    ) {
-      query.orderBy = [];
-      query.orderBy.push({
-        column: 'updatedAt',
-        direction: 'DESC',
-        nulls: 'NULLS LAST',
-      });
-    }
+    // if (
+    //   !query?.orderBy ||
+    //   query?.orderBy == null ||
+    //   query?.orderBy.length == 0
+    // ) {
+    //   query.orderBy = [];
+    //   query.orderBy.push({
+    //     column: 'updatedAt',
+    //     direction: 'DESC',
+    //     nulls: 'NULLS LAST',
+    //   });
+    // }
     let dataQuery: any = null;
     dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
     const response = new DataResponseFormat<T>();
@@ -151,18 +151,18 @@ export class BaseRepository<T extends ObjectLiteral> {
   }
   async findAllArchived(query: CollectionQuery) {
     const tenantId = await this.request['TENANT_ID'];
-    if (
-      !query?.orderBy ||
-      query?.orderBy == null ||
-      query?.orderBy.length == 0
-    ) {
-      query.orderBy = [];
-      query.orderBy.push({
-        column: 'updatedAt',
-        direction: 'DESC',
-        nulls: 'NULLS LAST',
-      });
-    }
+    // if (
+    //   !query?.orderBy ||
+    //   query?.orderBy == null ||
+    //   query?.orderBy.length == 0
+    // ) {
+    //   query.orderBy = [];
+    //   query.orderBy.push({
+    //     column: 'updatedAt',
+    //     direction: 'DESC',
+    //     nulls: 'NULLS LAST',
+    //   });
+    // }
     if (!query.where) {
       query.where = [];
     }
