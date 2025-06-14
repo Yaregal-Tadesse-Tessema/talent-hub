@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthModule } from './modules/auth/auth.module';
@@ -31,6 +31,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from './modules/notification/persistencies/notification.entity';
 import { MessageEntity } from './modules/notification/persistencies/message.entity';
+import { TenantFavoriteUserEntity } from './modules/tenant/persistencies/tenant-favorite-user.entity';
 
 @Module({
   imports: [
@@ -61,6 +62,7 @@ import { MessageEntity } from './modules/notification/persistencies/message.enti
         UserFavoriteJobEntity,
         NotificationEntity,
         MessageEntity,
+        TenantFavoriteUserEntity,
       ],
       synchronize: true,
     }),

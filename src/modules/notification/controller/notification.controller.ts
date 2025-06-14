@@ -25,8 +25,11 @@ import { userInfo } from 'src/modules/auth/local-auth.guard';
 export class NotificationController {
   constructor(private readonly notificationService: NotificationService) {}
   @Post()
-  async saveNotification(@Body() command: CreateNotificationCommand,@userInfo()currentUser:UserInfo) {
-    command.senderId=currentUser.id
+  async saveNotification(
+    @Body() command: CreateNotificationCommand,
+    @userInfo() currentUser: UserInfo,
+  ) {
+    command.senderId = currentUser.id;
     return await this.notificationService.createNotification(command);
   }
   @Put()
@@ -62,5 +65,20 @@ export class NotificationController {
   @Delete('archive/:id')
   async archiveNotifications(@Param('id') id?: string) {
     return await this.notificationService.archiveNotification(id);
+  }
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  @Get('get-new-notifications')
+  async markAsView(@Query('q') q?: string) {
+    const query = decodeCollectionQuery(q);
+    return await this.notificationService.markAsView(query);
+  }
+  @Put('mark-as-read/:id')
+  async markAsRead(@Param('id') id: string) {
+    return await this.notificationService.markAsRead(id);
   }
 }

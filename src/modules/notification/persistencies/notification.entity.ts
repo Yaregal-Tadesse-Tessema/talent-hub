@@ -4,6 +4,7 @@ import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import {
   DeliveryTypeEnums,
+  NotificationStatusEnums,
   NotificationTypeEnums,
 } from '../usecase/email.command';
 import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
@@ -20,14 +21,11 @@ export class NotificationEntity extends CommonEntity {
   notificationType: DeliveryTypeEnums;
   @Column()
   message: string;
-  @Column()
-  isRead: string;
+  @Column({ default: NotificationStatusEnums.NEW })
+  status: NotificationStatusEnums;
   @Column()
   link: string;
-  @ManyToOne(
-    () => UserEntity,
-    (userEntity) => userEntity.notifications,
-  )
+  @ManyToOne(() => UserEntity, (userEntity) => userEntity.notifications)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 

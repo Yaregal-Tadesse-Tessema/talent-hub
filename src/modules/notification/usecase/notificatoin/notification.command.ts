@@ -2,7 +2,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsUUID } from 'class-validator';
 import { NotificationEntity } from '../../persistencies/notification.entity';
-import { DeliveryTypeEnums, NotificationTypeEnums } from '../email.command';
+import {
+  DeliveryTypeEnums,
+  NotificationStatusEnums,
+  NotificationTypeEnums,
+} from '../email.command';
 export class CreateNotificationCommand {
   id?: string;
   @ApiProperty()
@@ -13,12 +17,12 @@ export class CreateNotificationCommand {
   type: NotificationTypeEnums;
   @ApiProperty()
   notificationType: DeliveryTypeEnums;
- @ApiProperty()
+  @ApiProperty()
   message: string;
-   @ApiProperty()
-  isRead: string;
-   @ApiProperty()
-  link: string;
+  @ApiProperty()
+  status?: NotificationStatusEnums;
+  @ApiProperty()
+  link?: string;
   static fromDto(dto: CreateNotificationCommand): NotificationEntity {
     const entity = new NotificationEntity();
     if (!dto) {
@@ -30,7 +34,7 @@ export class CreateNotificationCommand {
     entity.type = dto?.type;
     entity.notificationType = dto?.notificationType;
     entity.message = dto?.message;
-    entity.isRead = dto?.isRead;
+    entity.status = dto?.status;
     entity.link = dto?.link;
     return entity;
   }
@@ -49,4 +53,13 @@ export class UpdateNotificationCommand extends CreateNotificationCommand {
   @IsNotEmpty()
   id: string;
 }
-
+export class SocketNotificationCommand {
+  @ApiProperty()
+  @IsUUID()
+  @IsNotEmpty()
+  senderId: string;
+  @ApiProperty()
+  receiverId: string;
+  @ApiProperty()
+  message: string;
+}

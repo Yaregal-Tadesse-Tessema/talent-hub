@@ -14,6 +14,8 @@ import { UserEntity } from '../user/persistence/users.entity';
 import { MessageService } from './usecase/message/message.usecase.service';
 import { MessageRepository } from './persistencies/message.repository';
 import { MessageController } from './controller/message.controller';
+import { ChatGateway } from './usecase/socket-io/socket.usecase.command';
+import { UserModule } from '../user/user.module';
 @Global()
 @Module({
   imports: [
@@ -24,6 +26,7 @@ import { MessageController } from './controller/message.controller';
       TenantEntity,
       UserEntity,
     ]),
+    UserModule,
   ],
   providers: [
     EmailService,
@@ -31,6 +34,8 @@ import { MessageController } from './controller/message.controller';
     NotificationService,
     MessageRepository,
     MessageService,
+
+    ChatGateway,
   ],
   controllers: [EmailController, NotificationController, MessageController],
   exports: [EmailService],

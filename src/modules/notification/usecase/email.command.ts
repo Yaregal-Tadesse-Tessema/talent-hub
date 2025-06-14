@@ -47,3 +47,8 @@ export enum DeliveryTypeEnums {
   INDIVIDUAL = 'Individual',
   BROADCAST = 'Broadcast',
 }
+export enum NotificationStatusEnums {
+  NEW = 'New',
+  VIEWED = 'Viewed',
+  READ = 'Read',
+}

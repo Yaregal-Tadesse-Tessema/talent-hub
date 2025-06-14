@@ -12,6 +12,7 @@ import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import {
   CheckOrganizationFromETrade,
   CreateTenantCommand,
+  UpdateTenantCommand,
 } from './tenant.command';
 import { TenantResponse } from './tenant.response';
 import { CreateLookupCommand } from '../lookup/lookup.command';
@@ -41,8 +42,8 @@ export class TenantService {
       Referer: 'https://etrade.gov.et/business-license-checker',
     },
   });
-  async updateTenant(command: CreateTenantCommand): Promise<TenantResponse> {
-    const tenantEntity = CreateTenantCommand.fromCommand(command);
+  async updateTenant(command: UpdateTenantCommand): Promise<TenantResponse> {
+    const tenantEntity = UpdateTenantCommand.fromCommand(command);
     tenantEntity.code = tenantEntity.schemaName;
     await this.tenantRepository.update(tenantEntity.id, tenantEntity);
     return TenantResponse.toResponse(tenantEntity);
@@ -253,5 +254,9 @@ export class TenantService {
       );
     const tenants = employeeTenant.map((item) => item.tenant);
     return tenants.map((item) => TenantResponse.toResponse(item));
+  }
+  async getTenantCount(query: CollectionQuery): Promise<number> {
+    const tenantCount = await this.employeeTenantRepository.getCount(query);
+    return tenantCount;
   }
 }

@@ -11,6 +11,7 @@ import { ApplicationModule } from '../application/application.module';
 import { UserRepository } from './persistence/user.repository';
 import { UserFavoriteJobEntity } from '../job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from '../notification/persistencies/notification.entity';
+import { TenantFavoriteUserEntity } from '../tenant/persistencies/tenant-favorite-user.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -19,6 +20,7 @@ import { NotificationEntity } from '../notification/persistencies/notification.e
       SaveJobEntity,
       UserFavoriteJobEntity,
       NotificationEntity,
+      TenantFavoriteUserEntity,
     ]),
     forwardRef(() => ApplicationModule),
   ],

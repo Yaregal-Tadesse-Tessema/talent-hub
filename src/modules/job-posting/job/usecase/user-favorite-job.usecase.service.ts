@@ -1,5 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { UserFavoriteJobRepository } from '../persistencies/user-favorite-job.repository';
 import {
@@ -24,6 +28,13 @@ export class UserFavoriteJobService {
     return await this.userFavoriteJobRepository.getCount(query);
   }
   async createUserFavoriteJob(command: CreateUserFavoriteJobCommand) {
+    const alreadyFavorite =
+      await this.userFavoriteJobRepository.getOneByCriteria({
+        userId: command.userId,
+        jobPostId: command.jobPostId,
+      });
+    if (alreadyFavorite)
+      throw new BadRequestException(`This job is already favorite for you`);
     const userTenant = await this.userFavoriteJobRepository.create(command);
     return UserFavoriteJobResponse.toResponse(userTenant);
   }

@@ -27,6 +27,7 @@ import { TenantResponse } from '../usecases/tenant/tenant.response';
 import {
   CheckOrganizationFromETrade,
   CreateTenantCommand,
+  UpdateTenantCommand,
 } from '../usecases/tenant/tenant.command';
 import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { UserInfo } from 'src/libs/Common/user-information';
@@ -46,6 +47,15 @@ export class TenantController {
   ) {
     command.currentUser = currentUser;
     return await this.tenantService.CreateAccounts(command);
+  }
+  @Put()
+  @ApiOkResponse({ type: TenantResponse })
+  async updateTenant(
+    @Body() command: UpdateTenantCommand,
+    @userInfo() currentUser: UserInfo,
+  ) {
+    command.currentUser = currentUser;
+    return await this.tenantService.updateTenant(command);
   }
   @Post('create-account-from-trade')
   @ApiOkResponse({ type: TenantResponse })
@@ -107,5 +117,17 @@ export class TenantController {
     const authorization: string = headers['authorization'];
     const token = jwt.decode(authorization.split(' ')[1]);
     return await this.tenantService.getTenantsByToken(token);
+  }
+  @Get('get-tenant-count')
+  @ApiQuery({
+    name: 'q',
+    type: String,
+    description: 'Collection Query Parameter. Optional',
+    required: false,
+  })
+  @AllowAnonymous()
+  async getTenantsByCount(@Query('q') q?: string) {
+    const query = decodeCollectionQuery(q);
+    return await this.tenantService.getTenantCount(query);
   }
 }

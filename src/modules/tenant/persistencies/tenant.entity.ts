@@ -6,6 +6,7 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { TenantSubscriptionTypes } from '../constants';
 import { UserTenantEntity } from './user-tenant.entity';
+import { TenantFavoriteUserEntity } from './tenant-favorite-user.entity';
 
 @Entity({ name: 'tenants' })
 export class TenantEntity extends CommonEntity {
@@ -61,4 +62,10 @@ export class TenantEntity extends CommonEntity {
     onDelete: 'CASCADE',
   })
   tenantUsers: UserTenantEntity[];
+
+  @OneToMany(
+    () => TenantFavoriteUserEntity,
+    (tenantFavoriteUserEntity) => tenantFavoriteUserEntity.tenant,
+  )
+  favoriteUsers: TenantFavoriteUserEntity[];
 }

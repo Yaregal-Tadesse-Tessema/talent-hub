@@ -27,7 +27,10 @@ export class PdfService {
     if (!options) {
       options = Object.assign({}, defaultOptions, options);
     }
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+      headless: true, // or true
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
     const content = await HandlebarEngine.compile(templateName, data);
@@ -36,7 +39,6 @@ export class PdfService {
       fileName = `${new Date().getTime()}`;
     }
     options.displayHeaderFooter = true;
-
     // Set header template with the logo
     // options.headerTemplate = `
     //   <div style="width: 100%; text-align: center; margin-top: 20px;">

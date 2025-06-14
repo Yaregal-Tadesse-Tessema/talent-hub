@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Repository, DeepPartial, ObjectLiteral } from 'typeorm';
+import { Repository, DeepPartial, ObjectLiteral, In } from 'typeorm';
 import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
@@ -126,6 +126,14 @@ export class BaseRepository<T extends ObjectLiteral> {
     await this.repository.update(id, itemData);
     const res = await this.findOne(id);
     return res;
+  }
+  async updateMany(ids: string[], itemData: any): Promise<T[] | undefined> {
+    const result = await this.repository.find({
+      where: { id: In(ids) } as any,
+    });
+    if (result.length == 0) return null;
+    await this.repository.update({ id: In(ids) } as any, itemData);
+    return result;
   }
   async softDelete(id: string): Promise<any> {
     const item = await this.findOneOrFail(id);

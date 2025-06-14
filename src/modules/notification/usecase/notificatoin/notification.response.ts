@@ -1,6 +1,10 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { DeliveryTypeEnums, NotificationTypeEnums } from '../email.command';
+import {
+  DeliveryTypeEnums,
+  NotificationStatusEnums,
+  NotificationTypeEnums,
+} from '../email.command';
 import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { NotificationEntity } from '../../persistencies/notification.entity';
@@ -17,7 +21,7 @@ export class NotificationResponse {
   @ApiProperty()
   message: string;
   @ApiProperty()
-  isRead: string;
+  status: NotificationStatusEnums;
   @ApiProperty()
   link: string;
   user: UserResponse;
@@ -34,7 +38,7 @@ export class NotificationResponse {
     response.type = dto.type;
     response.notificationType = dto.notificationType;
     response.message = dto.message;
-    response.isRead = dto.isRead;
+    response.status = dto.status;
     response.link = dto.link;
     response.senderId = dto.senderId;
     if (dto.user) {

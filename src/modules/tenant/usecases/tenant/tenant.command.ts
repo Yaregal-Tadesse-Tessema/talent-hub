@@ -79,6 +79,9 @@ export class CreateTenantCommand {
     tenant.industry = command.industry;
     tenant.organizationType = command.organizationType;
     tenant.selectedCalender = command.selectedCalender;
+
+    tenant.updatedAt = new Date();
+    tenant.updatedBy = command?.currentUser?.id;
     return tenant;
   }
 }
