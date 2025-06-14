@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
+import { Unique } from 'typeorm';
+@Unique(['tenant_Id', 'lookupId'])
 export class CreateEmployeeTenantCommand {
   id?: string;
   @ApiProperty()

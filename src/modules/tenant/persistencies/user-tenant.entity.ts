@@ -5,11 +5,11 @@ import { TenantEntity } from './tenant.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 
 @Entity({ name: 'user_tenants' })
-@Unique(['tenantId', 'userId'])
+@Unique(['organizationId', 'userId'])
 export class UserTenantEntity extends CommonEntity {
-  @Column({ name: 'user_id', nullable: false })
+  @Column({ nullable: true })
   userId: string;
-  @Column({ name: 'organization_id', nullable: false })
+  @Column({ nullable: true })
   organizationId: string;
   @Column({ name: 'remark' })
   remark: string;
@@ -18,13 +18,13 @@ export class UserTenantEntity extends CommonEntity {
     onUpdate: 'CASCADE',
     onDelete: 'RESTRICT',
   })
-  @JoinColumn({ name: 'organization_id' })
+  @JoinColumn({ name: 'organizationId' })
   tenant: TenantEntity;
   @ManyToOne(() => UserEntity, {
     orphanedRowAction: 'delete',
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'userId' })
   user: UserEntity;
 }

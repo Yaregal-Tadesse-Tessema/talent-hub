@@ -139,9 +139,8 @@ export class UserController {
     @Query('q') q?: string,
   ): Promise<DataResponseFormat<UserResponse>> {
     const query = decodeCollectionQuery(q);
-    return await this.userService.findAll(query);
+    return await this.userService.findAllPublic(query);
   }
-
   @Get(':id')
   @ApiQuery({
     name: 'i',

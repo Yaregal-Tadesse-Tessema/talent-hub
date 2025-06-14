@@ -24,6 +24,8 @@ export class ApplicationEntity extends CommonEntity {
   JobPostId: string;
   @Column({ name: 'referral_information', type: 'jsonb', nullable: true })
   referralInformation: ReferralInformation;
+  @Column({ default: false })
+  isInvited: boolean;
   @Column({ name: 'reference_reason', nullable: true })
   referenceReason: string;
   @Column({ type: 'jsonb', nullable: true })

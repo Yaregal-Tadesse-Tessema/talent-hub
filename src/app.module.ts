@@ -31,7 +31,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from './modules/notification/persistencies/notification.entity';
 import { MessageEntity } from './modules/notification/persistencies/message.entity';
-import { TenantFavoriteUserEntity } from './modules/tenant/persistencies/tenant-favorite-user.entity';
+import { InvitationEntity } from './modules/application/persistences/invitation.entity';
 
 @Module({
   imports: [
@@ -62,7 +62,7 @@ import { TenantFavoriteUserEntity } from './modules/tenant/persistencies/tenant-
         UserFavoriteJobEntity,
         NotificationEntity,
         MessageEntity,
-        TenantFavoriteUserEntity,
+        InvitationEntity,
       ],
       synchronize: true,
     }),

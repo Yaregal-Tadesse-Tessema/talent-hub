@@ -9,16 +9,29 @@ import { UserModule } from '../user/user.module';
 import { ApplicationService } from './usecase/application.usecase.service';
 import { ApplicationRepository } from './persistences/application.repository';
 import { MessageEntity } from '../notification/persistencies/message.entity';
+import { InvitationEntity } from './persistences/invitation.entity';
+import { InvitationRepository } from './persistences/invitation.repository';
+import { InvitationService } from './usecase/invitation/invitation.usecase.ervice';
+import { InvitationController } from './controller/invitation.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ApplicationEntity, MessageEntity]),
+    TypeOrmModule.forFeature([
+      ApplicationEntity,
+      MessageEntity,
+      InvitationEntity,
+    ]),
     FileModule,
     forwardRef(() => JobPostingModule),
     forwardRef(() => UserModule),
   ],
-  controllers: [ApplicationController],
-  providers: [ApplicationService, ApplicationRepository],
+  controllers: [ApplicationController, InvitationController],
+  providers: [
+    ApplicationService,
+    ApplicationRepository,
+    InvitationRepository,
+    InvitationService,
+  ],
   exports: [ApplicationService, ApplicationRepository],
 })
 export class ApplicationModule {}

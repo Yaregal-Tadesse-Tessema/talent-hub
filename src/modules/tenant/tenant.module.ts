@@ -25,7 +25,6 @@ import { TestimonialsEntity } from './persistencies/testimonials.entity';
 import { TestimonialsRepository } from './persistencies/testimonials.repository';
 import { TestimonialsService } from './usecases/testimonial/testimonial.usecase.command';
 import { TestimonialsController } from './controllers/testimonials.controller';
-import { TenantFavoriteUserEntity } from './persistencies/tenant-favorite-user.entity';
 @Global()
 @Module({
   imports: [
@@ -36,7 +35,6 @@ import { TenantFavoriteUserEntity } from './persistencies/tenant-favorite-user.e
       AdminUserEntity,
       UserTenantEntity,
       TestimonialsEntity,
-      TenantFavoriteUserEntity,
     ]),
   ],
   providers: [

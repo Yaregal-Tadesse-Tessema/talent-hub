@@ -23,8 +23,6 @@ export class ApplicationResponse {
   @ApiProperty()
   userInfo: any;
   @ApiProperty()
-  user: UserResponse;
-  @ApiProperty()
   remark: string;
   @ApiProperty()
   status: ApplicationStatusEnums;
@@ -39,9 +37,13 @@ export class ApplicationResponse {
   @ApiProperty()
   referenceReason: string;
   @ApiProperty()
+  isInvited: boolean;
+  @ApiProperty()
   tenantId: string;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
+  @ApiProperty({ type: () => [UserResponse] })
+  user: UserResponse;
   @ApiProperty()
   applicationMessages: MessageResponse[];
   static toResponse(entity: ApplicationEntity): ApplicationResponse {
@@ -64,9 +66,10 @@ export class ApplicationResponse {
     response.referralInformation = entity?.referralInformation;
     response.referenceReason = entity?.referenceReason;
     response.questionaryScore = entity?.questionaryScore;
-    // if (entity?.user) {
-    //   response.user = UserResponse.toResponse(entity.user);
-    // }
+    response.isInvited = entity?.isInvited;
+    if (entity?.user) {
+      response.user = UserResponse.toResponse(entity.user);
+    }
     if (entity.JobPost) {
       response.jobPost = JobPostingResponse.toResponse(entity.JobPost);
     }

@@ -10,7 +10,6 @@ import { SaveJobController } from './job/controller/saved-jobs.controller';
 import { PreScreeningQuestionEntity } from './job/persistencies/pre-screening-question.entity';
 import { PreScreeningQuestionService } from './job/usecase/pre-screening-question/pre-screening-question.usecase.command';
 import { PreScreeningQuestionController } from './job/controller/pre-screening-question.controller';
-import { TestController } from './job/controller/test.controller';
 import { UserModule } from '../user/user.module';
 import { JobPostingService } from './job/usecase/job-posting.usecase.service';
 import { JobPostingRepository } from './job/persistencies/job-post.repository';
@@ -54,7 +53,6 @@ import { UserFavoriteJobController } from './job/controller/user-favorite-job.co
     JobPostingController,
     SaveJobController,
     PreScreeningQuestionController,
-    TestController,
     UserFavoriteJobController,
   ],
   exports: [JobPostingService, JobPostingRepository],

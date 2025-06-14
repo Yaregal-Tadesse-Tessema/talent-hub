@@ -27,7 +27,6 @@ import {
   PrepareScheduleCommand,
   UpdateApplicationCommand,
 } from '../usecase/application.command';
-import { FileService } from 'src/modules/file/services/file.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApplicationService } from '../usecase/application.usecase.service';
 import { ApplicationResponse } from '../usecase/application.response';
@@ -37,10 +36,7 @@ import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-res
 @ApiTags('applications')
 @ApiExtraModels(DataResponseFormat)
 export class ApplicationController {
-  constructor(
-    private readonly applicationService: ApplicationService,
-    private readonly fileService: FileService,
-  ) {}
+  constructor(private readonly applicationService: ApplicationService) {}
   @Post('create-application')
   @UseInterceptors(FileInterceptor('file'))
   async createJobPosting(

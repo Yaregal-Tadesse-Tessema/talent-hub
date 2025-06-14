@@ -38,6 +38,8 @@ export class CreateApplicationCommand {
   @ApiProperty()
   applicationInformation: any;
   @ApiProperty()
+  isInvited?: boolean;
+  @ApiProperty()
   userInfo?: any;
   static fromDto(dto: CreateApplicationCommand): ApplicationEntity {
     const entity = new ApplicationEntity();
@@ -57,6 +59,7 @@ export class CreateApplicationCommand {
     entity.questionaryScore = dto?.questionaryScore;
     entity.referralInformation = dto?.referralInformation;
     entity.referenceReason = dto?.referenceReason;
+    entity.isInvited = dto?.isInvited;
     return entity;
   }
   static fromDtos(dto: CreateApplicationCommand[]): ApplicationEntity[] {

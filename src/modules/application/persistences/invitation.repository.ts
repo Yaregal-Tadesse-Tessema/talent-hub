@@ -4,12 +4,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { REQUEST } from '@nestjs/core';
 import { BaseRepository } from 'src/libs/Common/common-services/base.repository';
-import { TenantFavoriteUserEntity } from './tenant-favorite-user.entity';
+import { InvitationEntity } from './invitation.entity';
 @Injectable()
-export class TenantFavoriteUserRepository extends BaseRepository<TenantFavoriteUserEntity> {
+export class InvitationRepository extends BaseRepository<InvitationEntity> {
   constructor(
-    @InjectRepository(TenantFavoriteUserEntity)
-    repository: Repository<TenantFavoriteUserEntity>,
+    @InjectRepository(InvitationEntity)
+    repository: Repository<InvitationEntity>,
     @Inject(REQUEST) request?: Request,
   ) {
     super(repository, request);

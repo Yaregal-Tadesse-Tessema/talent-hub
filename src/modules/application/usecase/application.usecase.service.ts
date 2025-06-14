@@ -24,6 +24,7 @@ import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { InvitationRepository } from '../persistences/invitation.repository';
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -32,14 +33,15 @@ export class ApplicationService {
     private readonly jobPostingRepository: JobPostingRepository,
     private readonly userService: UserService,
     private readonly emailService: EmailService,
+    private readonly invitationRepository: InvitationRepository,
   ) {}
   async create(
     command: CreateApplicationCommand,
   ): Promise<ApplicationResponse> {
-    const item = await this.applicationRepository.create(command);
+    const item = CreateApplicationCommand.fromDto(command);
     const res = await this.applicationRepository.create(item);
     console.log(res);
-    return item;
+    return ApplicationResponse.toResponse(res);
   }
   async findAll(
     query: CollectionQuery,
@@ -149,7 +151,11 @@ export class ApplicationService {
       throw new ConflictException(`You already applied for this job`);
     let res: FileDto = null;
     const applicationEntity = CreateApplicationCommand.fromDto(command);
-
+    const isByInvitation = await this.invitationRepository.getOneByCriteria({
+      userId: command.userId,
+      jobPostId: command.JobPostId,
+    });
+    if (isByInvitation) command.isInvited = true;
     if (file) {
       const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
       const fileName = file.originalname;
