@@ -16,7 +16,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { MessageResponse } from '../usecase/message/message.response';
@@ -49,9 +48,10 @@ export class MessageController {
   @Post()
   @ApiOkResponse({ type: MessageResponse })
   async create(@Body() command: CreateMessageCommand,@userInfo()currentUser:UserInfo) {
-    command.senderUserId=currentUser.id
-    command.senderFullName=currentUser.firstName+" "+currentUser.middleName
-    command.currentUser=currentUser
+    // command.senderUserId=currentUser.id
+    command.senderFullName =
+      currentUser.firstName + ' ' + currentUser.middleName;
+    command.currentUser = currentUser;
     return await this.messageService.createMessage(command);
   }
   @Put()
