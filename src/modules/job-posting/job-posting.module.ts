@@ -21,6 +21,8 @@ import { UserFavoriteJobEntity } from './job/persistencies/user-favorite-job.ent
 import { UserFavoriteJobRepository } from './job/persistencies/user-favorite-job.repository';
 import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.service';
 import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
+import { GeminiService } from './job/usecase/gemini';
+import { GeminiController } from './job/controller/gemini.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -48,12 +50,15 @@ import { UserFavoriteJobController } from './job/controller/user-favorite-job.co
 
     UserFavoriteJobRepository,
     UserFavoriteJobService,
+
+    GeminiService,
   ],
   controllers: [
     JobPostingController,
     SaveJobController,
     PreScreeningQuestionController,
     UserFavoriteJobController,
+    GeminiController,
   ],
   exports: [JobPostingService, JobPostingRepository],
 })

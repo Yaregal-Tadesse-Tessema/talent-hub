@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { TenantEntity } from 'src/modules/tenant/persistencies/tenant.entity';
@@ -6,21 +7,21 @@ import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('message')
 export class MessageEntity extends CommonEntity {
-  @Column({ nullable: true, name: 'sender_full_fame' })
+  @Column({ nullable: true })
   senderFullName: string;
-  @Column({ nullable: true, name: 'receiver_full_name' })
+  @Column({ nullable: true })
   receiverFullName: string;
-  @Column({ name: 'sender_employer_id', nullable: true })
+  @Column({ nullable: true })
   senderEmployerId: string;
-  @Column({ nullable: true, name: 'sender_user_id' })
+  @Column({ nullable: true })
   senderUserId: string;
-  @Column({ name: ' receiver_employer_id', nullable: true })
+  @Column({ nullable: true })
   receiverEmployerId: string;
-  @Column({ nullable: true, name: ' receiver_user_id' })
+  @Column({ nullable: true })
   receiverUserId: string;
   @Column()
   content: string;
-  @Column({ name: 'application_id', nullable: true })
+  @Column({ nullable: true })
   applicationId: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
@@ -28,26 +29,26 @@ export class MessageEntity extends CommonEntity {
 
   // Polymorphic sender
   @ManyToOne(() => UserEntity, { nullable: true })
-  @JoinColumn({ name: 'sender_user_id' })
+  @JoinColumn({ name: 'senderUserId' })
   senderUser: UserEntity;
 
   @ManyToOne(() => TenantEntity, { nullable: true })
-  @JoinColumn({ name: 'sender_employer_id' })
+  @JoinColumn({ name: 'senderEmployerId' })
   senderEmployer: TenantEntity;
 
   // Polymorphic recipient
   @ManyToOne(() => UserEntity, { nullable: true })
-  @JoinColumn({ name: 'receiver_user_id' })
+  @JoinColumn({ name: 'receiverUserId' })
   recipientUser: UserEntity;
 
   @ManyToOne(() => TenantEntity, { nullable: true })
-  @JoinColumn({ name: 'receiver_employer_id' })
+  @JoinColumn({ name: 'receiverEmployerId' })
   recipientEmployer: TenantEntity;
 
   @ManyToOne(
     () => ApplicationEntity,
     (messageEntity) => messageEntity.applicationMessages,
   )
-  @JoinColumn({ name: 'application_id' })
+  @JoinColumn({ name: 'applicationId' })
   application: ApplicationEntity;
 }
