@@ -110,11 +110,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     relations = [],
     withDeleted = false,
   ): Promise<T | undefined> {
-    // const tenantId = await this.request['TENANT_ID'];
     const where: any = { id: id };
-    // if (tenantId) {
-    //   where.tenantId = tenantId;
-    // }
     return this.repository.findOne({
       where,
       relations,

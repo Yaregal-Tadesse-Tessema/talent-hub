@@ -14,7 +14,7 @@ export class EmployeeTenantEntity extends CommonEntity {
   lookupId: string;
   @Column({ name: 'start_date', type: 'date', nullable: true })
   startDate: Date;
-  @Column({ name: 'status', default: 'Draft' })
+  @Column({ name: 'status', default: 'Active' })
   status: EmployeeStatus;
   @Column({ name: 'job_title' })
   jobTitle: string;

@@ -255,15 +255,22 @@ export class AuthService {
       where: [
         {
           phoneNumber: loginCommand.userName,
-          employeeTenant: { status: In(activeEmployeesStatus) },
+          status: In(activeEmployeesStatus),
         },
         {
           email: loginCommand.userName,
-          employeeTenant: { status: In(activeEmployeesStatus) },
+          status: In(activeEmployeesStatus),
         },
       ],
       relations: { employeeTenant: { tenant: true } },
     });
+    if (!lookup)
+      throw new BadRequestException(
+        `Account with UserName ${loginCommand.userName} doesn't exist `,
+      );
+    if (!lookup?.employeeTenant || lookup?.employeeTenant.length == 0) {
+      return [];
+    }
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");

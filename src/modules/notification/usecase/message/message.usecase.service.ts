@@ -15,7 +15,7 @@ export class MessageService {
   ) {}
 
   async getAll(query: CollectionQuery) {
-    return await this.messageRepository.findAll(query);
+    return await this.messageRepository.findAllPublic(query);
   }
   async getById(id: string) {
     return await this.messageRepository.findOne(id);
