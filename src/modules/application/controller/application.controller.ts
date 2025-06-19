@@ -10,6 +10,7 @@ import {
   Put,
   Query,
   Req,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -32,6 +33,7 @@ import { ApplicationService } from '../usecase/application.usecase.service';
 import { ApplicationResponse } from '../usecase/application.response';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
+import { Response } from 'express';
 @Controller('applications')
 @ApiTags('applications')
 @ApiExtraModels(DataResponseFormat)
@@ -128,5 +130,14 @@ export class ApplicationController {
   @ApiPaginatedResponse(ApplicationResponse)
   async notifySchedule(@Body() command: NotificationInformation): Promise<any> {
     return await this.applicationService.notifySchedule(command);
+  }
+  @Post('export-selected-candidates')
+  async exportAppliers(@Res() res: Response): Promise<any> {
+    const buffer = await this.applicationService.exportAppliers();
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    res.send(Buffer.from(buffer));
   }
 }

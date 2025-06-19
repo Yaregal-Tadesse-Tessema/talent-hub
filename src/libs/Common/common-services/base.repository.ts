@@ -111,7 +111,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     withDeleted = false,
   ): Promise<T | undefined> {
     const where: any = { id: id };
-    return this.repository.findOne({
+    return await this.repository.findOne({
       where,
       relations,
       withDeleted,

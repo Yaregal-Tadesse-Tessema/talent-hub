@@ -44,6 +44,7 @@
     "class-validator": "^0.14.1",
     "docx-pdf": "^0.0.1",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "googleapis": "^148.0.0",
     "grammy": "^1.35.0",
     "ical-generator": "^9.0.0",

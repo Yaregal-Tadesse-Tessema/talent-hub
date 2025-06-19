@@ -36,6 +36,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { Response } from 'express';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
+import { userInfo } from 'src/modules/auth/local-auth.guard';
+import { UserInfo } from 'src/libs/Common/user-information';
 
 @Controller('users')
 @ApiTags('users')
@@ -169,7 +171,9 @@ export class UserController {
   @Put('add-alert-configuration')
   async addAlertCOnfiguration(
     @Body() itemData: UserAlertConfiguration,
+    @userInfo() user: UserInfo,
   ): Promise<UserResponse> {
+    itemData.id = user.id;
     return await this.userService.addAlertCOnfiguration(itemData);
   }
   @Delete(':id')

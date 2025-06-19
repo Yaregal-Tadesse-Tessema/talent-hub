@@ -25,6 +25,15 @@ import { EmailService } from 'src/modules/notification/usecase/email.usecase.com
 import { ApplicationEntity } from '../persistences/application.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { InvitationRepository } from '../persistences/invitation.repository';
+import { ExcelGenerator } from 'src/libs/Common/excel.service';
+import { ApplicationStatusEnums } from '../constants';
+
+interface Column {
+  name: string;
+  key: string;
+  width: number;
+  sortKey: number;
+}
 @Injectable()
 export class ApplicationService {
   constructor(
@@ -315,6 +324,96 @@ export class ApplicationService {
   private toEthiopianTime(date: Date): string {
     const etDate = new Date(date.getTime() + 3 * 60 * 60 * 1000); // UTC+3
     return etDate.toISOString().substring(11, 16); // HH:mm
+  }
+  async exportAppliers(): Promise<Buffer> {
+    const excel = new ExcelGenerator();
+    const worksheet = await excel.addWorksheet(`Candidate`, {
+      pageSsetup: {
+        paperSize: 9,
+        orientation: 'landscape',
+        fitToPage: true,
+        fitToHeight: 5,
+        fitToWidth: 7,
+      },
+    });
+    let sortKey = 0;
+
+    // Define table with correct column structure
+    const table = await excel.addTable(worksheet, {
+      name: `candidates`,
+      ref: 'A1',
+      headerRow: true,
+      totalsRow: false,
+      style: {
+        theme: 'TableStyleLight1',
+        showRowStripes: true,
+      },
+      rows: [],
+      columns: [
+        {
+          name: 'Id',
+          key: 'id',
+          width: 14,
+          sortKey: sortKey++,
+          hidden: true,
+        },
+        {
+          name: 'First Name',
+          key: 'firstName',
+          width: 14,
+          sortKey: sortKey++,
+        },
+        {
+          name: 'Middle Name',
+          key: 'middleName',
+          width: 14,
+          sortKey: sortKey++,
+        },
+        {
+          name: 'Phone Number',
+          key: 'phoneNumber',
+          width: 19,
+          sortKey: sortKey++,
+          style: { numFmt: '@' },
+        },
+        {
+          name: 'Email',
+          key: 'email',
+          width: 14,
+          sortKey: sortKey++,
+        },
+      ] as Column[],
+    });
+
+    // Fetch employees
+    const candidates = await this.applicationRepository.getManyByCriteria(
+      {
+        // status: ApplicationStatusEnums.SELECTED,
+      },
+      ['user', 'JobPost'],
+    );
+
+    candidates.forEach((candidate) => {
+      console.log(candidate.user.phone);
+      const user = candidate.user;
+      // Exclude "Id" column if it's hidden
+      const rowData = [
+        user.id, // Remove this if you want to hide it
+        user.firstName,
+        user.middleName,
+        user.phone,
+        user.email,
+      ];
+      table.addRow(rowData);
+    });
+    table.commit();
+    worksheet.getColumn(1).hidden = true;
+    // Save as XLSX instead of CSV
+    const fileName = `Selected_Candidates.xlsx`;
+    await excel.saveFile(`/tmp/${fileName}`);
+
+    const buffer = await excel.saveBuffer();
+    return buffer;
   }
 }
 interface ScheduledInterview {
