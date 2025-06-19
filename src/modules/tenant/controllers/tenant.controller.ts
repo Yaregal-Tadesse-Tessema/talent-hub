@@ -112,6 +112,19 @@ export class TenantController {
     const result = await this.tenantService.uploadLogo(file, id);
     return result;
   }
+  @Put('upload-cover/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadCover(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      throw new BadRequestException('Only jpeg/png files are allowed');
+    }
+    const result = await this.tenantService.uploadCover(file, id);
+    return result;
+  }
   @Get('get-tenants/by-token')
   async getTenantsByToken(@Headers() headers: object) {
     const authorization: string = headers['authorization'];

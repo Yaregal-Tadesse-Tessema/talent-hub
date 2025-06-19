@@ -43,6 +43,8 @@ export class TenantEntity extends CommonEntity {
   status: AccountStatusEnums;
   @Column({ name: 'logo', nullable: true, type: 'jsonb' })
   logo: FileDto;
+  @Column({ nullable: true, type: 'jsonb' })
+  cover: FileDto;
   @Column({ name: 'company_size', nullable: true })
   companySize: string;
   @Column({ name: 'industry', nullable: true })

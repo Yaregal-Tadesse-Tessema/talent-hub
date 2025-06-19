@@ -44,6 +44,8 @@ export class CreateTenantCommand {
   @ApiProperty()
   logo?: FileDto;
   @ApiProperty()
+  cover?: FileDto;
+  @ApiProperty()
   companySize?: string;
   @ApiProperty()
   industry?: string;
@@ -75,6 +77,7 @@ export class CreateTenantCommand {
     tenant.registrationNumber = command.registrationNumber;
     tenant.status = command?.status;
     tenant.logo = command.logo;
+    tenant.cover = command.cover;
     tenant.companySize = command.companySize;
     tenant.industry = command.industry;
     tenant.organizationType = command.organizationType;

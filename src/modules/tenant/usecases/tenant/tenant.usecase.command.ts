@@ -243,6 +243,23 @@ export class TenantService {
     const response = await this.tenantRepository.create(tenant);
     return TenantResponse.toResponse(response);
   }
+  async uploadCover(file: Express.Multer.File, id: string) {
+    const tenant = await this.tenantRepository.findOne(id);
+    if (!tenant)
+      throw new BadRequestException(`Tenant with id ${id} doesn't exist`);
+    if (tenant.cover) {
+      await this.fileService.deleteBucketFile(tenant.logo.filename);
+    }
+    const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+    const fileName = file.originalname;
+    const fileId = `${id}/cover/${randomNumber}_${fileName}`;
+    // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
+    const res = await this.fileService.uploadAttachment(fileId, file);
+    if (!res) throw new BadRequestException('file upload failed');
+    tenant.cover = res;
+    const response = await this.tenantRepository.create(tenant);
+    return TenantResponse.toResponse(response);
+  }
   async getTenantsByToken(decodedToken: any) {
     const employeeTenant: EmployeeTenantEntity[] =
       await this.employeeTenantRepository.getManyByCriteriaWithOutToken(

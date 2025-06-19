@@ -28,6 +28,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.isActive = entity.isActive;
     response.status = entity?.status;
     response.logo = entity.logo;
+    response.cover = entity.cover;
     response.companySize = entity.companySize;
     response.industry = entity.industry;
     response.organizationType = entity.organizationType;
