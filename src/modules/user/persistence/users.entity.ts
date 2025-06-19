@@ -8,6 +8,7 @@ import { ApplicationEntity } from 'src/modules/application/persistences/applicat
 import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
+import { UserAlertConfiguration } from '../usecase/user.command';
 @Entity({ name: 'users' })
 export class UserEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
@@ -70,7 +71,8 @@ export class UserEntity extends CommonEntity {
   educations: any;
   @Column({ nullable: true, type: 'jsonb' })
   experiences: any;
-
+  @Column({ nullable: true, type: 'jsonb' })
+  alertConfiguration: UserAlertConfiguration;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,
@@ -92,7 +94,6 @@ export class UserEntity extends CommonEntity {
     (userFavoriteJobEntity) => userFavoriteJobEntity.user,
   )
   favoriteJobs: UserFavoriteJobEntity[];
-
 
   @OneToMany(
     () => NotificationEntity,

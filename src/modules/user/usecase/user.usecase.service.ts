@@ -13,6 +13,7 @@ import {
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
+  UserAlertConfiguration,
 } from './user.command';
 import { exec } from 'child_process';
 import * as fs from 'fs-extra';
@@ -384,6 +385,16 @@ export class UserService {
     await this.findOneOrFail(itemData.id);
     await this.userRepository.update(itemData.id, itemData);
     const res = await this.findOne(itemData.id);
+    return res;
+  }
+  async addAlertCOnfiguration(
+    alertConfiguration: UserAlertConfiguration,
+  ): Promise<UserResponse> {
+    const user = await this.userRepository.findOne(alertConfiguration.id);
+    if (!user) throw new BadRequestException(`User doesn't exist`);
+    user.alertConfiguration = alertConfiguration;
+    await this.userRepository.update(user.id, user);
+    const res = await this.findOne(user.id);
     return res;
   }
   async softDelete(id: string): Promise<any> {

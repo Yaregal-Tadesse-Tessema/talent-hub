@@ -67,6 +67,8 @@ export class CreateUserCommand {
   coverLetter: string;
   @ApiProperty()
   professionalSummery: string;
+  @ApiProperty()
+  alertConfiguration?: UserAlertConfiguration;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -101,6 +103,7 @@ export class CreateUserCommand {
     entity.profileHeadLine = dto?.profileHeadLine;
     entity.coverLetter = dto?.coverLetter;
     entity.professionalSummery = dto?.professionalSummery;
+    entity.alertConfiguration = dto?.alertConfiguration;
 
     return entity;
   }
@@ -143,4 +146,22 @@ export enum EmployeeStatus {
   SECONDED = 'Seconded',
   ON_PROBATION = 'On Probation',
   IS_ON_WORK_FROM_HOME = 'Is On Work From Home',
+}
+
+export class UserAlertConfiguration {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  salary: string;
+  @ApiProperty()
+  jobTitle?: string;
+  @ApiProperty()
+  Position: string;
+  @ApiProperty()
+  address: string;
+  @ApiProperty()
+  tenantsId: string[];
+  @ApiProperty()
+  industry?: string;
 }

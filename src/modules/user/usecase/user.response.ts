@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../persistence/users.entity';
 import { SocialMediaLinks, UserStatusEnums } from '../constants';
+import { UserAlertConfiguration } from './user.command';
 export class UserResponse {
   @ApiProperty()
   id: string;
@@ -66,7 +67,8 @@ export class UserResponse {
   educations: any;
   @ApiProperty()
   experiences: any;
-
+  @ApiProperty()
+  alertConfiguration: UserAlertConfiguration;
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -102,6 +104,7 @@ export class UserResponse {
     response.professionalSummery = entity.professionalSummery;
     response.educations = entity.educations;
     response.experiences = entity.experiences;
+    response.alertConfiguration = entity.alertConfiguration;
     return response;
   }
 }

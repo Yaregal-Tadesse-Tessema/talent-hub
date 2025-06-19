@@ -28,6 +28,7 @@ import {
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
+  UserAlertConfiguration,
 } from '../usecase/user.command';
 import { UserResponse } from '../usecase/user.response';
 import { UserService } from '../usecase/user.usecase.service';
@@ -38,7 +39,6 @@ import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-co
 
 @Controller('users')
 @ApiTags('users')
-@AllowAnonymous()
 @ApiExtraModels(DataResponseFormat)
 export class UserController {
   constructor(private readonly userService: UserService) {
@@ -84,6 +84,7 @@ export class UserController {
     return result;
   }
   @Post('convert-word-to-pdf')
+  @AllowAnonymous()
   @UseInterceptors(FileInterceptor('file'))
   async convertWordToPdf(@UploadedFile() file: Express.Multer.File) {
     const fileName = file.originalname;
@@ -98,6 +99,7 @@ export class UserController {
     const result = await this.userService.getProfileCompleteness(userId);
     return result;
   }
+  @AllowAnonymous()
   @Post('generate-cv-in-pdf/:template')
   async generatePayrollRunPdf(
     @Param('template') template: CvTemplateEnums,
@@ -109,11 +111,11 @@ export class UserController {
     return res.download('/tmp/' + fileName);
   }
   @Put('change-user-password')
-  @AllowAnonymous()
   @ApiOkResponse({ type: UserResponse })
   async changePassword(@Body() command: AccountPasswordChange) {
     return await this.userService.changePassword(command);
   }
+  @AllowAnonymous()
   @Get('activate-account/:userId')
   @ApiOkResponse({ type: UserResponse })
   async activateAccount(
@@ -124,6 +126,7 @@ export class UserController {
     return await this.userService.activateAccount(token, res, userId);
   }
   @Post()
+  @AllowAnonymous()
   @UsePipes(new ValidationPipe({ transform: true }))
   async create(@Body() itemData: CreateUserCommand): Promise<UserResponse> {
     return await this.userService.create(itemData);
@@ -135,6 +138,7 @@ export class UserController {
     description: 'Collection Query Parameter. Optional',
     required: false,
   })
+  @AllowAnonymous()
   async findAll(
     @Query('q') q?: string,
   ): Promise<DataResponseFormat<UserResponse>> {
@@ -142,12 +146,14 @@ export class UserController {
     return await this.userService.findAllPublic(query);
   }
   @Get(':id')
+  @AllowAnonymous()
   @ApiQuery({
     name: 'i',
     type: String,
     description: 'includes. Optional',
     required: false,
   })
+  @AllowAnonymous()
   async findOne(
     @Param('id') id: string,
     @Query('i') i?: string,
@@ -157,11 +163,15 @@ export class UserController {
   }
 
   @Put()
-  @UsePipes(new ValidationPipe({ transform: true }))
   async update(@Body() itemData: UpdateUserCommand): Promise<UserResponse> {
     return await this.userService.update(itemData);
   }
-
+  @Put('add-alert-configuration')
+  async addAlertCOnfiguration(
+    @Body() itemData: UserAlertConfiguration,
+  ): Promise<UserResponse> {
+    return await this.userService.addAlertCOnfiguration(itemData);
+  }
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<void> {
     return this.userService.softDelete(id);
@@ -178,6 +188,7 @@ export class UserController {
     description: 'Collection Query Parameter. Optional',
     required: false,
   })
+  @AllowAnonymous()
   async findAllArchived(
     @Query('q') q?: string,
   ): Promise<DataResponseFormat<UserResponse>> {
