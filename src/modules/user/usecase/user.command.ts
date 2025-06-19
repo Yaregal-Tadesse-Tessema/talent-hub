@@ -7,6 +7,24 @@ import {
   SocialMediaLinks,
   UserStatusEnums,
 } from '../constants';
+
+export class UserAlertConfiguration {
+  @ApiProperty()
+  @IsNotEmpty()
+  id: string;
+  @ApiProperty()
+  salary: string;
+  @ApiProperty()
+  jobTitle?: string;
+  @ApiProperty()
+  Position: string;
+  @ApiProperty()
+  address: string;
+  @ApiProperty()
+  tenantsId: string[];
+  @ApiProperty()
+  industry?: string;
+}
 export class CreateUserCommand {
   id?: string;
   @ApiProperty()
@@ -148,20 +166,3 @@ export enum EmployeeStatus {
   IS_ON_WORK_FROM_HOME = 'Is On Work From Home',
 }
 
-export class UserAlertConfiguration {
-  @ApiProperty()
-  @IsNotEmpty()
-  id: string;
-  @ApiProperty()
-  salary: string;
-  @ApiProperty()
-  jobTitle?: string;
-  @ApiProperty()
-  Position: string;
-  @ApiProperty()
-  address: string;
-  @ApiProperty()
-  tenantsId: string[];
-  @ApiProperty()
-  industry?: string;
-}
