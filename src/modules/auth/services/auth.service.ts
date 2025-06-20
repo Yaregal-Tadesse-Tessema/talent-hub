@@ -208,7 +208,10 @@ export class AuthService {
           "user Doesn't exist contact administrator",
         );
       if (
-        !Util.comparePassword(loginCommand.password.trim(), lookupData.password)
+        !(await Util.comparePassword(
+          loginCommand.password.trim(),
+          lookupData.password,
+        ))
       ) {
         throw new BadRequestException(`Incorrect credentials`);
       }
@@ -274,7 +277,12 @@ export class AuthService {
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (!Util.comparePassword(loginCommand.password.trim(), lookup.password)) {
+    if (
+      !(await Util.comparePassword(
+        loginCommand.password.trim(),
+        lookup.password,
+      ))
+    ) {
       throw new BadRequestException(`Incorrect credentials`);
     }
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
@@ -334,7 +342,7 @@ export class AuthService {
     });
     if (!user)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (!Util.comparePassword(loginCommand.password.trim(), user.password)) {
+    if (!await Util.comparePassword(loginCommand.password.trim(), user.password)) {
       throw new BadRequestException(`Incorrect credentials`);
     }
     const payload: UserInfo = {
@@ -366,22 +374,5 @@ export class AuthService {
         ...UserResponse.toResponse(user),
       },
     };
-    // if (loginCommand?.orgCode) {
-    //   const lookUp=await this.getUserOrganizationByCode(loginCommand)
-    //   return await this.login(loginCommand,lookUp);
-    // } else {
-    // if (await this.hasUserMultipleOrganization(loginCommand.phoneNumber)) {
-    //   const organizations = await this.getUserOrganizations(
-    //     loginCommand.phoneNumber,
-    //   );
-    //   return organizations.map((item) => LookUpResponse.toResponse(item));
-    // } else {
-    //   const lookUp = await this.getUserOrganization(
-    //     loginCommand.phoneNumber,
-    //   );
-    //   loginCommand.orgCode = lookUp.organization.code;
-    //   return await this.login(loginCommand,lookUp);
-    // }
-    // }
   }
 }

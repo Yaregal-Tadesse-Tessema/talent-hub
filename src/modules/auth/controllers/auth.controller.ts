@@ -47,12 +47,12 @@ export class AuthController {
           `Token might be expired. Please login again`,
         );
       }
-      const p = jwt.verify(
+      const p = (await jwt.verify(
         refreshToken,
         '06788ed74c52baf6ecff2876caa01619f03ca1b11b872ad1f182728d3694f227c22b35dc775ac634cd88e1c17fa80fface0cf30127b34dc8cfed063a240db46c',
-      ) as any;
+      )) as any;
       return {
-        accessToken: Util.GenerateToken(
+        accessToken: await Util.GenerateToken(
           {
             id: p.id,
             email: p.email,

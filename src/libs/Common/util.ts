@@ -14,11 +14,11 @@ export class Util {
     const salt = process.env.BCRYPT_SALT;
     return bcrypt.hashSync(plainPassword, salt);
   }
-  static comparePassword(
+  static async comparePassword(
     plainPassword: string,
     encryptedPassword: string,
-  ): boolean {
-    return bcrypt.compareSync(plainPassword, encryptedPassword);
+  ): Promise<boolean> {
+    return await bcrypt.compareSync(plainPassword, encryptedPassword);
   }
 
   static generatePassword(length = 4): string {

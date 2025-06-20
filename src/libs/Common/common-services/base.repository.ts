@@ -220,10 +220,20 @@ export class BaseRepository<T extends ObjectLiteral> {
     withDeleted = false,
   ): Promise<T> {
     const tenantId = await this.request['TENANT_ID'];
-    const baseCriteria: any = {
+    let baseCriteria: any = {
       ...(criteria || {}), // if you have other criteria
     };
-
+    if (Array.isArray(criteria)) {
+      baseCriteria = criteria.map((cond) => ({
+        ...cond,
+        tenantId,
+      }));
+    } else {
+      baseCriteria = {
+        ...criteria,
+        tenantId,
+      };
+    }
     if (tenantId) {
       baseCriteria.tenantId = tenantId;
     }
@@ -240,10 +250,20 @@ export class BaseRepository<T extends ObjectLiteral> {
     withDeleted = false,
   ): Promise<T[]> {
     const tenantId = await this.request['TENANT_ID'];
-    const baseCriteria: any = {
+    let baseCriteria: any = {
       ...(criteria || {}), // if you have other criteria
     };
-
+    if (Array.isArray(criteria)) {
+      baseCriteria = criteria.map((cond) => ({
+        ...cond,
+        tenantId,
+      }));
+    } else {
+      baseCriteria = {
+        ...criteria,
+        tenantId,
+      };
+    }
     if (tenantId) {
       baseCriteria.tenantId = tenantId;
     }

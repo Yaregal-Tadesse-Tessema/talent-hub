@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -323,6 +324,39 @@ export class UserService {
     });
   }
   async create(itemData: CreateUserCommand): Promise<UserResponse> {
+    const userAlreadyCreated = await this.userRepository.getOneByCriteria([
+      {
+        phone: itemData.phone,
+      },
+      {
+        email: itemData.email,
+      },
+    ]);
+    if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE)
+      throw new ConflictException({
+        message: 'User already exists. Please click on "Return to Sign In".',
+        status: UserStatusEnums.ACTIVE,
+      });
+    if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
+      const uerInfo: UserInfo = {
+        id: userAlreadyCreated.id,
+        email: userAlreadyCreated?.email,
+        firstName: userAlreadyCreated?.firstName,
+        middleName: userAlreadyCreated?.middleName,
+        lastName: userAlreadyCreated?.lastName,
+      };
+      const token = Util.GenerateToken(uerInfo);
+      await this.sendActivationMessage(
+        userAlreadyCreated.email,
+        `${userAlreadyCreated.firstName} ${userAlreadyCreated.middleName} ${userAlreadyCreated.lastName}`,
+        token,
+        userAlreadyCreated.id,
+      );
+      throw new ConflictException({
+        message: 'User already exists. Please click on "Return to Sign In".',
+        status: UserStatusEnums.PENDING,
+      });
+    }
     itemData.password = itemData?.password
       ? Util.hashPassword(itemData.password)
       : Util.hashPassword('C0mplex!');
