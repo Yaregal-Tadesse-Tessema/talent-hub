@@ -34,6 +34,8 @@ export class CreateTenantCommand {
   @ApiProperty()
   tin: string;
   @ApiProperty()
+  tags?: string[];
+  @ApiProperty()
   licenseNumber?: string;
   @ApiProperty()
   registrationNumber?: string;
@@ -72,7 +74,7 @@ export class CreateTenantCommand {
     tenant.subscriptionType = command?.subscriptionType;
     tenant.isVerified = command.isVerified;
     tenant.tin = command.tin;
-    tenant.tin = command.tin;
+    tenant.tags = command?.tags;
     tenant.licenseNumber = command.licenseNumber;
     tenant.registrationNumber = command.registrationNumber;
     tenant.status = command?.status;

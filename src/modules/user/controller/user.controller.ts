@@ -163,7 +163,6 @@ export class UserController {
     const relations = i ? i.split(',') : [];
     return await this.userService.findOne(id, relations);
   }
-
   @Put()
   async update(@Body() itemData: UpdateUserCommand): Promise<UserResponse> {
     return await this.userService.update(itemData);
@@ -173,8 +172,16 @@ export class UserController {
     @Body() itemData: UserAlertConfiguration,
     @userInfo() user: UserInfo,
   ): Promise<UserResponse> {
-    itemData.id = user.id;
+    itemData.userId = user.id;
     return await this.userService.addAlertCOnfiguration(itemData);
+  }
+  @Put('remove-alert-configuration')
+  async removeAlertCOnfiguration(
+    @Body() itemData: UserAlertConfiguration,
+    @userInfo() user: UserInfo,
+  ): Promise<UserResponse> {
+    itemData.userId = user.id;
+    return await this.userService.deleteAlertCOnfiguration(itemData);
   }
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<void> {
@@ -184,7 +191,6 @@ export class UserController {
   async restore(@Param('id') id: string): Promise<void> {
     return await this.userService.restore(id);
   }
-
   @Get('/archived/items')
   @ApiQuery({
     name: 'q',

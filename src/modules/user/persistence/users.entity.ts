@@ -71,8 +71,8 @@ export class UserEntity extends CommonEntity {
   educations: any;
   @Column({ nullable: true, type: 'jsonb' })
   experiences: any;
-  @Column({ nullable: true, type: 'jsonb' })
-  alertConfiguration: UserAlertConfiguration;
+  @Column({ nullable: true, array: true, type: 'jsonb' })
+  alertConfiguration: UserAlertConfiguration[];
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

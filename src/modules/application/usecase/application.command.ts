@@ -32,6 +32,8 @@ export class CreateApplicationCommand {
   @ApiProperty()
   remark?: string;
   @ApiProperty()
+  tags?: string[];
+  @ApiProperty()
   notification?: string;
   @ApiProperty()
   questionaryScore?: number;
@@ -54,6 +56,7 @@ export class CreateApplicationCommand {
     entity.userInfo = dto?.userInfo;
     entity.isViewed = dto?.isViewed;
     entity.remark = dto?.remark;
+    entity.tags = dto?.tags;
     entity.status = dto?.status;
     entity.notification = dto?.notification;
     entity.questionaryScore = dto?.questionaryScore;
@@ -89,10 +92,10 @@ export class PrepareScheduleCommand {
   jobPostId: string;
   @ApiProperty()
   @IsNotEmpty()
-  interviewersEmail: string;
+  interviewersEmail?: string;
   @ApiProperty()
   @IsNotEmpty()
-  oneInterviewDuration: number;
+  oneInterviewDuration?: number;
   @ApiProperty()
   numberOfInterviewingGroup: number;
 }

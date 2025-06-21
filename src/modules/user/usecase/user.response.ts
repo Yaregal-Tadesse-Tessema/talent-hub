@@ -68,7 +68,7 @@ export class UserResponse {
   @ApiProperty()
   experiences: any;
   @ApiProperty()
-  alertConfiguration: UserAlertConfiguration;
+  alertConfiguration: UserAlertConfiguration[];
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {

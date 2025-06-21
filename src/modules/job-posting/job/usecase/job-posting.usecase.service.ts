@@ -55,10 +55,12 @@ export class JobPostingService {
     try {
       query.includes.push('savedUsers');
       query.includes.push('applications');
+      query.includes.push('favoriteJobs');
       const { items, total } = await this.jobPostingRepository.findAll(query);
       const data = items.map((item) => {
         let isSaved = false;
         let isApplied = false;
+        let isFavorite = false;
         const response = JobPostingResponse.toResponse(item);
         if (item.savedUsers?.length > 0) {
           const userExists = item.savedUsers.some(
@@ -72,8 +74,15 @@ export class JobPostingService {
           );
           isApplied = userExists ? true : false;
         }
+        if (item.favoriteJobs?.length > 0) {
+          const userExists = item.favoriteJobs.some(
+            (user) => user.userId === userInfo?.id,
+          );
+          isFavorite = userExists ? true : false;
+        }
         response.isSaved = isSaved;
         response.isApplied = isApplied;
+        response.isFavorite = isFavorite;
         delete response.savedUsers;
         delete response.applications;
         return { ...response };

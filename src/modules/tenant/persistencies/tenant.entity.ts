@@ -35,6 +35,8 @@ export class TenantEntity extends CommonEntity {
   tin: string;
   @Column({ nullable: true })
   licenseNumber: string;
+  @Column({ type: 'text', array: true, nullable: true })
+  tags: string[];
   @Column({ nullable: true })
   registrationNumber: string;
   @Column({ name: 'is_active', default: true })

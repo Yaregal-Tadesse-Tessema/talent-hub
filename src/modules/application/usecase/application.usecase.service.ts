@@ -26,7 +26,6 @@ import { ApplicationEntity } from '../persistences/application.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { InvitationRepository } from '../persistences/invitation.repository';
 import { ExcelGenerator } from 'src/libs/Common/excel.service';
-import { ApplicationStatusEnums } from '../constants';
 
 interface Column {
   name: string;

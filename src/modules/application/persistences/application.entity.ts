@@ -42,6 +42,8 @@ export class ApplicationEntity extends CommonEntity {
   status: ApplicationStatusEnums;
   @Column({ nullable: true })
   remark: string;
+  @Column({ type: 'text', array: true, nullable: true })
+  tags: string[];
   @Column({ nullable: true })
   notification: string;
   @Column({ nullable: true })

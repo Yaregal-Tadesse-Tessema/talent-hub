@@ -12,6 +12,7 @@ import { ApplicationResponse } from 'src/modules/application/usecase/application
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SavedJobsResponse } from './saved-jobs.response';
 import { PreScreeningQuestionResponse } from './pre-screening-question/pre-screening-question.response';
+import { UserFavoriteJobEntity } from '../persistencies/user-favorite-job.entity';
 export class JobPostingResponse {
   @ApiProperty()
   id: string;
@@ -75,14 +76,18 @@ export class JobPostingResponse {
   currentUser?: any;
   @ApiProperty({ type: () => [ApplicationResponse] })
   applications: ApplicationResponse[];
-  @ApiProperty({ type: () => [ApplicationResponse] })
+  @ApiProperty()
+  favoriteJobs: UserFavoriteJobEntity[];
+  @ApiProperty({ type: () => [SavedJobsResponse] })
   savedUsers: SavedJobsResponse[];
-  @ApiProperty({ type: () => [ApplicationResponse] })
+  @ApiProperty({ type: () => [PreScreeningQuestionResponse] })
   preScreeningQuestions: PreScreeningQuestionResponse[];
   @ApiProperty()
   isSaved: boolean;
   @ApiProperty()
   isApplied: boolean;
+  @ApiProperty()
+  isFavorite: boolean;
   @ApiProperty()
   positionNumbers: number;
   @ApiProperty()
@@ -133,6 +138,7 @@ export class JobPostingResponse {
     response.paymentType = entity.paymentType;
     response.tenantId = entity.tenantId;
     response.isFeatured = entity.isFeatured;
+    response.favoriteJobs = entity.favoriteJobs;
 
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;
@@ -152,6 +158,16 @@ export class JobPostingResponse {
         (item) => PreScreeningQuestionResponse.toResponse(item),
       );
     }
+    // if (entity?.preScreeningQuestions?.length > 0) {
+    //   response.preScreeningQuestions = entity.preScreeningQuestions.map(
+    //     (item) => PreScreeningQuestionResponse.toResponse(item),
+    //   );
+    // }
+    // if (entity?.favoriteJobs?.length > 0) {
+    //   response.favoriteJobs = entity.favoriteJobs.map((item) =>
+    //     UserFavoriteJobResponse.toResponse(item),
+    //   );
+    // }
     return response;
   }
 }

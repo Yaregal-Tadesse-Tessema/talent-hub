@@ -9,9 +9,7 @@ import {
 } from '../constants';
 
 export class UserAlertConfiguration {
-  @ApiProperty()
-  @IsNotEmpty()
-  id: string;
+  userId: string;
   @ApiProperty()
   salary: string;
   @ApiProperty()
@@ -86,7 +84,7 @@ export class CreateUserCommand {
   @ApiProperty()
   professionalSummery: string;
   @ApiProperty()
-  alertConfiguration?: UserAlertConfiguration;
+  alertConfiguration?: UserAlertConfiguration[];
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {

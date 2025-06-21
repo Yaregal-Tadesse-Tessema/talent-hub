@@ -23,6 +23,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.subscriptionType = entity?.subscriptionType;
     response.isVerified = entity.isVerified;
     response.tin = entity.tin;
+    response.tags = entity.tags;
     response.licenseNumber = entity.licenseNumber;
     response.registrationNumber = entity.registrationNumber;
     response.isActive = entity.isActive;

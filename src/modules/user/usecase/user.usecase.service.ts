@@ -425,9 +425,22 @@ export class UserService {
   async addAlertCOnfiguration(
     alertConfiguration: UserAlertConfiguration,
   ): Promise<UserResponse> {
-    const user = await this.userRepository.findOne(alertConfiguration.id);
+    const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
-    user.alertConfiguration = alertConfiguration;
+    user.alertConfiguration.push(alertConfiguration);
+    await this.userRepository.update(user.id, user);
+    const res = await this.findOne(user.id);
+    return res;
+  }
+  async deleteAlertCOnfiguration(
+    alertConfiguration: UserAlertConfiguration,
+  ): Promise<UserResponse> {
+    const user = await this.userRepository.findOne(alertConfiguration.userId);
+    if (!user) throw new BadRequestException(`User doesn't exist`);
+    const newConfig = user.alertConfiguration.filter(
+      (item) => item != alertConfiguration,
+    );
+    user.alertConfiguration = newConfig;
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
     return res;

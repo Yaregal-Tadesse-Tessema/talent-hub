@@ -25,6 +25,8 @@ export class ApplicationResponse {
   @ApiProperty()
   remark: string;
   @ApiProperty()
+  tags: string[];
+  @ApiProperty()
   status: ApplicationStatusEnums;
   @ApiProperty()
   notification: string;
@@ -60,6 +62,7 @@ export class ApplicationResponse {
     response.userInfo = entity?.userInfo;
     response.isViewed = entity?.isViewed;
     response.remark = entity?.remark;
+    response.tags = entity?.tags;
     response.status = entity?.status;
     response.tenantId = entity?.tenantId;
     response.notification = entity?.notification;
