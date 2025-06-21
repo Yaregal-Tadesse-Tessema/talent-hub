@@ -334,7 +334,7 @@ export class UserService {
     ]);
     if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE)
       throw new ConflictException({
-        message: 'User already exists. Please click on "Return to Sign In".',
+        message: 'User already exists. Please click on Return to Sign In.',
         status: UserStatusEnums.ACTIVE,
       });
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
@@ -353,7 +353,8 @@ export class UserService {
         userAlreadyCreated.id,
       );
       throw new ConflictException({
-        message: 'User already exists. Please click on "Return to Sign In".',
+        message:
+          'Activation Link is Sent please check your inbox if you can not found check your spam folder',
         status: UserStatusEnums.PENDING,
       });
     }

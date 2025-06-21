@@ -54,9 +54,11 @@ export class JobPostingService {
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
       query.includes.push('savedUsers');
+      query.includes.push('applications');
       const { items, total } = await this.jobPostingRepository.findAll(query);
       const data = items.map((item) => {
         let isSaved = false;
+        let isApplied = false;
         const response = JobPostingResponse.toResponse(item);
         if (item.savedUsers?.length > 0) {
           const userExists = item.savedUsers.some(
@@ -64,8 +66,16 @@ export class JobPostingService {
           );
           isSaved = userExists ? true : false;
         }
+        if (item.applications?.length > 0) {
+          const userExists = item.applications.some(
+            (user) => user.userId === userInfo?.id,
+          );
+          isApplied = userExists ? true : false;
+        }
         response.isSaved = isSaved;
+        response.isApplied = isApplied;
         delete response.savedUsers;
+        delete response.applications;
         return { ...response };
       });
       return { items: data, total: total };
