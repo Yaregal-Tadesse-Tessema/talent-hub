@@ -29,7 +29,7 @@ export class PdfService {
     }
     const browser = await puppeteer.launch({
       headless: true, // or true
-      // args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     page.setDefaultNavigationTimeout(0);
