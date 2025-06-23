@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsUUID } from 'class-validator';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { ApplicationStatusEnums } from '../constants';
 export class ReferralInformation {
@@ -12,6 +12,7 @@ export class ReferralInformation {
   id?: string;
 }
 export class CreateApplicationCommand {
+  @IsOptional()
   id?: string;
   @ApiProperty({ nullable: false })
   @IsNotEmpty()

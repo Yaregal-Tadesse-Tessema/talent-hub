@@ -74,10 +74,10 @@ export class ApplicationService {
     );
     return ApplicationResponse.toResponse(response);
   }
-  async update(id: string, itemData: any): Promise<ApplicationResponse> {
-    await this.findOneOrFail(id);
-    await this.applicationRepository.update(id, itemData);
-    const res = await this.findOne(id);
+  async update(itemData: any): Promise<ApplicationResponse> {
+    await this.findOneOrFail(itemData.id);
+    await this.applicationRepository.update(itemData.id, itemData);
+    const res = await this.findOne(itemData.id);
     return res;
   }
   async softDelete(id: string): Promise<any> {

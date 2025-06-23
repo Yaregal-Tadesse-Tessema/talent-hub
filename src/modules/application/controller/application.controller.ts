@@ -1,25 +1,6 @@
 /* eslint-disable prettier/prettier */
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  Put,
-  Query,
-  Req,
-  Res,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import {
-  ApiExtraModels,
-  ApiOkResponse,
-  ApiQuery,
-  ApiTags,
-} from '@nestjs/swagger';
+
+import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import {
   ChangeApplicationStatus,
@@ -34,9 +15,22 @@ import { ApplicationResponse } from '../usecase/application.response';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { ApiPaginatedResponse } from 'src/libs/response-format/api-paginated-response';
 import { Response } from 'express';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 @Controller('applications')
 @ApiTags('applications')
-@ApiExtraModels(DataResponseFormat)
 export class ApplicationController {
   constructor(private readonly applicationService: ApplicationService) {}
   @Post('create-application')
@@ -82,27 +76,25 @@ export class ApplicationController {
   @ApiOkResponse({ type: ApplicationResponse })
   async findOne(
     @Param('id') id: string,
-    @Req() req?: any,
     @Query('i') i?: string,
   ): Promise<ApplicationResponse> {
     const relations = i ? i.split(',') : [];
-    return this.applicationService.findOne(id, relations);
+    return await this.applicationService.findOne(id, relations);
   }
-  @Put(':id')
-  @ApiOkResponse({ type: ApplicationResponse })
-  async update(
-    @Param('id') id: string,
-    @Body() itemData: UpdateApplicationCommand,
+  @Put('update')
+  async Post(
+    @Body() command: UpdateApplicationCommand,
   ): Promise<ApplicationResponse> {
-    return this.applicationService.update(id, itemData);
+    console.log(command);
+    return await this.applicationService.update(command);
   }
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<boolean> {
-    return this.applicationService.softDelete(id);
+    return await this.applicationService.softDelete(id);
   }
   @Patch('restore/:id')
   async restore(@Param('id') id: string): Promise<boolean> {
-    return this.applicationService.restore(id);
+    return await this.applicationService.restore(id);
   }
 
   @Get('/archived/items')
@@ -117,7 +109,7 @@ export class ApplicationController {
     @Query('q') q?: string,
   ): Promise<DataResponseFormat<any>> {
     const query = decodeCollectionQuery(q);
-    return this.applicationService.findAllArchived(query);
+    return await this.applicationService.findAllArchived(query);
   }
   @Post('schedule')
   @ApiPaginatedResponse(ApplicationResponse)
