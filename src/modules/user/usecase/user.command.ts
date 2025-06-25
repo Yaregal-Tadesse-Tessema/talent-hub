@@ -84,6 +84,12 @@ export class CreateUserCommand {
   @ApiProperty()
   professionalSummery: string;
   @ApiProperty()
+  isProfilePublic: boolean;
+  @ApiProperty()
+  isResumePublic: boolean;
+  @ApiProperty()
+  notificationSetting: string[];
+  @ApiProperty()
   alertConfiguration?: UserAlertConfiguration[];
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
@@ -120,6 +126,9 @@ export class CreateUserCommand {
     entity.coverLetter = dto?.coverLetter;
     entity.professionalSummery = dto?.professionalSummery;
     entity.alertConfiguration = dto?.alertConfiguration;
+    entity.isProfilePublic = dto?.isProfilePublic;
+    entity.isResumePublic = dto?.isResumePublic;
+    entity.notificationSetting = dto?.notificationSetting;
 
     return entity;
   }

@@ -71,6 +71,12 @@ export class UserEntity extends CommonEntity {
   educations: any;
   @Column({ nullable: true, type: 'jsonb' })
   experiences: any;
+  @Column({ default: true })
+  isProfilePublic: boolean;
+  @Column({ default: false })
+  isResumePublic: boolean;
+  @Column({ type: 'text', array: true, nullable: true })
+  notificationSetting: string[];
   @Column({ nullable: true, type: 'jsonb' })
   alertConfiguration: UserAlertConfiguration[];
   @OneToMany(

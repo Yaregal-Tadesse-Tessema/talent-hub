@@ -44,10 +44,8 @@ export class UserResponse {
   salaryExpectations: number;
   @ApiProperty()
   aiGeneratedJobFitScore: number;
-
   @ApiProperty()
   profile: any;
-
   @ApiProperty()
   resume: any;
   @ApiProperty()
@@ -62,11 +60,16 @@ export class UserResponse {
   coverLetter: string;
   @ApiProperty()
   professionalSummery: string;
-
   @ApiProperty()
   educations: any;
   @ApiProperty()
   experiences: any;
+  @ApiProperty()
+  isProfilePublic: boolean;
+  @ApiProperty()
+  isResumePublic: boolean;
+  @ApiProperty()
+  notificationSetting: string[];
   @ApiProperty()
   alertConfiguration: UserAlertConfiguration[];
   static toResponse(entity: UserEntity): UserResponse {
@@ -105,6 +108,9 @@ export class UserResponse {
     response.educations = entity.educations;
     response.experiences = entity.experiences;
     response.alertConfiguration = entity.alertConfiguration;
+    response.isProfilePublic = entity.isProfilePublic;
+    response.isResumePublic = entity.isResumePublic;
+    response.notificationSetting = entity.notificationSetting;
     return response;
   }
 }

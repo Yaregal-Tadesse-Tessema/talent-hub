@@ -9,27 +9,27 @@ import { UserTenantEntity } from './user-tenant.entity';
 
 @Entity({ name: 'tenants' })
 export class TenantEntity extends CommonEntity {
-  @Column({ name: 'name' })
+  @Column()
   name: string;
-  @Column({ name: 'schema_name', nullable: true })
+  @Column({ nullable: true })
   schemaName: string;
-  @Column({ nullable: true, name: 'prefix' })
+  @Column({ nullable: true })
   prefix?: string;
-  @Column({ name: 'type', nullable: true })
+  @Column({ nullable: true })
   type: string;
-  @Column({ name: 'trade_name', nullable: true })
+  @Column({ nullable: true })
   tradeName: string;
-  @Column({ name: 'email', nullable: true, unique: true })
+  @Column({ nullable: true, unique: true })
   email: string;
-  @Column({ name: 'code', nullable: true })
+  @Column({ nullable: true })
   code: string;
-  @Column({ name: 'phone_number', unique: true })
+  @Column({ unique: true, nullable: true })
   phoneNumber: string;
   @Column({ type: 'jsonb' })
   address: any;
-  @Column({ name: 'subscription_type', default: TenantSubscriptionTypes.FREE })
+  @Column({ default: TenantSubscriptionTypes.FREE })
   subscriptionType: TenantSubscriptionTypes;
-  @Column({ name: 'is_verified', default: false })
+  @Column({ default: false })
   isVerified: boolean;
   @Column({ unique: true })
   tin: string;
@@ -39,21 +39,21 @@ export class TenantEntity extends CommonEntity {
   tags: string[];
   @Column({ nullable: true })
   registrationNumber: string;
-  @Column({ name: 'is_active', default: true })
+  @Column({ default: true })
   isActive: boolean;
   @Column({ default: AccountStatusEnums.ACTIVE })
   status: AccountStatusEnums;
-  @Column({ name: 'logo', nullable: true, type: 'jsonb' })
+  @Column({ nullable: true, type: 'jsonb' })
   logo: FileDto;
   @Column({ nullable: true, type: 'jsonb' })
   cover: FileDto;
-  @Column({ name: 'company_size', nullable: true })
+  @Column({ nullable: true })
   companySize: string;
-  @Column({ name: 'industry', nullable: true })
+  @Column({ nullable: true })
   industry: string;
-  @Column({ name: 'organization_type', nullable: true })
+  @Column({ nullable: true })
   organizationType: string;
-  @Column({ name: 'selected_calender', nullable: true })
+  @Column({ nullable: true })
   selectedCalender: string;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.tenant, {
     cascade: true,
