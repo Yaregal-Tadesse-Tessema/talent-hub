@@ -23,6 +23,8 @@ import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.
 import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
 import { GeminiService } from './job/usecase/gemini';
 import { GeminiController } from './job/controller/gemini.controller';
+import { PdfParserController } from './job/controller/pdf-parser.controller';
+import { ResumeMatchingService } from './job/usecase/resume-matcher';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -52,6 +54,7 @@ import { GeminiController } from './job/controller/gemini.controller';
     UserFavoriteJobService,
 
     GeminiService,
+    ResumeMatchingService,
   ],
   controllers: [
     JobPostingController,
@@ -59,6 +62,7 @@ import { GeminiController } from './job/controller/gemini.controller';
     PreScreeningQuestionController,
     UserFavoriteJobController,
     GeminiController,
+    PdfParserController,
   ],
   exports: [JobPostingService, JobPostingRepository],
 })

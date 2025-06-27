@@ -30,6 +30,8 @@ export class ApplicationEntity extends CommonEntity {
   referenceReason: string;
   @Column({ type: 'jsonb', nullable: true })
   cv: FileDto;
+  @Column({  default: 0 })
+  viewCount: number;
   @Column({ nullable: true })
   coverLetter: string;
   @Column({ nullable: true, type: 'jsonb' })

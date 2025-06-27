@@ -41,6 +41,8 @@ export class ApplicationResponse {
   @ApiProperty()
   isInvited: boolean;
   @ApiProperty()
+  viewCount: number;
+  @ApiProperty()
   tenantId: string;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
@@ -70,6 +72,7 @@ export class ApplicationResponse {
     response.referenceReason = entity?.referenceReason;
     response.questionaryScore = entity?.questionaryScore;
     response.isInvited = entity?.isInvited;
+    response.viewCount = entity?.viewCount;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);
     }

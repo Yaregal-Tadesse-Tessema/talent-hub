@@ -8,6 +8,7 @@ import {
   NotificationInformation,
   PrepareScheduleCommand,
   UpdateApplicationCommand,
+  UpdateApplicationView,
 } from '../usecase/application.command';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApplicationService } from '../usecase/application.usecase.service';
@@ -131,5 +132,11 @@ export class ApplicationController {
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     );
     res.send(Buffer.from(buffer));
+  }
+  @Post('update-application-view-counts')
+  async updateApplicationsViewCount(
+    @Body() command: UpdateApplicationView,
+  ): Promise<boolean> {
+    return await this.applicationService.updateApplicationsViewCount(command);
   }
 }

@@ -11,6 +11,7 @@ import {
   ICalenderCommand,
   NotificationInformation,
   PrepareScheduleCommand,
+  UpdateApplicationView,
 } from './application.command';
 import { v4 as uuidv4 } from 'uuid';
 import { ApplicationRepository } from '../persistences/application.repository';
@@ -413,6 +414,17 @@ export class ApplicationService {
 
     const buffer = await excel.saveBuffer();
     return buffer;
+  }
+  async  updateApplicationsViewCount(command: UpdateApplicationView): Promise<boolean> {
+    const ids=command.ids
+   for (let index = 0; index < ids.length; index++) {
+    const id = ids[index];
+    const  application=await this.applicationRepository.getOneByCriteria({id:id})
+    if(!application)continue
+    application.viewCount+=1
+    await this.applicationRepository.create(application)
+   }
+   return true
   }
 }
 interface ScheduledInterview {

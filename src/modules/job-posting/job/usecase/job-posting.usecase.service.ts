@@ -85,6 +85,7 @@ export class JobPostingService {
         response.isFavorite = isFavorite;
         delete response.savedUsers;
         delete response.applications;
+        delete response.favoriteJobs;
         return { ...response };
       });
       return { items: data, total: total };

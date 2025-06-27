@@ -23,6 +23,8 @@ export class CreateApplicationCommand {
   @ApiProperty()
   coverLetter?: string;
   @ApiProperty()
+  viewCount?: number;
+  @ApiProperty()
   referralInformation?: ReferralInformation;
   @ApiProperty()
   referenceReason?: string;
@@ -64,6 +66,7 @@ export class CreateApplicationCommand {
     entity.referralInformation = dto?.referralInformation;
     entity.referenceReason = dto?.referenceReason;
     entity.isInvited = dto?.isInvited;
+    entity.viewCount = dto?.viewCount;
     return entity;
   }
   static fromDtos(dto: CreateApplicationCommand[]): ApplicationEntity[] {
@@ -143,5 +146,9 @@ export class ICalenderCommand {
   location: string;
   orgEmail: string;
   // date: Date;
+}
+export class UpdateApplicationView {
+  @ApiProperty()
+  ids: string[];
 }
 
