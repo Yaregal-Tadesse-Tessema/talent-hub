@@ -25,8 +25,10 @@ import {
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import {
   AccountPasswordChange,
+  AccountPasswordReset,
   CreateUserCommand,
   CvTemplateEnums,
+  SendPasswordResetLinkCommand,
   UpdateUserCommand,
   UserAlertConfiguration,
 } from '../usecase/user.command';
@@ -204,5 +206,22 @@ export class UserController {
   ): Promise<DataResponseFormat<UserResponse>> {
     const query = decodeCollectionQuery(q);
     return await this.userService.findAllArchived(query);
+  }
+  @AllowAnonymous()
+  @Post('send-password-reset-email')
+  async sendPasswordResetEmail(
+    @Body() command: SendPasswordResetLinkCommand,
+  ): Promise<boolean> {
+    return await this.userService.sendPasswordResetEmail(
+      command.email,
+      command.link,
+    );
+  }
+  @AllowAnonymous()
+  @Post('reset-user-password-by-email')
+  async ResetUserPasswordByEmail(
+    @Body() command: AccountPasswordReset,
+  ): Promise<UserResponse> {
+    return await this.userService.resetUserPasswordByEmail(command);
   }
 }

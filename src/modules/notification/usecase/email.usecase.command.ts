@@ -136,6 +136,9 @@ export class EmailService {
     icsContent?: string,
   ): Promise<boolean> {
     try {
+      if (!to) {
+        return null;
+      }
       const msg: sgMail.MailDataRequired = {
         to,
         from: 'yayasoles@gmail.com', // Must be a verified sender

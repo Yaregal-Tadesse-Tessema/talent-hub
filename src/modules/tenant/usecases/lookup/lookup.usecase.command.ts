@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  Res,
 } from '@nestjs/common';
 import { CreateLookupCommand, UpdateLookupCommand } from './lookup.command';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
@@ -14,12 +15,21 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { LookupResponse } from './lookup.response';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantResponse } from '../tenant/tenant.response';
+import { JwtService } from '@nestjs/jwt';
+import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
+import { Util } from 'src/libs/Common/util';
+import { UserInfo } from 'src/libs/Common/user-information';
+import { Response } from 'express';
+import { UserStatusEnums } from 'src/modules/user/constants';
+import { AccountStatusEnums } from 'src/modules/auth/constants';
 @Injectable()
 export class LookupService {
   constructor(
     private readonly lookupRepository: LookupRepository,
     private readonly employeeORganizationRepository: EmployeeTenantRepository,
     private readonly fileService: FileService,
+    private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
   async getAll(query: CollectionQuery) {
     return await this.lookupRepository.findAll(query);
@@ -49,8 +59,46 @@ export class LookupService {
     };
   }
   async createLookup(command: CreateLookupCommand) {
+    if (command.email) {
+      const employeerAlreadyExist =
+        await this.lookupRepository.getOneByCriteria({ email: command.email });
+      if (employeerAlreadyExist)
+        throw new BadRequestException(
+          `Employer with email${command.email} already exists`,
+        );
+    }
+    if (command.phoneNumber) {
+      const employeerAlreadyExist =
+        await this.lookupRepository.getOneByCriteria({
+          phoneNumber: command.phoneNumber,
+        });
+      if (employeerAlreadyExist)
+        throw new BadRequestException(
+          `Employer with phone${command.phoneNumber} already exists`,
+        );
+    }
     const lookupEntity = CreateLookupCommand.fromCommand(command);
     const lookup = await this.lookupRepository.create(lookupEntity);
+    if (lookup?.status == UserStatusEnums.PENDING) {
+      const payload: UserInfo = {
+        id: lookupEntity.id,
+        email: lookupEntity?.email,
+        firstName: lookupEntity?.firstName,
+        middleName: lookupEntity?.middleName,
+        lastName: lookupEntity?.lastName,
+        profileImage: lookupEntity?.profileImage,
+        address: lookupEntity?.address,
+        phoneNumber: lookupEntity?.phoneNumber,
+        roles: [],
+      };
+      const token = Util.GenerateToken(payload);
+      await this.sendActivationMessage(
+        payload.email,
+        `${payload.firstName} ${payload.middleName} ${payload.lastName}`,
+        token,
+        payload.id,
+      );
+    }
     return lookup;
   }
   async updateLookup(command: UpdateLookupCommand) {
@@ -89,11 +137,96 @@ export class LookupService {
     const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
     const fileName = file.originalname;
     const fileId = `${id}/Profile/${randomNumber}_${fileName}`;
-    // const comman = { userId, fileCategory: 'Resume', metaData: { fileName } };
     const res = await this.fileService.uploadAttachment(fileId, file);
     if (!res) throw new BadRequestException('file upload failed');
     lookup.profileImage = res;
     const response = await this.lookupRepository.create(lookup);
     return LookupResponse.toResponse(response);
+  }
+  async activateAccount(token: string, @Res() res: Response, lookUpId: string) {
+    if (!token) {
+      throw new BadRequestException('Activation token is required');
+    }
+    const payload = await this.jwtService.verify(token);
+    if (!payload) {
+      const lookupEntity = await this.lookupRepository.findOne(lookUpId, [
+        'employeeTenant',
+      ]);
+      if (!lookupEntity) throw new BadRequestException(`User Doesn't exist`);
+      const payload: UserInfo = {
+        id: lookupEntity.id,
+        tenantId: lookupEntity.employeeTenant[0]?.tenantId,
+        email: lookupEntity?.email,
+        firstName: lookupEntity?.firstName,
+        middleName: lookupEntity?.middleName,
+        lastName: lookupEntity?.lastName,
+        profileImage: lookupEntity?.profileImage,
+        address: lookupEntity?.address,
+        phoneNumber: lookupEntity?.phoneNumber,
+        roles: [],
+      };
+      const token = Util.GenerateToken(payload);
+      await this.sendActivationMessage(
+        lookupEntity.email,
+        `${lookupEntity.firstName} ${lookupEntity.middleName} ${lookupEntity.lastName}`,
+        token,
+        lookUpId,
+      );
+      return res.redirect('http://138.197.105.31:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
+    }
+    if (!payload?.id) throw new NotFoundException(`user Id not Found`);
+    const lookup = await this.lookupRepository.findOne(payload.id);
+    if (lookup.status == AccountStatusEnums.ACTIVE) {
+      return res.redirect(
+        'http://138.197.105.31:3000/login?status=alreadyActivated',
+      );
+    }
+    const success = await this.lookupRepository.update(payload.id, {
+      status: UserStatusEnums.ACTIVE,
+    });
+    if (success) {
+      return res.redirect(
+        'http://138.197.105.31:3000/login?status=successfullyActivated',
+      ); // frontend success page
+    } else {
+      return res.redirect('http://138.197.105.31:3000/status=failedToActivate'); // frontend error page
+    }
+  }
+  async sendActivationMessage(
+    to: string,
+    fullName: string,
+    token: string,
+    lookUpId: string,
+  ): Promise<boolean> {
+    const activationLink = `http://138.197.105.31:3010/api/lookups/activate-account/${lookUpId}?token=${token}`;
+    const subject = 'Activate Your Account 🚀';
+
+    const html = `
+    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      <h2>Hello ${fullName},</h2>
+      <p>Thank you for registering with us! To complete your registration and activate your account, please click the button below:</p>
+      <a href="${activationLink}"
+         style="
+           display: inline-block;
+           padding: 12px 24px;
+           margin: 20px 0;
+           font-size: 16px;
+           color: white;
+           background-color: #007bff;
+           text-decoration: none;
+           border-radius: 6px;
+         "
+         target="_blank">
+        Activate My Account
+      </a>
+      <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
+      <p><a href="${activationLink}">${activationLink}</a></p>
+      <p>This link will expire in 24 hours for your security.</p>
+      <p>Welcome aboard!<br/>— The YourCompany Team</p>
+    </div>
+     `;
+    if (!to) throw new BadRequestException(`Reciver email is Mandatory`);
+    await this.emailService.sendGridEmail(to, subject, html);
+    return true;
   }
 }

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -28,6 +29,7 @@ import {
 } from '../usecases/lookup/lookup.command';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Response } from 'express';
 
 @Controller('lookups')
 @ApiTags('lookups')
@@ -84,5 +86,15 @@ export class LookupController {
   async getTenantsByLookupId(@Param('lookupId') lookupId: string) {
     const result = await this.lookupService.getTenantsByLookupId(lookupId);
     return result;
+  }
+  @AllowAnonymous()
+  @Get('activate-account/:lookupId')
+  @ApiOkResponse({ type: LookupResponse })
+  async activateAccount(
+    @Query('token') token: string,
+    @Res() res: Response,
+    @Param('lookupId') lookupId: string,
+  ) {
+    return await this.lookupService.activateAccount(token, res, lookupId);
   }
 }

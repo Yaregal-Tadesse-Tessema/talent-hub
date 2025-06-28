@@ -4,7 +4,10 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { ApplicationEntity } from '../persistences/application.entity';
 import { UserResponse } from 'src/modules/user/usecase/user.response';
 import { JobPostingResponse } from 'src/modules/job-posting/job/usecase/job-posting.response';
-import { ReferralInformation } from './application.command';
+import {
+  ApplicationJobMatchCommand,
+  ReferralInformation,
+} from './application.command';
 import { ApplicationStatusEnums } from '../constants';
 import { MessageResponse } from 'src/modules/notification/usecase/message/message.response';
 export class ApplicationResponse {
@@ -44,6 +47,10 @@ export class ApplicationResponse {
   viewCount: number;
   @ApiProperty()
   tenantId: string;
+  @ApiProperty()
+  aiMatch: ApplicationJobMatchCommand;
+  @ApiProperty()
+  algorithmMatch: ApplicationJobMatchCommand;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   @ApiProperty({ type: () => [UserResponse] })
@@ -73,6 +80,8 @@ export class ApplicationResponse {
     response.questionaryScore = entity?.questionaryScore;
     response.isInvited = entity?.isInvited;
     response.viewCount = entity?.viewCount;
+    response.aiMatch = entity?.aiMatch;
+    response.algorithmMatch = entity?.algorithmMatch;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);
     }

@@ -13,10 +13,13 @@ export class CreateLookupCommand {
   @ApiProperty()
   lastName?: string;
   @ApiProperty()
+  @IsNotEmpty()
   password: string;
   @ApiProperty()
+  @IsNotEmpty()
   email: string;
   @ApiProperty()
+  @IsNotEmpty()
   phoneNumber: string;
   @ApiProperty()
   status: AccountStatusEnums;

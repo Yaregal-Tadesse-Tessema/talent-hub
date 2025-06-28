@@ -11,9 +11,9 @@ import { NotificationEntity } from 'src/modules/notification/persistencies/notif
 import { UserAlertConfiguration } from '../usecase/user.command';
 @Entity({ name: 'users' })
 export class UserEntity extends CommonEntity {
-  @Column({ nullable: true, unique: true })
+  @Column({ unique: true })
   phone: string;
-  @Column({ nullable: true, unique: true })
+  @Column({ unique: true })
   email: string;
   @Column({ nullable: true })
   firstName: string;

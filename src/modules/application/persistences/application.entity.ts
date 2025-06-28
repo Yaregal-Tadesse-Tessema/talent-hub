@@ -10,7 +10,10 @@ import {
 } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
-import { ReferralInformation } from '../usecase/application.command';
+import {
+  ApplicationJobMatchCommand,
+  ReferralInformation,
+} from '../usecase/application.command';
 import { ApplicationStatusEnums } from '../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { MessageEntity } from 'src/modules/notification/persistencies/message.entity';
@@ -30,7 +33,7 @@ export class ApplicationEntity extends CommonEntity {
   referenceReason: string;
   @Column({ type: 'jsonb', nullable: true })
   cv: FileDto;
-  @Column({  default: 0 })
+  @Column({ default: 0 })
   viewCount: number;
   @Column({ nullable: true })
   coverLetter: string;
@@ -50,6 +53,10 @@ export class ApplicationEntity extends CommonEntity {
   notification: string;
   @Column({ nullable: true })
   questionaryScore: number;
+  @Column({ nullable: true, type: 'jsonb' })
+  aiMatch: ApplicationJobMatchCommand;
+  @Column({ nullable: true, type: 'jsonb' })
+  algorithmMatch: ApplicationJobMatchCommand;
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,

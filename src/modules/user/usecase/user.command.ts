@@ -26,8 +26,10 @@ export class UserAlertConfiguration {
 export class CreateUserCommand {
   id?: string;
   @ApiProperty()
+  @IsNotEmpty()
   phone: string;
   @ApiProperty()
+  @IsNotEmpty()
   email: string;
   @ApiProperty()
   firstName: string;
@@ -159,6 +161,23 @@ export class AccountPasswordChange {
   @ApiProperty()
   @IsNotEmpty()
   confirmNewPassword: string;
+}
+export class AccountPasswordReset {
+  @ApiProperty()
+  @IsNotEmpty()
+  email: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  newPassword: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  confirmNewPassword: string;
+}
+export class SendPasswordResetLinkCommand {
+  @ApiProperty()
+  email: string;
+  @ApiProperty()
+  link: string;
 }
 export enum EmployeeStatus {
   ACTIVE = 'Active',

@@ -11,6 +11,13 @@ export class ReferralInformation {
   @ApiProperty()
   id?: string;
 }
+export class ApplicationJobMatchCommand {
+  @ApiProperty()
+  score: number;
+  @ApiProperty()
+  description: string;
+}
+
 export class CreateApplicationCommand {
   @IsOptional()
   id?: string;
@@ -45,6 +52,11 @@ export class CreateApplicationCommand {
   @ApiProperty()
   isInvited?: boolean;
   @ApiProperty()
+  aiMatch?: ApplicationJobMatchCommand;
+  @ApiProperty()
+  algorithmMatch?: ApplicationJobMatchCommand;
+
+  @ApiProperty()
   userInfo?: any;
   static fromDto(dto: CreateApplicationCommand): ApplicationEntity {
     const entity = new ApplicationEntity();
@@ -67,6 +79,8 @@ export class CreateApplicationCommand {
     entity.referenceReason = dto?.referenceReason;
     entity.isInvited = dto?.isInvited;
     entity.viewCount = dto?.viewCount;
+    entity.aiMatch = dto?.aiMatch;
+    entity.algorithmMatch = dto?.algorithmMatch;
     return entity;
   }
   static fromDtos(dto: CreateApplicationCommand[]): ApplicationEntity[] {
@@ -151,4 +165,5 @@ export class UpdateApplicationView {
   @ApiProperty()
   ids: string[];
 }
+
 

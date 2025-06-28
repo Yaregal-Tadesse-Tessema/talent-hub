@@ -10,29 +10,29 @@ import { NotificationEntity } from 'src/modules/notification/persistencies/notif
 
 @Entity({ name: 'lookup_table' })
 export class LookupEntity extends CommonEntity {
-  @Column({ name: 'user_id', nullable: true, unique: true })
+  @Column({ nullable: true, unique: true })
   userId: string;
-  @Column({ name: 'full_name', nullable: true })
+  @Column({ nullable: true })
   fullName: string;
-  @Column({ name: 'first_name', nullable: true })
+  @Column({ nullable: true })
   firstName: string;
-  @Column({ name: 'middle_name', nullable: true })
+  @Column({ nullable: true })
   middleName: string;
-  @Column({ name: 'last_name', nullable: true })
+  @Column({ nullable: true })
   lastName: string;
-  @Column({ name: 'password', nullable: true })
+  @Column({ nullable: true })
   password: string;
-  @Column({ name: 'email', nullable: true, unique: true })
+  @Column({ unique: true })
   email: string;
-  @Column({ name: 'phone_number', unique: true })
+  @Column({ unique: true })
   phoneNumber: string;
-  @Column({ name: 'user_type', default: UserType.EMPLOYEE })
+  @Column({ default: UserType.EMPLOYEE })
   userType: UserType;
-  @Column({ default: AccountStatusEnums.ACTIVE })
+  @Column({ default: AccountStatusEnums.PENDING })
   status: AccountStatusEnums;
-  @Column({ name: 'profile_image', nullable: true, type: 'jsonb' })
+  @Column({ nullable: true, type: 'jsonb' })
   profileImage: FileDto;
-  @Column({ name: 'address', nullable: true, type: 'jsonb' })
+  @Column({ nullable: true, type: 'jsonb' })
   address: any;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.lookup, {
     cascade: true,
@@ -45,7 +45,7 @@ export class LookupEntity extends CommonEntity {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
   @OneToMany(

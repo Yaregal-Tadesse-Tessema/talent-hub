@@ -80,7 +80,7 @@ export class UserResponse {
     response.id = entity?.id;
     response.phone = entity.phone;
     response.email = entity.email;
-    response.password = entity.password;
+    // response.password = entity.password;
     response.firstName = entity.firstName;
     response.middleName = entity.middleName;
     response.lastName = entity.lastName;

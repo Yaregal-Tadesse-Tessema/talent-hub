@@ -11,6 +11,7 @@ import { UserResponse } from './user.response';
 import * as path from 'path';
 import {
   AccountPasswordChange,
+  AccountPasswordReset,
   CreateUserCommand,
   CvTemplateEnums,
   UpdateUserCommand,
@@ -31,18 +32,16 @@ import { Util } from 'src/libs/Common/util';
 import { UserRepository } from '../persistence/user.repository';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { UserEntity } from '../persistence/users.entity';
+import * as bcrypt from 'bcrypt';
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly fileService: FileService,
     private readonly pdfService: PdfService,
-    // @InjectRepository(ApplicationEntity)
-    //  @Inject(forwardRef(() => ApplicationRepository))
     private readonly applicationRepository: ApplicationRepository,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
-    // @Inject(REQUEST) request?: Request,
   ) {}
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
     const user = await this.userRepository.findOne(id);
@@ -295,20 +294,24 @@ export class UserService {
         token,
         userId,
       );
-      return res.redirect('http://138.197.105.31:3000/'); // frontend error page indicating a new activation is sent
+      return res.redirect('http://138.197.105.31:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
     }
     if (!payload?.id) throw new NotFoundException(`user Id not Found`);
     const user = await this.userRepository.findOne(payload.id);
     if (user.status == UserStatusEnums.ACTIVE) {
-      return res.redirect('http://138.197.105.31:3000/login');
+      return res.redirect(
+        'http://138.197.105.31:3000/login?status=alreadyActivated',
+      );
     }
     const success = await this.userRepository.update(payload.id, {
       status: UserStatusEnums.ACTIVE,
     });
     if (success) {
-      return res.redirect('http://138.197.105.31:3000/login'); // frontend success page
+      return res.redirect(
+        'http://138.197.105.31:3000/login?status=successfullyActivated',
+      ); // frontend success page
     } else {
-      return res.redirect('http://138.197.105.31:3000/'); // frontend error page
+      return res.redirect('http://138.197.105.31:3000/status=failedToActivate'); // frontend error page
     }
   }
   private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
@@ -512,5 +515,66 @@ export class UserService {
       withDeleted,
     });
     return response;
+  }
+  async sendPasswordResetEmail(email: string, link: string): Promise<boolean> {
+    const resetLink = `${link}`;
+    const user = await this.userRepository.getOneByCriteria({
+      email: email,
+    });
+    if (!user)
+      throw new NotFoundException(`User with email ${email} doesn't exist`);
+    const html = `
+   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+  <h2>Hello ${user.firstName} ${user.lastName},</h2>
+  <p>We received a request to reset your password. You can set a new password by clicking the button below:</p>
+  <a href="${resetLink}"
+     style="
+       display: inline-block;
+       padding: 12px 24px;
+       margin: 20px 0;
+       font-size: 16px;
+       color: white;
+       background-color: #28a745;
+       text-decoration: none;
+       border-radius: 6px;
+     "
+     target="_blank">
+    Reset My Password
+  </a>
+  <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
+  <p><a href="${resetLink}">${resetLink}</a></p>
+  <p>This link will expire in 24 hours for your security. If you did not request a password reset, please ignore this email.</p>
+  <p>Stay safe!<br/>— The YourCompany Team</p>
+</div>
+
+     `;
+    this.emailService.sendGridEmail(
+      email,
+      `Regarding you'r password reset`,
+      html,
+    );
+    return true;
+  }
+  async resetUserPasswordByEmail(
+    command: AccountPasswordReset,
+  ): Promise<UserResponse> {
+    const user = await this.userRepository.getOneByCriteria({
+      email: command.email,
+    });
+    if (!user)
+      throw new NotFoundException(
+        `User with email ${command.email} doesn't exist`,
+      );
+
+    if (command.newPassword !== command.confirmNewPassword) {
+      throw new ConflictException(
+        `The password and confirm password doesn't match`,
+      );
+    }
+    const salt = process.env.BCRYPT_SALT;
+    const encryptedPassword = await bcrypt.hash(command.newPassword, salt);
+    user.password = encryptedPassword;
+    const response = await this.userRepository.create(user);
+    return UserResponse.toResponse(response);
   }
 }
