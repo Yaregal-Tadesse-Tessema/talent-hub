@@ -15,6 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { UserLoginCommand } from '../auth.command';
 import { SwitchOrganizationCommand } from '../dto/login.dto';
+import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
@@ -271,6 +272,10 @@ export class AuthService {
       throw new BadRequestException(
         `Account with UserName ${loginCommand.userName} doesn't exist `,
       );
+    if (lookup.status == AccountStatusEnums.PENDING)
+      throw new BadRequestException(
+        `Your account is not Activated please check your email do not forget you Spam folder too`,
+      );
     if (!lookup?.employeeTenant || lookup?.employeeTenant.length == 0) {
       return [];
     }
@@ -342,7 +347,9 @@ export class AuthService {
     });
     if (!user)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (!await Util.comparePassword(loginCommand.password.trim(), user.password)) {
+    if (
+      !(await Util.comparePassword(loginCommand.password.trim(), user.password))
+    ) {
       throw new BadRequestException(`Incorrect credentials`);
     }
     const payload: UserInfo = {

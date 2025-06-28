@@ -20,4 +20,5 @@ export const activeEmployeesStatus = [
   EmployeeStatus.ON_LEAVE,
   EmployeeStatus.ON_PROBATION,
   EmployeeStatus.IS_ON_WORK_FROM_HOME,
+  EmployeeStatus.PENDING,
 ];

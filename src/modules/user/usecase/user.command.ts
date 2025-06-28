@@ -181,6 +181,7 @@ export class SendPasswordResetLinkCommand {
 }
 export enum EmployeeStatus {
   ACTIVE = 'Active',
+  PENDING = 'Pending',
   ON_LEAVE = 'On Leave',
   TERMINATED = 'Terminated',
   SUSPENDED = 'Suspended',
