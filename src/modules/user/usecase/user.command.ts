@@ -93,6 +93,8 @@ export class CreateUserCommand {
   notificationSetting: string[];
   @ApiProperty()
   alertConfiguration?: UserAlertConfiguration[];
+  @ApiProperty()
+  smsAlertConfiguration?: UserAlertConfiguration[];
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -131,6 +133,7 @@ export class CreateUserCommand {
     entity.isProfilePublic = dto?.isProfilePublic;
     entity.isResumePublic = dto?.isResumePublic;
     entity.notificationSetting = dto?.notificationSetting;
+    entity.smsAlertConfiguration = dto?.smsAlertConfiguration;
 
     return entity;
   }

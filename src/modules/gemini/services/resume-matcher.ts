@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import * as pdf from 'pdf-parse';
-import { GeminiService } from './gemini';
 import { OpenAI } from 'openai';
+import { GeminiService } from './gemini';
 // import * as fs from 'fs';
 
 @Injectable()
@@ -91,13 +91,62 @@ export class ResumeMatchingService {
 
     return results;
   }
-   async matchingWithAi(
+  async matchResume(
     file: Express.Multer.File,
-    jobDescription: string) {
-     const text = await this.extractTextFromPDF(file.buffer);
-     text.replace(/[^a-zA-Z0-9\s.,@+]/g, ' ')
-   const result =await this.geminiService.match(`Give matching result as JSON with keys: score:number and description: for the job desctiption : ${jobDescription} and resume : ${text} `)
-   return result
-  }
+    jobDescription: string,
+    useAI = false,
+  ): Promise<{
+    filename: string;
+    keywordScore: number;
+    aiSimilarity?: number;
+  }> {
+    const jobKeywords = jobDescription.match(/\b\w+\b/g)?.slice(0, 100) || [];
 
+    let jobEmbedding: number[] = [];
+    if (useAI && this.openai) {
+      jobEmbedding = await this.getEmbedding(jobDescription);
+    }
+
+    const text = await this.extractTextFromPDF(file.buffer);
+    const keywordScore = this.keywordScore(text, jobKeywords);
+
+    let aiSimilarity: number | undefined = undefined;
+    if (useAI && this.openai) {
+      const resumeEmbedding = await this.getEmbedding(text);
+      aiSimilarity = this.cosineSimilarity(jobEmbedding, resumeEmbedding);
+    }
+
+    const results = {
+      filename: file.originalname,
+      keywordScore,
+      ...(useAI && this.openai ? { aiSimilarity } : {}),
+    };
+    // Sort by aiSimilarity if present, else by keywordScore
+    // results.sort((a, b) =>
+    //   b.aiSimilarity && a.aiSimilarity
+    //     ? b.aiSimilarity - a.aiSimilarity
+    //     : b.keywordScore - a.keywordScore,
+    // );
+    return results;
+  }
+  async matchingWithAi(
+    file: Express.Multer.File,
+    jobDescription: string,
+  ): Promise<any> {
+    try {
+      const text = await this.extractTextFromPDF(file.buffer);
+      text.replace(/[^a-zA-Z0-9\s.,@+]/g, ' ');
+      const result: any = await this.geminiService.match(
+        `Give matching result as JSON with keys: score:number and description: for the job desctiption : ${jobDescription} and resume : ${text} `,
+      );
+      let score = result?.score;
+      if (score || score !== 0) {
+        score = score * 100;
+        result.score = score;
+      }
+      return result;
+    } catch (error) {
+      return null;
+    }
+  }
 }

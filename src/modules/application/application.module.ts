@@ -13,6 +13,7 @@ import { InvitationEntity } from './persistences/invitation.entity';
 import { InvitationRepository } from './persistences/invitation.repository';
 import { InvitationService } from './usecase/invitation/invitation.usecase.ervice';
 import { InvitationController } from './controller/invitation.controller';
+import { GeminiModule } from '../gemini/gemini.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { InvitationController } from './controller/invitation.controller';
     FileModule,
     forwardRef(() => JobPostingModule),
     forwardRef(() => UserModule),
+    GeminiModule,
   ],
   controllers: [ApplicationController, InvitationController],
   providers: [

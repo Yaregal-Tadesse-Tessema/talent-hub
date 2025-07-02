@@ -276,4 +276,18 @@ export class TenantService {
     const tenantCount = await this.employeeTenantRepository.getCount(query);
     return tenantCount;
   }
+  async verifyETradeWorks(
+    LicenseNo = process.env.LICENSE_NUMBER,
+    tin = process.env.TIN,
+  ): Promise<boolean> {
+    try {
+      await this.axiosInstance.get(
+        `/BusinessMain/GetBusinessByLicenseNo?LicenseNo=${LicenseNo}&Tin=${tin}&Lang=en`,
+      );
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
 }

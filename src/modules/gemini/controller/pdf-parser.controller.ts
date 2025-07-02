@@ -4,7 +4,7 @@
 import { Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ResumeMatchingService } from '../usecase/resume-matcher';
+import { ResumeMatchingService } from '../services/resume-matcher';
 
 @Controller('pdf-parser')
 @ApiTags('pdf-parser')

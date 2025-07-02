@@ -55,6 +55,8 @@ export class TenantEntity extends CommonEntity {
   organizationType: string;
   @Column({ nullable: true })
   selectedCalender: string;
+  @Column({ default: true })
+  isProfilePublic: boolean;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.tenant, {
     cascade: true,
     onDelete: 'CASCADE',

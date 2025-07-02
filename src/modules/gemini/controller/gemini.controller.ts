@@ -2,8 +2,8 @@
 // src/gemini/gemini.controller.ts
 
 import { Controller, Get, Query } from '@nestjs/common';
-import { GeminiService } from '../usecase/gemini';
 import { ApiTags } from '@nestjs/swagger';
+import { GeminiService } from '../services/gemini';
 
 @Controller('gemini')
 @ApiTags('gemini')

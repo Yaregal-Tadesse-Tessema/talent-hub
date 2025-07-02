@@ -72,6 +72,8 @@ export class UserResponse {
   notificationSetting: string[];
   @ApiProperty()
   alertConfiguration: UserAlertConfiguration[];
+  @ApiProperty()
+  smsAlertConfiguration: UserAlertConfiguration[];
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -111,7 +113,7 @@ export class UserResponse {
     response.isProfilePublic = entity.isProfilePublic;
     response.isResumePublic = entity.isResumePublic;
     response.notificationSetting = entity.notificationSetting;
+    response.smsAlertConfiguration = entity.smsAlertConfiguration;
     return response;
   }
 }
-

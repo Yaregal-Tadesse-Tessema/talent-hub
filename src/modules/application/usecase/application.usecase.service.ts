@@ -27,6 +27,7 @@ import { ApplicationEntity } from '../persistences/application.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { InvitationRepository } from '../persistences/invitation.repository';
 import { ExcelGenerator } from 'src/libs/Common/excel.service';
+import { ResumeMatchingService } from 'src/modules/gemini/services/resume-matcher';
 
 interface Column {
   name: string;
@@ -43,13 +44,15 @@ export class ApplicationService {
     private readonly userService: UserService,
     private readonly emailService: EmailService,
     private readonly invitationRepository: InvitationRepository,
+    private readonly resumeMatchingService: ResumeMatchingService,
   ) {}
   async create(
     command: CreateApplicationCommand,
   ): Promise<ApplicationResponse> {
     const item = CreateApplicationCommand.fromDto(command);
+
     const res = await this.applicationRepository.create(item);
-    console.log(res);
+
     return ApplicationResponse.toResponse(res);
   }
   async findAll(
@@ -181,6 +184,20 @@ export class ApplicationService {
       applicationEntity.cv = userInfo.resume;
     }
     applicationEntity.userInfo = userInfo;
+    if (jobPost.hasAiFilter) {
+      const score = await this.resumeMatchingService.matchingWithAi(
+        file,
+        jobPost.description + jobPost.skill,
+      );
+      applicationEntity.aiMatch = score;
+    }
+    if (jobPost.hasNormalFilter) {
+      const score = await this.resumeMatchingService.matchResume(
+        file,
+        jobPost.description + jobPost.skill,
+      );
+      applicationEntity.algorithmMatch = score?.keywordScore;
+    }
     const result = await this.applicationRepository.create(applicationEntity);
     await this.jobPostingRepository.update(jobPost.id, {
       applicationCount: count,
@@ -323,7 +340,7 @@ export class ApplicationService {
   }
   private toEthiopianTime(date: Date): string {
     const etDate = new Date(date.getTime() + 3 * 60 * 60 * 1000); // UTC+3
-    return etDate.toISOString().substring(11, 16); // HH:mm
+    return etDate.toISOString().substring(11, 16);
   }
   async exportAppliers(): Promise<Buffer> {
     const excel = new ExcelGenerator();
@@ -415,16 +432,20 @@ export class ApplicationService {
     const buffer = await excel.saveBuffer();
     return buffer;
   }
-  async  updateApplicationsViewCount(command: UpdateApplicationView): Promise<boolean> {
-    const ids=command.ids
-   for (let index = 0; index < ids.length; index++) {
-    const id = ids[index];
-    const  application=await this.applicationRepository.getOneByCriteria({id:id})
-    if(!application)continue
-    application.viewCount+=1
-    await this.applicationRepository.create(application)
-   }
-   return true
+  async updateApplicationsViewCount(
+    command: UpdateApplicationView,
+  ): Promise<boolean> {
+    const ids = command.ids;
+    for (let index = 0; index < ids.length; index++) {
+      const id = ids[index];
+      const application = await this.applicationRepository.getOneByCriteria({
+        id: id,
+      });
+      if (!application) continue;
+      application.viewCount += 1;
+      await this.applicationRepository.create(application);
+    }
+    return true;
   }
 }
 interface ScheduledInterview {

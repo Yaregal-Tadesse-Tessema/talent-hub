@@ -21,10 +21,6 @@ import { UserFavoriteJobEntity } from './job/persistencies/user-favorite-job.ent
 import { UserFavoriteJobRepository } from './job/persistencies/user-favorite-job.repository';
 import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.service';
 import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
-import { GeminiService } from './job/usecase/gemini';
-import { GeminiController } from './job/controller/gemini.controller';
-import { PdfParserController } from './job/controller/pdf-parser.controller';
-import { ResumeMatchingService } from './job/usecase/resume-matcher';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -52,17 +48,12 @@ import { ResumeMatchingService } from './job/usecase/resume-matcher';
 
     UserFavoriteJobRepository,
     UserFavoriteJobService,
-
-    GeminiService,
-    ResumeMatchingService,
   ],
   controllers: [
     JobPostingController,
     SaveJobController,
     PreScreeningQuestionController,
     UserFavoriteJobController,
-    GeminiController,
-    PdfParserController,
   ],
   exports: [JobPostingService, JobPostingRepository],
 })

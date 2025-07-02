@@ -83,6 +83,10 @@ export class JobPostingEntity extends CommonEntity {
 
   @Column({ default: false })
   isFeatured: boolean;
+  @Column({ default: false })
+  hasAiFilter: boolean;
+  @Column({ default: true })
+  hasNormalFilter: boolean;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,

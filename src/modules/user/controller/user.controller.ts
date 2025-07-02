@@ -224,4 +224,10 @@ export class UserController {
   ): Promise<UserResponse> {
     return await this.userService.resetUserPasswordByEmail(command);
   }
+  @Put('configure-user-sms-alert')
+  async configureUserSmsAlert(
+    @Body() command: UserAlertConfiguration[],
+  ): Promise<UserResponse> {
+    return await this.userService.configureUserSmsAlert(command);
+  }
 }

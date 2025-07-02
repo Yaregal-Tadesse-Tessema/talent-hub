@@ -24,6 +24,10 @@ import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.e
 import { SaveJobEntity } from '../job-posting/job/persistencies/save-job-post.entity';
 import { PreScreeningQuestionEntity } from '../job-posting/job/persistencies/pre-screening-question.entity';
 import { NotificationEntity } from '../notification/persistencies/notification.entity';
+import { GoogleStrategy } from './google.strategy';
+import { GoogleAuthController } from './controllers/google.controller';
+import { GoogleAuthService } from './services/google.service';
+import { TenantModule } from '../tenant/tenant.module';
 dotenv.config({ path: '.env' });
 @Global()
 @Module({
@@ -44,6 +48,7 @@ dotenv.config({ path: '.env' });
     PassportModule,
     UserModule,
     ApplicationModule,
+    TenantModule,
     JwtModule.register({
       global: true,
       secret:
@@ -59,8 +64,10 @@ dotenv.config({ path: '.env' });
     PdfService,
     SessionCommand,
     SessionQuery,
+    GoogleStrategy,
+    GoogleAuthService,
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleAuthController],
   exports: [AuthService],
 })
 export class AuthModule {}

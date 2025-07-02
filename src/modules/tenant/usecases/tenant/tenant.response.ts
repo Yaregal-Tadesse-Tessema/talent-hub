@@ -34,6 +34,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.industry = entity.industry;
     response.organizationType = entity.organizationType;
     response.selectedCalender = entity.selectedCalender;
+    response.isProfilePublic = entity.isProfilePublic;
     return response;
   }
 }

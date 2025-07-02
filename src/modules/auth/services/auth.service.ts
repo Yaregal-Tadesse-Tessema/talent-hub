@@ -15,7 +15,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { UserLoginCommand } from '../auth.command';
 import { SwitchOrganizationCommand } from '../dto/login.dto';
-import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
@@ -121,16 +120,28 @@ export class AuthService {
     }
     if (loginCommand.orgId) {
       const lookupData = await this.lookupRepository.findOne({
-        where: {
-          phoneNumber: loginCommand.userName,
-          employeeTenant: {
-            status: In(activeEmployeesStatus),
-            tenant: {
-              id: loginCommand.orgId,
-              status: AccountStatusEnums.ACTIVE,
+        where: [
+          {
+            phoneNumber: loginCommand.userName,
+            employeeTenant: {
+              status: In(activeEmployeesStatus),
+              tenant: {
+                id: loginCommand.orgId,
+                status: AccountStatusEnums.ACTIVE,
+              },
             },
           },
-        },
+          {
+            email: loginCommand.userName,
+            employeeTenant: {
+              status: In(activeEmployeesStatus),
+              tenant: {
+                id: loginCommand.orgId,
+                status: AccountStatusEnums.ACTIVE,
+              },
+            },
+          },
+        ],
         relations: { employeeTenant: { tenant: true } },
       });
       if (!lookupData)
@@ -192,16 +203,28 @@ export class AuthService {
     }
     if (loginCommand.orgId) {
       const lookupData = await this.lookupRepository.findOne({
-        where: {
-          phoneNumber: loginCommand.userName,
-          employeeTenant: {
-            status: In(activeEmployeesStatus),
-            tenant: {
-              id: loginCommand.orgId,
-              status: AccountStatusEnums.ACTIVE,
+        where: [
+          {
+            phoneNumber: loginCommand.userName,
+            employeeTenant: {
+              status: In(activeEmployeesStatus),
+              tenant: {
+                id: loginCommand.orgId,
+                status: AccountStatusEnums.ACTIVE,
+              },
             },
           },
-        },
+          {
+            email: loginCommand.userName,
+            employeeTenant: {
+              status: In(activeEmployeesStatus),
+              tenant: {
+                id: loginCommand.orgId,
+                status: AccountStatusEnums.ACTIVE,
+              },
+            },
+          },
+        ],
         relations: { employeeTenant: { tenant: true } },
       });
       if (!lookupData)

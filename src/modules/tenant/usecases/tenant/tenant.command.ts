@@ -57,6 +57,8 @@ export class CreateTenantCommand {
   selectedCalender?: string;
   @ApiProperty()
   archiveReason?: string;
+  @ApiProperty()
+  isProfilePublic?: boolean;
   currentUser?: UserInfo;
 
   static fromCommand(command: CreateTenantCommand): TenantEntity {
@@ -84,6 +86,7 @@ export class CreateTenantCommand {
     tenant.industry = command.industry;
     tenant.organizationType = command.organizationType;
     tenant.selectedCalender = command.selectedCalender;
+    tenant.isProfilePublic = command?.isProfilePublic;
 
     tenant.updatedAt = new Date();
     tenant.updatedBy = command?.currentUser?.id;

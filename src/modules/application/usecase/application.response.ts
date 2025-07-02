@@ -50,7 +50,7 @@ export class ApplicationResponse {
   @ApiProperty()
   aiMatch: ApplicationJobMatchCommand;
   @ApiProperty()
-  algorithmMatch: ApplicationJobMatchCommand;
+  algorithmMatch: number;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   @ApiProperty({ type: () => [UserResponse] })

@@ -143,4 +143,9 @@ export class TenantController {
     const query = decodeCollectionQuery(q);
     return await this.tenantService.getTenantCount(query);
   }
+  @AllowAnonymous()
+  @Get('verify/e-trade-works')
+  async verifyETradeWorks() {
+    return await this.tenantService.verifyETradeWorks();
+  }
 }

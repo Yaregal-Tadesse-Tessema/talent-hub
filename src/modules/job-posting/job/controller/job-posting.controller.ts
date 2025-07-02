@@ -99,6 +99,11 @@ export class JobPostingController {
   async getJobTitleStatistics(): Promise<any> {
     return await this.jobPostingService.getJobTitleStatistics();
   }
+  @Get('get-job-industry/statistics')
+  @AllowAnonymous()
+  async getJobIndustryStatistics(): Promise<any> {
+    return await this.jobPostingService.getJobIndustryStatistics();
+  }
   @Put('make-job-post-featured')
   async makeJobPostFeatured(
     @Body() command: JobPostFeaturingCOmmand,

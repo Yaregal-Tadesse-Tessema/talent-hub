@@ -79,6 +79,8 @@ export class UserEntity extends CommonEntity {
   notificationSetting: string[];
   @Column({ nullable: true, type: 'jsonb' })
   alertConfiguration: UserAlertConfiguration[];
+  @Column({ nullable: true, type: 'jsonb' })
+  smsAlertConfiguration: UserAlertConfiguration[];
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

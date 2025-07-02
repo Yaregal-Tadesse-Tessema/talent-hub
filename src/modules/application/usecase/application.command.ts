@@ -54,7 +54,7 @@ export class CreateApplicationCommand {
   @ApiProperty()
   aiMatch?: ApplicationJobMatchCommand;
   @ApiProperty()
-  algorithmMatch?: ApplicationJobMatchCommand;
+  algorithmMatch?: number;
 
   @ApiProperty()
   userInfo?: any;

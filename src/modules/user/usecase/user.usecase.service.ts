@@ -577,4 +577,14 @@ export class UserService {
     const response = await this.userRepository.create(user);
     return UserResponse.toResponse(response);
   }
+  async configureUserSmsAlert(command: UserAlertConfiguration[]): Promise<any> {
+    if (command.length == 0)
+      throw new BadRequestException(
+        `User SMS alert configuration must contain at least one configuration`,
+      );
+    const user = await this.findOneOrFail(command[0].userId);
+    user.smsAlertConfiguration = command;
+    await this.userRepository.create(user);
+    return true;
+  }
 }

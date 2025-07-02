@@ -1,0 +1,28 @@
+/* eslint-disable prettier/prettier */
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { GoogleAuthService } from '../services/google.service';
+import { ApiTags } from '@nestjs/swagger';
+import { AllowAnonymous } from '../allow-anonymous.decorator';
+
+@Controller('google-auth')
+@ApiTags('Google-Auth')
+@AllowAnonymous()
+export class GoogleAuthController {
+  constructor(private readonly googleAuthService: GoogleAuthService) {}
+
+  // Redirect user to Google login
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    // initiates the Google OAuth2 login flow
+  }
+
+  // Google will redirect here after login
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req) {
+    // req.user is set by GoogleStrategy.validate
+    return await this.googleAuthService.googleLogin(req.user);
+  }
+}

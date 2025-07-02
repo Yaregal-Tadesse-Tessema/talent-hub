@@ -32,6 +32,9 @@ import { UserFavoriteJobEntity } from './modules/job-posting/job/persistencies/u
 import { NotificationEntity } from './modules/notification/persistencies/notification.entity';
 import { MessageEntity } from './modules/notification/persistencies/message.entity';
 import { InvitationEntity } from './modules/application/persistences/invitation.entity';
+import { GoogleStrategy } from './modules/auth/google.strategy';
+import { PassportModule } from '@nestjs/passport';
+import { GeminiModule } from './modules/gemini/gemini.module';
 
 @Module({
   imports: [
@@ -71,7 +74,7 @@ import { InvitationEntity } from './modules/application/persistences/invitation.
       secret: process.env.TOKEN_SECRET_KEY,
       signOptions: { expiresIn: '1h' },
     }),
-
+    PassportModule,
     AuthModule,
     JobPostingModule,
     UserModule,
@@ -80,9 +83,11 @@ import { InvitationEntity } from './modules/application/persistences/invitation.
     // TelegramModule,
     NotificationModule,
     TenantModule,
+    GeminiModule,
   ],
   controllers: [],
   providers: [
+    GoogleStrategy,
     {
       provide: APP_INTERCEPTOR,
       useClass: SchemaAddInterceptor,

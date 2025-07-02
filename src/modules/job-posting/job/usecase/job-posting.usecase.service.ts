@@ -307,6 +307,17 @@ export class JobPostingService {
       .getRawMany();
     return result;
   }
+  async getJobIndustryStatistics(): Promise<
+    { title: string; openPositions: number }[]
+  > {
+    const result = await this.joPoRepo
+      .createQueryBuilder('job')
+      .select('job.industry', 'industry')
+      .addSelect('SUM(job.positionNumbers)', 'openPositions')
+      .groupBy('job.industry')
+      .getRawMany();
+    return result;
+  }
   async makeJobPostFeatured(
     command: JobPostFeaturingCOmmand,
   ): Promise<JobPostingResponse> {

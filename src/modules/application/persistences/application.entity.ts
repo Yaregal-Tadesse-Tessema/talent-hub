@@ -56,7 +56,7 @@ export class ApplicationEntity extends CommonEntity {
   @Column({ nullable: true, type: 'jsonb' })
   aiMatch: ApplicationJobMatchCommand;
   @Column({ nullable: true, type: 'jsonb' })
-  algorithmMatch: ApplicationJobMatchCommand;
+  algorithmMatch: any;
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,
