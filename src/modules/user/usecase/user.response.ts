@@ -74,6 +74,8 @@ export class UserResponse {
   alertConfiguration: UserAlertConfiguration[];
   @ApiProperty()
   smsAlertConfiguration: UserAlertConfiguration[];
+  @ApiProperty()
+  isFirstTime: boolean;
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
@@ -114,6 +116,7 @@ export class UserResponse {
     response.isResumePublic = entity.isResumePublic;
     response.notificationSetting = entity.notificationSetting;
     response.smsAlertConfiguration = entity.smsAlertConfiguration;
+    response.isFirstTime = entity.isFirstTime;
     return response;
   }
 }

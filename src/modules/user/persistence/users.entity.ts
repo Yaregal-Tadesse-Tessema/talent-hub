@@ -83,6 +83,9 @@ export class UserEntity extends CommonEntity {
   alertConfiguration: UserAlertConfiguration[];
   @Column({ nullable: true, type: 'jsonb' })
   smsAlertConfiguration: UserAlertConfiguration[];
+  @Column({ default: true })
+  isFirstTime: boolean;
+
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

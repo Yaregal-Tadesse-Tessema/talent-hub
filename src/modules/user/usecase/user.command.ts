@@ -95,6 +95,8 @@ export class CreateUserCommand {
   alertConfiguration?: UserAlertConfiguration[];
   @ApiProperty()
   smsAlertConfiguration?: UserAlertConfiguration[];
+  @ApiProperty()
+  isFirstTime: boolean;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -134,6 +136,7 @@ export class CreateUserCommand {
     entity.isResumePublic = dto?.isResumePublic;
     entity.notificationSetting = dto?.notificationSetting;
     entity.smsAlertConfiguration = dto?.smsAlertConfiguration;
+    entity.isFirstTime = dto?.isFirstTime;
 
     return entity;
   }
