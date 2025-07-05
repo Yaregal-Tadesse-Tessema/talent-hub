@@ -9,6 +9,8 @@ import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-jo
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
 import { UserAlertConfiguration } from '../usecase/user.command';
+import { CreateEducationCommand } from '../usecase/education.command';
+import { CreateExperienceCommand } from '../usecase/experience.command';
 @Entity({ name: 'users' })
 export class UserEntity extends CommonEntity {
   @Column({ unique: true })
@@ -68,9 +70,9 @@ export class UserEntity extends CommonEntity {
   @Column({ nullable: true })
   professionalSummery: string;
   @Column({ nullable: true, type: 'jsonb' })
-  educations: any;
+  educations: CreateEducationCommand[];
   @Column({ nullable: true, type: 'jsonb' })
-  experiences: any;
+  experiences: CreateExperienceCommand[];
   @Column({ default: true })
   isProfilePublic: boolean;
   @Column({ default: false })

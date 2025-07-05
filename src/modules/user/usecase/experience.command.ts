@@ -2,9 +2,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 export class CreateExperienceCommand {
-  id?: string;
-  @ApiProperty()
-  userId: string;
   @ApiProperty()
   companyName: string;
   @ApiProperty()
@@ -17,6 +14,12 @@ export class CreateExperienceCommand {
   startDate: Date;
   @ApiProperty()
   endDate: Date;
+  @ApiProperty()
+  skillsGained: string[];
+  @ApiProperty()
+  responsibility: string[];
+  @ApiProperty()
+  projectDescriptions: string[];
   @ApiProperty()
   Attachment: FileDto;
 }

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/swagger';
 import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
+import { Telegraf } from 'telegraf';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
@@ -44,6 +45,12 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config, {
     deepScanRoutes: true,
   });
+  if (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_WEBHOOK_DOMAIN) {
+    const telegrafBot = app.get(Telegraf); // from nestjs-telegraf
+    await telegrafBot.telegram.setWebhook(
+      `${process.env.TELEGRAM_WEBHOOK_DOMAIN}/telegraf/webhook`,
+    );
+  }
   SwaggerModule.setup('/api', app, document, customOptions);
   await app.listen(3010, () => console.log(`app listening at port :3010 `));
 }

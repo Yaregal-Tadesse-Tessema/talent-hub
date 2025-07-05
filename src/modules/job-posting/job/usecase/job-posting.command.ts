@@ -75,7 +75,11 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   paymentType: PaymentTypeEnums;
   @ApiProperty()
-  isFeatured: boolean;
+  isFeatured?: boolean;
+  @ApiProperty()
+  hasAiFilter?: boolean;
+  @ApiProperty()
+  hasNormalFilter?: boolean;
   tenantId?: string;
   currentUser?: any;
 
@@ -116,6 +120,8 @@ export class CreateJobPostingCommand {
     entity.paymentType = dto?.paymentType;
     entity.tenantId = dto?.tenantId;
     entity.isFeatured = dto?.isFeatured;
+    entity.hasAiFilter = dto?.hasAiFilter;
+    entity.hasNormalFilter = dto?.hasNormalFilter;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

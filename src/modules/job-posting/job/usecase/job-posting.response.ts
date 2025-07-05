@@ -97,6 +97,10 @@ export class JobPostingResponse {
   @ApiProperty()
   isFeatured: boolean;
   @ApiProperty()
+  hasAiFilter: boolean;
+  @ApiProperty()
+  hasNormalFilter: boolean;
+  @ApiProperty()
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
@@ -139,6 +143,8 @@ export class JobPostingResponse {
     response.tenantId = entity.tenantId;
     response.isFeatured = entity.isFeatured;
     response.favoriteJobs = entity.favoriteJobs;
+    response.hasAiFilter = entity.hasAiFilter;
+    response.hasNormalFilter = entity.hasNormalFilter;
 
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;
