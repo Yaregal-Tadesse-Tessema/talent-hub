@@ -97,7 +97,20 @@ export class JobPostingService {
     query: CollectionQuery,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
-      query.where.push();
+      const today = new Date();
+      const formatted = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate(),
+          0,
+          0,
+          0,
+        ),
+      ).toISOString();
+
+      query.where = query.where || [];
+      query.where.push([{ column: 'deadline', value: formatted, operator: '>=' }]);
       const result = await this.jobPostingRepository.findAll(query);
       const response: DataResponseFormat<JobPostingResponse> = {
         items: result.items.map((item) => JobPostingResponse.toResponse(item)),
@@ -189,7 +202,6 @@ export class JobPostingService {
           { column: 'technicalSkills', value: userInfo.skills, operator: 'In' },
         ]);
       }
-
       const { items, total } = await this.jobPostingRepository.findAll(query);
 
       const data = items.map((item) => {
