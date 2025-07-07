@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@handlebars/allow-prototype-access": "^1.0.5",
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",

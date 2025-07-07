@@ -13,9 +13,9 @@ import { CreateEducationCommand } from '../usecase/education.command';
 import { CreateExperienceCommand } from '../usecase/experience.command';
 @Entity({ name: 'users' })
 export class UserEntity extends CommonEntity {
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   phone: string;
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email: string;
   @Column({ nullable: true })
   firstName: string;
@@ -85,7 +85,8 @@ export class UserEntity extends CommonEntity {
   smsAlertConfiguration: UserAlertConfiguration[];
   @Column({ default: true })
   isFirstTime: boolean;
-
+  @Column({ default: false })
+  isPayingUser: boolean;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

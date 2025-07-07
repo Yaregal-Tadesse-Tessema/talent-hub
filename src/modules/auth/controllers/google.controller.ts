@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { GoogleAuthService } from '../services/google.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -21,8 +21,11 @@ export class GoogleAuthController {
   // Google will redirect here after login
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  async googleAuthRedirect(@Req() req) {
+  async googleAuthRedirect(@Req() req, @Res() res) {
     // req.user is set by GoogleStrategy.validate
-    return await this.googleAuthService.googleLogin(req.user);
+    await this.googleAuthService.googUserSignUp(req.user);
+    return res.redirect(
+      'http://138.197.105.31:3000/login?status=alreadyActivated',
+    );
   }
 }

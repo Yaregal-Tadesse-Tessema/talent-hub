@@ -214,6 +214,26 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     return item;
   }
+  async getOneByEmailORPhone(
+    command: {
+      email: string;
+      phoneNumber: string;
+    },
+    relations = [],
+    withDeleted = false,
+  ): Promise<T> {
+    const tenantId = await this.request['TENANT_ID'];
+
+    const response = await this.repository.findOne({
+      where: [
+        { email: command.email, tenantId } as any,
+        { phone: command.phoneNumber, tenantId } as any,
+      ],
+      relations,
+      withDeleted,
+    });
+    return response;
+  }
   async getOneByCriteria(
     criteria: object,
     relations = [],

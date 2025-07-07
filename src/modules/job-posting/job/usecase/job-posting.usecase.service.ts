@@ -110,7 +110,9 @@ export class JobPostingService {
       ).toISOString();
 
       query.where = query.where || [];
-      query.where.push([{ column: 'deadline', value: formatted, operator: '>=' }]);
+      query.where.push([
+        { column: 'deadline', value: formatted, operator: '>=' },
+      ]);
       const result = await this.jobPostingRepository.findAll(query);
       const response: DataResponseFormat<JobPostingResponse> = {
         items: result.items.map((item) => JobPostingResponse.toResponse(item)),

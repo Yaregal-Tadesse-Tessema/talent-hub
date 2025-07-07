@@ -35,6 +35,7 @@ import { InvitationEntity } from './modules/application/persistences/invitation.
 import { GoogleStrategy } from './modules/auth/google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { GeminiModule } from './modules/gemini/gemini.module';
+import { SmsModule } from './modules/sms/sms.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { GeminiModule } from './modules/gemini/gemini.module';
     NotificationModule,
     TenantModule,
     GeminiModule,
+    SmsModule,
   ],
   controllers: [],
   providers: [

@@ -20,14 +20,19 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     done: VerifyCallback,
   ): Promise<any> {
     // Here you can store/retrieve user from DB
-    const { name, emails, photos } = profile;
-    
+    const { name, emails, photos, id, displayName, _json } = profile;
+
     const user = {
       email: emails[0].value,
       firstName: name.givenName,
       lastName: name.familyName,
       picture: photos[0].value,
       accessToken,
+      name,
+      photos,
+      id,
+      displayName,
+      _json,
     };
     done(null, user);
   }

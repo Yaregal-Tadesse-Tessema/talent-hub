@@ -326,20 +326,19 @@ export class UserService {
       });
     });
   }
-  async create(itemData: CreateUserCommand): Promise<UserResponse> {
-    const userAlreadyCreated = await this.userRepository.getOneByCriteria([
-      {
-        phone: itemData.phone,
-      },
-      {
-        email: itemData.email,
-      },
-    ]);
-    if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE)
-      throw new ConflictException({
-        message: 'User already exists. Please click on Return to Sign In.',
-        status: UserStatusEnums.ACTIVE,
-      });
+  async create(itemData: CreateUserCommand): Promise<any> {
+    const command: any = {
+      phone: itemData.phone,
+      email: itemData.email,
+    };
+    const userAlreadyCreated = await this.userRepository.getOneByEmailORPhone(
+      command,
+      [],
+    );
+    if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE) {
+      return true;
+    }
+
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
       const uerInfo: UserInfo = {
         id: userAlreadyCreated.id,
@@ -355,6 +354,7 @@ export class UserService {
         token,
         userAlreadyCreated.id,
       );
+      // redirect to an error page
       throw new ConflictException({
         message:
           'Activation Link is Sent please check your inbox if you can not found check your spam folder',

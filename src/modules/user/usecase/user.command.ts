@@ -70,7 +70,7 @@ export class CreateUserCommand {
   @ApiProperty()
   softSkills: string[];
   @ApiProperty()
-  profile: any;
+  profile?: any;
   @ApiProperty()
   resume: any;
   @ApiProperty()
@@ -97,6 +97,8 @@ export class CreateUserCommand {
   smsAlertConfiguration?: UserAlertConfiguration[];
   @ApiProperty()
   isFirstTime: boolean;
+  @ApiProperty()
+  isPayingUser: boolean;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -137,6 +139,7 @@ export class CreateUserCommand {
     entity.notificationSetting = dto?.notificationSetting;
     entity.smsAlertConfiguration = dto?.smsAlertConfiguration;
     entity.isFirstTime = dto?.isFirstTime;
+    entity.isPayingUser = dto?.isPayingUser;
 
     return entity;
   }

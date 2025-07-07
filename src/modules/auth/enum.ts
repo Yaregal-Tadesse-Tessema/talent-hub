@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 export enum PermissionEnums {
   VIEW_DASHBOARD = 'view_dashboard',
   CASE_HANDLING = 'case_handling',
