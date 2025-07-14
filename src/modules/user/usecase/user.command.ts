@@ -9,17 +9,17 @@ import {
 } from '../constants';
 
 export class UserAlertConfiguration {
-  userId: string;
+  userId?: string;
   @ApiProperty()
-  salary: string;
+  salary?: string;
   @ApiProperty()
   jobTitle?: string;
   @ApiProperty()
-  Position: string;
+  Position?: string;
   @ApiProperty()
-  address: string;
+  address?: string;
   @ApiProperty()
-  tenantsId: string;
+  tenantsId?: string;
   @ApiProperty()
   industry?: string;
 }

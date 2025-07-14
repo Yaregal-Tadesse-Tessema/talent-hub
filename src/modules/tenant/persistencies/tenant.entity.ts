@@ -25,13 +25,13 @@ export class TenantEntity extends CommonEntity {
   code: string;
   @Column({ unique: true, nullable: true })
   phoneNumber: string;
-  @Column({ type: 'jsonb' })
+  @Column({ type: 'jsonb', nullable: true })
   address: any;
   @Column({ default: TenantSubscriptionTypes.FREE })
   subscriptionType: TenantSubscriptionTypes;
   @Column({ default: false })
   isVerified: boolean;
-  @Column({ unique: true })
+  @Column({ unique: true , nullable: true})
   tin: string;
   @Column({ nullable: true })
   licenseNumber: string;

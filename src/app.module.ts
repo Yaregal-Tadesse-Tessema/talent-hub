@@ -36,6 +36,7 @@ import { GoogleStrategy } from './modules/auth/google.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { GeminiModule } from './modules/gemini/gemini.module';
 import { SmsModule } from './modules/sms/sms.module';
+import { AdministratorModule } from './modules/administrator/administrator.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { SmsModule } from './modules/sms/sms.module';
     TenantModule,
     GeminiModule,
     SmsModule,
+    AdministratorModule,
   ],
   controllers: [],
   providers: [

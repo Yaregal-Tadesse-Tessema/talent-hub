@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import * as jwt from 'jsonwebtoken';
 import * as fs from 'fs';
 import { ToWords } from 'to-words';
@@ -193,7 +194,20 @@ export class Util {
     }
     return null;
   }
-
+static makeId(tableName: string): string {
+    const idSpec = TABLE_NAME_TO_ID_SPEC[tableName];
+    const prefix = idSpec.prefix;
+    const slugLength = idSpec.length - prefix.length;
+    return `${prefix}-${this.makeSlug(slugLength)}`;
+  }
+  static makeSlug(length: number): string {
+    const alphabet = '0123456789abcdefghjkmnpqrstvwxyz';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += alphabet[crypto.randomInt(alphabet.length)];
+    }
+    return result;
+  }
   static maskPhoneNumber(phoneNumber: string) {
     phoneNumber = this.standardizePhoneNumber(phoneNumber);
     const length = phoneNumber.length;
@@ -297,4 +311,8 @@ export const getMimeType = (extension: string) => {
     default:
       throw new Error(`Unknown Extension ${extension}`);
   }
+  
+};
+const TABLE_NAME_TO_ID_SPEC = {
+  Tenant: { prefix: 'Tenant', length: 10 },
 };

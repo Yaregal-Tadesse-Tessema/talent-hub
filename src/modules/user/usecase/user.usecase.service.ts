@@ -33,16 +33,20 @@ import { UserRepository } from '../persistence/user.repository';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { UserEntity } from '../persistence/users.entity';
 import * as bcrypt from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 @Injectable()
 export class UserService {
   constructor(
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
     private readonly userRepository: UserRepository,
     private readonly fileService: FileService,
     private readonly pdfService: PdfService,
     private readonly applicationRepository: ApplicationRepository,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
     const user = await this.userRepository.findOne(id);
 
@@ -83,8 +87,6 @@ export class UserService {
         filledScore += field.weight;
       }
     }
-
-    // Calculate percentage
     const percentage = Math.round((filledScore / totalWeight) * 100);
 
     return { percentage };
@@ -92,9 +94,14 @@ export class UserService {
   async getEligibleUsersForTheJobPost(skills: string[]) {
     const skillsData = skills;
     const data = {
-      technicalSkills: skillsData, // Just an array — JSON-safe
+      technicalSkills: skillsData
     };
-    const result = await this.userRepository.getManyByCriteria(data);
+    const result = await this.userRepo
+      .createQueryBuilder('userEntity')
+      .where('userEntity.technicalSkills && :skills', { skills: skillsData })
+      .andWhere('userEntity.status = :status', { status: UserStatusEnums.ACTIVE })
+      .andWhere('userEntity.telegramUserId IS NOT NULL')
+      .getMany();
     return result;
   }
   async uploadResumeByUserId(file: Express.Multer.File, userId: string) {

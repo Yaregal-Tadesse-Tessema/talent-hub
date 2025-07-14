@@ -101,6 +101,8 @@ export class JobPostingResponse {
   @ApiProperty()
   hasNormalFilter: boolean;
   @ApiProperty()
+  requiredYearOfExperience: number;
+  @ApiProperty()
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
@@ -145,10 +147,9 @@ export class JobPostingResponse {
     response.favoriteJobs = entity.favoriteJobs;
     response.hasAiFilter = entity.hasAiFilter;
     response.hasNormalFilter = entity.hasNormalFilter;
-
+    response.requiredYearOfExperience = entity.requiredYearOfExperience;
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;
-
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),

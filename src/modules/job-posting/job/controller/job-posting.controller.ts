@@ -18,6 +18,7 @@ import { userInfo } from 'src/modules/auth/local-auth.guard';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
+import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 
 @Controller('jobs')
 @ApiTags('jobs')
@@ -109,5 +110,27 @@ export class JobPostingController {
     @Body() command: JobPostFeaturingCOmmand,
   ): Promise<any> {
     return await this.jobPostingService.makeJobPostFeatured(command);
+  }
+  @Get('get-user-by-job-post-and/property')
+  @AllowAnonymous()
+  async getUserByJobPostORProperty(): Promise<any> {
+    const command: UserAlertConfiguration={
+      industry:'Banking & Insurance',
+      jobTitle:"Software Engineer",
+      address:"Software Engineer",
+      }
+    return await this.jobPostingService.getUserByJobPostProperty(command);
+  }
+  @Get('get-user-by-job-post/property')
+  @AllowAnonymous()
+  async getUserByJobPostProperty(): Promise<any> {
+    const command: UserAlertConfiguration={
+    salary:"100000",
+    Position:"string",
+    industry:'Banking & Insurance',
+    jobTitle:"Software Engineer",
+    address:"Software Engineer",
+    }
+    return await this.jobPostingService.getUserByJobPostORProperty(command);
   }
 }

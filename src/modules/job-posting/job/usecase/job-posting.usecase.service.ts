@@ -22,7 +22,9 @@ import { JobPostingRepository } from '../persistencies/job-post.repository';
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 @Injectable()
 export class JobPostingService {
   constructor(
@@ -31,7 +33,9 @@ export class JobPostingService {
     private readonly userRepository: UserService,
     @InjectRepository(JobPostingEntity)
     private readonly joPoRepo: Repository<JobPostingEntity>,
-  ) {}
+    @InjectRepository(UserEntity)
+    private readonly userRepo: Repository<UserEntity>,
+  ) { }
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
     return await this.jobPostingRepository.create(jobPostingEntity);
@@ -43,10 +47,12 @@ export class JobPostingService {
       throw new BadRequestException(
         `job post with id ${command.id} doesn't exist`,
       );
-    if (jobPost.status == JobPostingStatusEnums.POSTED)
-      throw new BadRequestException(`Can't edit  approved jobPosts`);
+    // if (jobPost.status == JobPostingStatusEnums.POSTED)
+    // throw new BadRequestException(`Can't edit  approved jobPosts`);
     const jobPostingEntity = UpdateJobPostingCommand.fromDto(command);
-    return await this.jobPostingRepository.create(jobPostingEntity);
+    const response = await this.jobPostingRepository.create(jobPostingEntity);
+    await this.notifyUsersOnTelegramBootForNewJobPost(response);
+    return response;
   }
   async getJobPostings(
     query: CollectionQuery,
@@ -108,7 +114,6 @@ export class JobPostingService {
           0,
         ),
       ).toISOString();
-
       query.where = query.where || [];
       query.where.push([
         { column: 'deadline', value: formatted, operator: '>=' },
@@ -177,6 +182,33 @@ export class JobPostingService {
     }
     return JobPostingResponse.toResponse(response);
   }
+  async notifyUsersOnTelegramBootForNewJobPost(
+    response: JobPostingEntity
+  ) {
+    const eligibleUsers = await this.getEligibleUsersForTheJobPost(
+      response.skill,
+    );
+    const messageCommand: JobPostTelegramNotificationCommand = {
+      deadline: response.deadline,
+      jobTitle: response.title,
+      jobDescription: response.description,
+      applicationLink: response.applicationURL,
+      Salary: response.salaryRange
+        ? response.salaryRange
+        : 'Based On Company Standard',
+      jobType: response.employmentType,
+      workLocation: response.location,
+    };
+    for (let index = 0; index < eligibleUsers?.length; index++) {
+      const eligibleUser = eligibleUsers[index];
+      if (!eligibleUser.telegramUserId) continue;
+      await this.notifyUsersOnTelegramBoot(
+        eligibleUser.telegramUserId,
+        messageCommand,
+        response.id,
+      );
+    }
+  }
   async getEligibleUsersForTheJobPost(skills: string[]) {
     return await this.userRepository.getEligibleUsersForTheJobPost(skills);
   }
@@ -205,7 +237,6 @@ export class JobPostingService {
         ]);
       }
       const { items, total } = await this.jobPostingRepository.findAll(query);
-
       const data = items.map((item) => {
         let isSaved = false;
         let isApplied = false;
@@ -249,7 +280,7 @@ export class JobPostingService {
       console.log(result);
       return true;
     } catch (error) {
-      throw error;
+      return false
     }
   }
 
@@ -339,5 +370,51 @@ export class JobPostingService {
       isFeatured: command.status,
     });
     return JobPostingResponse.toResponse(result);
+  }
+  async getUserByJobPostProperty(command: UserAlertConfiguration) {
+    const query = this.userRepo
+  .createQueryBuilder('user')
+  .where(new Brackets(qb => {
+    const filters: [string, string, any][] = [
+      ['address', 'address', command.address],
+      ['Position', 'Position', command.Position],
+      ['jobTitle', 'jobTitle', command.jobTitle],
+      ['industry', 'industry', command.industry],
+      ['salary', 'salary', command.salary],
+    ];
+
+    let hasAtLeastOneFilter = false;
+
+    for (const [key, param, value] of filters) {
+      if (value !== undefined && value !== null && value !== '') {
+        qb.andWhere(`"user"."smsAlertConfiguration"->>:${param} = :${param}`, { [param]: value });
+        hasAtLeastOneFilter = true;
+      }
+    }
+
+    // Prevent empty brackets which cause invalid SQL
+    if (!hasAtLeastOneFilter) {
+      qb.where('TRUE'); // Always true
+    }
+  }))
+  .andWhere(`"user"."deletedAt" IS NULL`);
+    const result=await query.getMany(); 
+    console.log(query.getSql())
+  return result;
+  }
+  async getUserByJobPostORProperty(command: UserAlertConfiguration) {
+    // Find users where at least one smsAlertConfiguration matches ANY of the given command properties (OR logic)
+    const result = await this.userRepo
+      .createQueryBuilder('user')
+      .where(new Brackets(qb => {
+        qb.where(`"user"."smsAlertConfiguration"->>'address' = :address`, { address: command.address ?? '' })
+          .orWhere(`"user"."smsAlertConfiguration"->>'Position' = :Position`, { Position: command.Position ?? '' })
+          .orWhere(`"user"."smsAlertConfiguration"->>'jobTitle' = :jobTitle`, { jobTitle: command.jobTitle ?? '' })
+          .orWhere(`"user"."smsAlertConfiguration"->>'industry' = :industry`, { industry: command.industry ?? '' })
+          .orWhere(`"user"."smsAlertConfiguration"->>'salary' = :salary`, { salary: command.salary ?? '' });
+      }))
+      .andWhere(`"user"."deletedAt" IS NULL`)
+      .getMany();
+    return result;
   }
 }

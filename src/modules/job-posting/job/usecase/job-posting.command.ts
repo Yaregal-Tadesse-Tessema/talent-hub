@@ -80,6 +80,8 @@ export class CreateJobPostingCommand {
   hasAiFilter?: boolean;
   @ApiProperty()
   hasNormalFilter?: boolean;
+  @ApiProperty()
+  requiredYearOfExperience?: number;
   tenantId?: string;
   currentUser?: any;
 
@@ -122,6 +124,7 @@ export class CreateJobPostingCommand {
     entity.isFeatured = dto?.isFeatured;
     entity.hasAiFilter = dto?.hasAiFilter;
     entity.hasNormalFilter = dto?.hasNormalFilter;
+    entity.requiredYearOfExperience = dto?.requiredYearOfExperience;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

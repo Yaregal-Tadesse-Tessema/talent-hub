@@ -52,6 +52,8 @@ export class JobPostingEntity extends CommonEntity {
   status: JobPostingStatusEnums;
   @Column({ nullable: true })
   gender: string;
+  @Column({ nullable: true })
+  requiredYearOfExperience: number;
   @Column({ type: 'decimal', nullable: true })
   minimumGPA: number;
   @Column({ nullable: true })

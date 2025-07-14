@@ -22,9 +22,9 @@ export class LookupEntity extends CommonEntity {
   lastName: string;
   @Column({ nullable: true })
   password: string;
-  @Column({ unique: true })
+  @Column({ unique: true,nullable: true })
   email: string;
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   phoneNumber: string;
   @Column({ default: UserType.EMPLOYEE })
   userType: UserType;
