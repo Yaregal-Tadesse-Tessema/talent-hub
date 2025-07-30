@@ -39,6 +39,7 @@ import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.service';
+import { IntelligenceModule } from './modules/intelligence/intelligence.module';
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.serv
     GeminiModule,
     SmsModule,
     AdministratorModule,
+    IntelligenceModule,
   ],
   controllers: [],
   providers: [
