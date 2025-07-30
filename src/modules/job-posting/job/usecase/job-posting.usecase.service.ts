@@ -13,7 +13,7 @@ import {
   RePostJobCommand,
   UpdateJobPostingCommand,
 } from './job-posting.command';
-import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { CollectionQuery, Order } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { JobPostingResponse } from './job-posting.response';
 import { JobPostingStatusEnums } from '../../constants';
@@ -59,6 +59,26 @@ export class JobPostingService {
     userInfo?: any,
   ): Promise<DataResponseFormat<JobPostingResponse>> {
     try {
+      const today = new Date();
+      const formatted = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate(),
+          0,
+          0,
+          0,
+        ),
+      ).toISOString();
+      query.where = query.where || [];
+      query.where.push([
+        { column: 'deadline', value: formatted, operator: '>=' },
+      ]);
+      query.orderBy = query.orderBy || [];
+      query.orderBy.push({
+        column: 'postedDate',
+        direction: 'DESC'
+      });
       query.includes.push('savedUsers');
       query.includes.push('applications');
       query.includes.push('favoriteJobs');
