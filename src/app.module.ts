@@ -44,7 +44,7 @@ import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.serv
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
-    // TelegramModule,
+    TelegramModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
