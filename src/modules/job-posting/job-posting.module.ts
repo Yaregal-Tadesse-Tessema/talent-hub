@@ -21,6 +21,8 @@ import { UserFavoriteJobEntity } from './job/persistencies/user-favorite-job.ent
 import { UserFavoriteJobRepository } from './job/persistencies/user-favorite-job.repository';
 import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.service';
 import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
+import { UserService } from '../user/usecase/user.usecase.service';
+import { ApplicationModule } from '../application/application.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -32,7 +34,7 @@ import { UserFavoriteJobController } from './job/controller/user-favorite-job.co
     ]),
     forwardRef(() => UserModule),
     forwardRef(() => TelegramModule),
-    // UserModule,
+    forwardRef(() => ApplicationModule),
   ],
   providers: [
     JobPostingService,
@@ -48,6 +50,8 @@ import { UserFavoriteJobController } from './job/controller/user-favorite-job.co
 
     UserFavoriteJobRepository,
     UserFavoriteJobService,
+
+    UserService
   ],
   controllers: [
     JobPostingController,
@@ -55,6 +59,6 @@ import { UserFavoriteJobController } from './job/controller/user-favorite-job.co
     PreScreeningQuestionController,
     UserFavoriteJobController,
   ],
-  exports: [JobPostingService, JobPostingRepository],
+  exports: [JobPostingService, JobPostingRepository,UserService],
 })
 export class JobPostingModule {}

@@ -15,6 +15,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.response';
 import { UserLoginCommand } from '../auth.command';
 import { SwitchOrganizationCommand } from '../dto/login.dto';
+import { UserStatusEnums } from 'src/modules/user/constants';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
@@ -375,6 +376,10 @@ export class AuthService {
     ) {
       throw new BadRequestException(`Incorrect credentials`);
     }
+    if (user.status == UserStatusEnums.PENDING)
+      throw new BadRequestException(
+        `Your account is not Activated please check your email do not forget you Spam folder too`,
+      );
     const payload: UserInfo = {
       id: user.id,
       email: user?.email,

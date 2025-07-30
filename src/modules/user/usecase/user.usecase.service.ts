@@ -2,6 +2,9 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  HttpException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -35,6 +38,7 @@ import { UserEntity } from '../persistence/users.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { HttpStatusCode } from 'axios';
 @Injectable()
 export class UserService {
   constructor(
@@ -42,7 +46,8 @@ export class UserService {
     private readonly userRepo: Repository<UserEntity>,
     private readonly userRepository: UserRepository,
     private readonly fileService: FileService,
-    private readonly pdfService: PdfService,
+    // private readonly pdfService: PdfService,
+    @Inject(forwardRef(() => ApplicationRepository))
     private readonly applicationRepository: ApplicationRepository,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
@@ -185,14 +190,14 @@ export class UserService {
           left: '20px',
         },
       };
-      const pdfPath = await this.pdfService.generatePdf(
-        pdfContext,
-        templateName,
-        fileName,
-        Options,
-        null,
-      );
-      return pdfPath;
+      // const pdfPath = await this.pdfService.generatePdf(
+      //   pdfContext,
+      //   templateName,
+      //   fileName,
+      //   Options,
+      //   null,
+      // );
+      return 'pdfPath';
     } catch (error) {
       console.log(error);
       throw error;
@@ -343,7 +348,7 @@ export class UserService {
       [],
     );
     if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE) {
-      return true;
+      throw new HttpException('User already created', HttpStatusCode.AlreadyReported);
     }
 
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {

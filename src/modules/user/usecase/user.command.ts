@@ -30,75 +30,75 @@ export class CreateUserCommand {
   phone: string;
   @ApiProperty()
   @IsNotEmpty()
-  email: string;
+  email?: string;
   @ApiProperty()
   firstName: string;
   @ApiProperty()
-  middleName: string;
+  middleName?: string;
   @ApiProperty()
-  lastName: string;
+  lastName?: string;
   @ApiProperty()
-  gender: string;
+  gender?: string;
   @ApiProperty({ default: UserStatusEnums.ACTIVE })
-  status: UserStatusEnums;
+  status?: UserStatusEnums;
   @ApiProperty()
-  password: string;
+  password?: string;
   @ApiProperty()
-  address: any;
+  address?: any;
   @ApiProperty()
-  birthDate: Date;
+  birthDate?: Date;
   @ApiProperty()
-  linkedinUrl: string;
+  linkedinUrl?: string;
   @ApiProperty()
-  portfolioUrl: string;
+  portfolioUrl?: string;
   @ApiProperty()
-  yearOfExperience: number;
+  yearOfExperience?: number;
   @ApiProperty()
-  industry: string[];
+  industry?: string[];
   @ApiProperty()
-  telegramUserId: string;
+  telegramUserId?: string;
   @ApiProperty()
-  preferredJobLocation: string[];
+  preferredJobLocation?: string[];
   @ApiProperty({ default: EducationLevelEnums.DIPLOMA })
-  highestLevelOfEducation: EducationLevelEnums;
+  highestLevelOfEducation?: EducationLevelEnums;
   @ApiProperty()
-  salaryExpectations: number;
+  salaryExpectations?: number;
   @ApiProperty()
-  aiGeneratedJobFitScore: number;
+  aiGeneratedJobFitScore?: number;
   @ApiProperty()
-  technicalSkills: string[];
+  technicalSkills?: string[];
   @ApiProperty()
-  softSkills: string[];
+  softSkills?: string[];
   @ApiProperty()
   profile?: any;
   @ApiProperty()
-  resume: any;
+  resume?: any;
   @ApiProperty()
-  educations: any;
+  educations?: any;
   @ApiProperty()
-  experiences: any;
+  experiences?: any;
   @ApiProperty()
-  socialMediaLinks: SocialMediaLinks;
+  socialMediaLinks?: SocialMediaLinks;
   @ApiProperty()
-  profileHeadLine: string;
+  profileHeadLine?: string;
   @ApiProperty()
-  coverLetter: string;
+  coverLetter?: string;
   @ApiProperty()
-  professionalSummery: string;
+  professionalSummery?: string;
   @ApiProperty()
-  isProfilePublic: boolean;
+  isProfilePublic?: boolean;
   @ApiProperty()
-  isResumePublic: boolean;
+  isResumePublic?: boolean;
   @ApiProperty()
-  notificationSetting: string[];
+  notificationSetting?: string[];
   @ApiProperty()
   alertConfiguration?: UserAlertConfiguration[];
   @ApiProperty()
   smsAlertConfiguration?: UserAlertConfiguration[];
   @ApiProperty()
-  isFirstTime: boolean;
+  isFirstTime?: boolean;
   @ApiProperty()
-  isPayingUser: boolean;
+  isPayingUser?: boolean;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {

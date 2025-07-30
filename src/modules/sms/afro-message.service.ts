@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
-import { AxiosError, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -79,7 +79,7 @@ export class AfroMessageService {
           },
           params: {
             from: this.identifierId,
-            // sender: this.sender,
+            sender: this.sender,
             to: phoneNumber,
             ps: postMessage,
             sa: spacesAfter,
@@ -96,14 +96,27 @@ export class AfroMessageService {
           }),
         ),
     );
-    return data;
+    return data.response.message;
   }
   async verifyOtp(
-    phoneNumber: string,
-    otpCode: string,
-    verificationId: string,
+    payload:{ phoneNumber:string, otpCode:string, verificationId?:string }
   ): Promise<any> {
-    return { phoneNumber, otpCode, verificationId };
+    const instance = axios.create({
+      baseURL: this.baseUrl,
+      timeout: 5000,
+      headers: {
+        Authorization:
+          `Bearer ${this.apiKey}`,
+      },
+    });
+   const { phoneNumber, otpCode } = payload;
+   const response = await instance.get(`/verify`, {
+     params: {
+       to: phoneNumber,
+       code: otpCode,
+     },
+   });
+   return response.data;
   }
   async sendBulkMessage(
     message: string,

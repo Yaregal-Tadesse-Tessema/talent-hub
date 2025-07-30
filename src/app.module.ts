@@ -37,9 +37,14 @@ import { PassportModule } from '@nestjs/passport';
 import { GeminiModule } from './modules/gemini/gemini.module';
 import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
+import { TelegramModule } from './modules/telegram/telegram.module';
+import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.service';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    UserModule,
+    TelegramModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
@@ -79,10 +84,8 @@ import { AdministratorModule } from './modules/administrator/administrator.modul
     PassportModule,
     AuthModule,
     JobPostingModule,
-    UserModule,
     FileModule,
     ApplicationModule,
-    // TelegramModule,
     NotificationModule,
     TenantModule,
     GeminiModule,
@@ -98,4 +101,6 @@ import { AdministratorModule } from './modules/administrator/administrator.modul
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private readonly _telegramBot: TelegramBotService) {}
+}

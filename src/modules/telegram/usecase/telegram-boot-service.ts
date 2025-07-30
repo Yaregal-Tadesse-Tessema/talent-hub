@@ -17,8 +17,8 @@ import { ApplicationService } from 'src/modules/application/usecase/application.
 import { JobPostingRepository } from 'src/modules/job-posting/job/persistencies/job-post.repository';
 
 @Injectable()
-export class TelegramBotService implements OnApplicationShutdown {
-  private readonly log = new Logger(TelegramBotService.name);
+export class TelegramBootService implements OnApplicationShutdown {
+  private readonly log = new Logger(TelegramBootService.name);
   private listenersAttached = false;
 
   constructor(

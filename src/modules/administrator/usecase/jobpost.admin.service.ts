@@ -40,7 +40,7 @@ export class JobPostAdminService {
             tenantEntity.phoneNumber = command?.tenantPhone;
             tenant = await this.tenantRepo.save(tenantEntity);
         }
-        let lookup = await this.lookupRepo.findOne({ where: [{ email: command?.tenantName }] });
+        let lookup = await this.lookupRepo.findOne({ where: [{ tenantId: tenant?.id }] });
         if (!lookup) {
             const lookupEntity = new LookupEntity();
             lookupEntity.email = command?.email;
@@ -86,7 +86,7 @@ export class JobPostAdminService {
             jobPostingEntity.deadline = command?.deadline;
             jobPostingEntity.gender = command?.gender;
             jobPostingEntity.positionNumbers = command?.numberOfPosition;
-            jobPostingEntity.status = JobPostingStatusEnums.PENDING;
+            jobPostingEntity.status = JobPostingStatusEnums.POSTED;
             jobPost = await this.jobPostRepo.save(jobPostingEntity);
         }
         ;

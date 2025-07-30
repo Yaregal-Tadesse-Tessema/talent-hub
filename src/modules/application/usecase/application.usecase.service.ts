@@ -2,6 +2,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -41,6 +43,7 @@ export class ApplicationService {
     private readonly applicationRepository: ApplicationRepository,
     private readonly fileService: FileService,
     private readonly jobPostingRepository: JobPostingRepository,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly emailService: EmailService,
     private readonly invitationRepository: InvitationRepository,

@@ -3,25 +3,34 @@ import { Controller, Param, Post, Req } from '@nestjs/common';
 import { Request } from 'express';
 import { InjectBot } from 'nestjs-telegraf';
 import { Telegraf } from 'telegraf';
-import { TelegramBotService } from '../usecase/telegram-boot-service';
+import { TelegramBotService } from '../usecase/telegram-bot.service';
 
 @Controller('telegram-bot')
 export class TelegramBotController {
   constructor(
-    @InjectBot() private readonly bot: Telegraf,
+    @InjectBot() private readonly bot: Telegraf, // 👈 inject Telegraf bot instance
     private readonly telegramBotService: TelegramBotService,
   ) {}
 
+  // ✅ Webhook handler for Telegram (only needed if you're using webhooks, not polling)
   @Post('webhook')
   async handleWebhook(@Req() req: Request) {
-    return await this.bot.handleUpdate(req.body);
+    await this.bot.handleUpdate(req.body);
+    return 'ok';
   }
-  @Post('send-message/:userId/:message/:jobId')
+
+  // ✅ Safer version using query or body instead of :message in URL
+  @Post('send-message/:userId/:jobId')
   async sendMessage(
     @Param('userId') userId: string,
-    @Param('message') message: string,
     @Param('jobId') jobId: string,
+    @Req() req: Request,
   ) {
-    return await this.telegramBotService.sendMessage(userId, message, jobId);
+    const { message } = req.body;
+    if (!message) {
+      return { error: 'Message body is required' };
+    }
+
+    // return await this.telegramBotService.notifyNewJob(userId);
   }
 }

@@ -48,7 +48,7 @@ export class CreateApplicationCommand {
   @ApiProperty()
   questionaryScore?: number;
   @ApiProperty()
-  applicationInformation: any;
+  applicationInformation?: any;
   @ApiProperty()
   isInvited?: boolean;
   @ApiProperty()

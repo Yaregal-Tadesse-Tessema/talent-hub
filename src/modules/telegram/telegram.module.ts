@@ -1,36 +1,29 @@
 /* eslint-disable prettier/prettier */
 import { Module, forwardRef } from '@nestjs/common';
-import { TelegrafModule } from 'nestjs-telegraf';
 
-import { TelegramBotController } from './controller/telegram.controller';
-import { TelegramBotService } from './usecase/telegram-boot-service';
 
 /* ── your feature modules ────────────────────────────────────────────── */
 import { JobPostingModule } from '../job-posting/job-posting.module';
 import { ApplicationModule } from '../application/application.module';
 import { UserModule } from '../user/user.module';
+import { TelegramBotService } from './usecase/telegram-bot.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserEntity } from '../user/persistence/users.entity';
+import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
+import { ApplicationEntity } from '../application/persistences/application.entity';
 
 @Module({
   imports: [
-    /* ⚠️  ONE (and only one) TelegrafModule.forRoot in the whole app  */
-    TelegrafModule.forRoot({
-      token: process.env.TELEGRAM_BOT_TOKEN!,
-      launchOptions: {
-        /* Drop any lingering polling session on hot-reload / redeploy */
-        dropPendingUpdates: true,
-      },
-    }),
-
-    /* your domain modules */
-    forwardRef(() => JobPostingModule),
-    forwardRef(() => ApplicationModule),
-    forwardRef(() => UserModule),
+    TypeOrmModule.forFeature([UserEntity,JobPostingEntity,ApplicationEntity]),
   ],
-
-  providers: [TelegramBotService],
-  controllers: [TelegramBotController],
-
-  /* export the service so other modules can inject/send messages */
+  providers: [TelegramBotService,
+    {
+      provide: 'TELEGRAM_BOT_STARTER',
+      useFactory: (bot: TelegramBotService) => true,
+      inject: [TelegramBotService],
+    }
+  ],
+  controllers: [],
   exports: [TelegramBotService],
 })
 export class TelegramModule {}

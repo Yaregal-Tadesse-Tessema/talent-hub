@@ -52,6 +52,7 @@ export class BaseRepository<T extends ObjectLiteral> {
       dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
     }
     const response = new DataResponseFormat<T>();
+    console.log(dataQuery.getSql());
     if (query.count) {
       response.total = await dataQuery.getCount();
     } else {

@@ -14,6 +14,8 @@ import { InvitationRepository } from './persistences/invitation.repository';
 import { InvitationService } from './usecase/invitation/invitation.usecase.ervice';
 import { InvitationController } from './controller/invitation.controller';
 import { GeminiModule } from '../gemini/gemini.module';
+import { UserService } from '../user/usecase/user.usecase.service';
+import { UserEntity } from '../user/persistence/users.entity';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { GeminiModule } from '../gemini/gemini.module';
       ApplicationEntity,
       MessageEntity,
       InvitationEntity,
+      UserEntity
     ]),
     FileModule,
     forwardRef(() => JobPostingModule),
@@ -33,7 +36,8 @@ import { GeminiModule } from '../gemini/gemini.module';
     ApplicationRepository,
     InvitationRepository,
     InvitationService,
+    UserService
   ],
-  exports: [ApplicationService, ApplicationRepository],
+  exports: [ApplicationService, ApplicationRepository,UserService],
 })
 export class ApplicationModule {}

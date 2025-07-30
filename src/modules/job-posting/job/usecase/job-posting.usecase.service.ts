@@ -19,12 +19,12 @@ import { JobPostingResponse } from './job-posting.response';
 import { JobPostingStatusEnums } from '../../constants';
 import { UserService } from 'src/modules/user/usecase/user.usecase.service';
 import { JobPostingRepository } from '../persistencies/job-post.repository';
-import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-boot-service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { Brackets, Repository } from 'typeorm';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
+import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-bot.service';
 @Injectable()
 export class JobPostingService {
   constructor(
@@ -272,12 +272,12 @@ export class JobPostingService {
       if (!userId || !command) return;
       const message = this.constructJobPostMessage(command);
       if (!message) return;
-      const result = await this.telegramBotService.sendMessage(
-        userId,
-        message,
-        JobPostId,
-      );
-      console.log(result);
+      // const result = await this.telegramBotService.sendMessage(
+      //   userId,
+      //   message,
+      //   JobPostId,
+      // );
+      // console.log(result);
       return true;
     } catch (error) {
       return false
@@ -321,6 +321,20 @@ export class JobPostingService {
     const response = JobPostingResponse.toResponse(result);
     response.isSaved = isSaved;
     return response;
+  }
+    async getOneById(
+    id: any,
+    relations = [],
+    withDeleted = false,
+  ): Promise<JobPostingResponse> {
+    const result = await this.jobPostingRepository.findOne(
+      id,
+      relations,
+      withDeleted,
+    );
+    if (!result) return null;
+    
+    return JobPostingResponse.toResponse(result);
   }
   async rePostJob(command: RePostJobCommand) {
     const jobPost = await this.jobPostingRepository.findOne(command.jobPostId);

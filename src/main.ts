@@ -9,10 +9,13 @@ import {
 import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
 import { Telegraf } from 'telegraf';
+import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   const reflector = app.get(Reflector);
+  const botService = app.get(TelegramBotService);
+  await botService.onModuleInit();
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   // app.useGlobalFilters(new GlobalExceptionFilter(app.get(EventEmitter2)));
   app.useGlobalFilters(new GlobalExceptionFilter());
