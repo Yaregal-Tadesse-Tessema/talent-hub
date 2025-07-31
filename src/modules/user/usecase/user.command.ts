@@ -7,6 +7,8 @@ import {
   SocialMediaLinks,
   UserStatusEnums,
 } from '../constants';
+import { CreateExperienceCommand } from './experience.command';
+import { CreateEducationCommand } from './education.command';
 
 export class UserAlertConfiguration {
   userId?: string;
@@ -74,9 +76,9 @@ export class CreateUserCommand {
   @ApiProperty()
   resume?: any;
   @ApiProperty()
-  educations?: any;
+  educations?: CreateEducationCommand[];
   @ApiProperty()
-  experiences?: any;
+  experiences?: CreateExperienceCommand[];
   @ApiProperty()
   socialMediaLinks?: SocialMediaLinks;
   @ApiProperty()

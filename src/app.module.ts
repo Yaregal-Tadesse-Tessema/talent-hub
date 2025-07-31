@@ -38,7 +38,6 @@ import { GeminiModule } from './modules/gemini/gemini.module';
 import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
-import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.service';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
 
 @Module({
@@ -103,6 +102,4 @@ import { IntelligenceModule } from './modules/intelligence/intelligence.module';
     },
   ],
 })
-export class AppModule {
-  constructor(private readonly _telegramBot: TelegramBotService) {}
-}
+export class AppModule {}

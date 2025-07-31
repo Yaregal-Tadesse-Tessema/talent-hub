@@ -3,6 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../persistence/users.entity';
 import { SocialMediaLinks, UserStatusEnums } from '../constants';
 import { UserAlertConfiguration } from './user.command';
+import { CreateExperienceCommand } from './experience.command';
+import { CreateEducationCommand } from './education.command';
 export class UserResponse {
   @ApiProperty()
   id: string;
@@ -61,9 +63,9 @@ export class UserResponse {
   @ApiProperty()
   professionalSummery: string;
   @ApiProperty()
-  educations: any;
+  educations: CreateEducationCommand[];
   @ApiProperty()
-  experiences: any;
+  experiences: CreateExperienceCommand[];
   @ApiProperty()
   isProfilePublic: boolean;
   @ApiProperty()
