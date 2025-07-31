@@ -212,6 +212,7 @@ export class UserController {
   async sendPasswordResetEmail(
     @Body() command: SendPasswordResetLinkCommand,
   ): Promise<boolean> {
+    
     return await this.userService.sendPasswordResetEmail(
       command.email,
       command.link,

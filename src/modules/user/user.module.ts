@@ -12,6 +12,7 @@ import { UserRepository } from './persistence/user.repository';
 import { UserFavoriteJobEntity } from '../job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from '../notification/persistencies/notification.entity';
 import { TelegramModule } from '../telegram/telegram.module';
+import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -23,6 +24,8 @@ import { TelegramModule } from '../telegram/telegram.module';
     ]),
     forwardRef(() => ApplicationModule),
     forwardRef(() => TelegramModule),
+    forwardRef(() => AuthModule),
+    
   ],
   providers: [UserService, UserRepository, PdfService],
   controllers: [UserController],

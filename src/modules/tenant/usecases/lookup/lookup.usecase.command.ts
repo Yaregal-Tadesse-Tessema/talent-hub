@@ -147,7 +147,7 @@ export class LookupService {
     if (!token) {
       throw new BadRequestException('Activation token is required');
     }
-    const payload = await this.jwtService.verify(token);
+    const payload = await this.jwtService.verifyAsync(token);
     if (!payload) {
       const lookupEntity = await this.lookupRepository.findOne(lookUpId, [
         'employeeTenant',

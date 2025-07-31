@@ -39,6 +39,7 @@ import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
+import { PasswordResetEntity } from './modules/auth/persistances/password-reset/password-reset.entity';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { IntelligenceModule } from './modules/intelligence/intelligence.module';
         NotificationEntity,
         MessageEntity,
         InvitationEntity,
+        PasswordResetEntity,
       ],
       synchronize: true,
     }),

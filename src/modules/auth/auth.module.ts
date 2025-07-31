@@ -28,6 +28,10 @@ import { GoogleStrategy } from './google.strategy';
 import { GoogleAuthController } from './controllers/google.controller';
 import { GoogleAuthService } from './services/google.service';
 import { TenantModule } from '../tenant/tenant.module';
+import { PasswordResetEntity } from './persistances/password-reset/password-reset.entity';
+import { PasswordResetCommand } from './services/password-reset/password-reset.usecase.service';
+import { PasswordResetQuery } from './services/password-reset/password-reset.usecase.query';
+import { PasswordResetRepository } from './persistances/password-reset/password-reset.repository';
 dotenv.config({ path: '.env' });
 @Global()
 @Module({
@@ -43,6 +47,7 @@ dotenv.config({ path: '.env' });
       SaveJobEntity,
       PreScreeningQuestionEntity,
       NotificationEntity,
+      PasswordResetEntity,
       // ResetPasswordTokenEntity,
     ]),
     PassportModule,
@@ -66,8 +71,11 @@ dotenv.config({ path: '.env' });
     SessionQuery,
     GoogleStrategy,
     GoogleAuthService,
+    PasswordResetRepository,
+    PasswordResetCommand,
+    PasswordResetQuery,
   ],
   controllers: [AuthController, GoogleAuthController],
-  exports: [AuthService],
+  exports: [AuthService,SessionCommand,PasswordResetCommand,PasswordResetQuery,PasswordResetRepository],
 })
 export class AuthModule {}

@@ -238,16 +238,16 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
     
     // Check if we're still the active instance
     if (globalBotInstance !== this) {
-      console.log('⚠️ Not the active instance, skipping polling start');
+      // console.log('⚠️ Not the active instance, skipping polling start');
       return;
     }
     
     try {
       await this.bot.startPolling();
       this.isPolling = true;
-      console.log('✅ Polling started successfully');
+      // console.log('✅ Polling started successfully');
     } catch (error) {
-      console.error('❌ Failed to start polling:', error.message);
+      // console.error('❌ Failed to start polling:', error.message);
       throw error;
     }
   }
@@ -260,9 +260,9 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           this.isPolling = false;
         }
         await this.bot.close();
-        console.log('🛑 Bot stopped successfully');
+        // console.log('🛑 Bot stopped successfully');
       } catch (error) {
-        console.error('❌ Error stopping bot:', error.message);
+        // console.error('❌ Error stopping bot:', error.message);
       }
     }
     
@@ -281,7 +281,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       globalBotInstance = null;
     }
     
-    console.log('✅ Telegram bot destroyed and cleaned up');
+    // console.log('✅ Telegram bot destroyed and cleaned up');
   }
 
   private attachListeners() {
@@ -307,14 +307,14 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
 
     // Add connection health monitoring
     this.bot.on('polling_error', (error) => {
-      console.error('🔴 Polling error detected:', error.message);
+      // console.error('🔴 Polling error detected:', error.message);
     });
 
     this.bot.on('webhook_error', (error) => {
-      console.error('🔴 Webhook error detected:', error.message);
+      // console.error('🔴 Webhook error detected:', error.message);
     });
 
-    console.log('📥 Telegram bot listeners attached successfully.');
+    // console.log('📥 Telegram bot listeners attached successfully.');
   }
 
   private isBotReady(): boolean {
@@ -339,21 +339,21 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
   private async handleStart(msg: Message) {
     try {
       const chatId = msg.chat.id;
-      console.log(`🔔 /start command received from chat ID: ${chatId}`);
+      // console.log(`🔔 /start command received from chat ID: ${chatId}`);
       
       // Validate dependencies
       if (!this.userRepository) {
-        console.error('❌ userRepository is undefined');
+        // console.error('❌ userRepository is undefined');
         await this.bot.sendMessage(chatId, '❌ Service temporarily unavailable. Please try again later.');
         return;
       }
       if (!this.jobPostingRepository) {
-        console.error('❌ jobPostingRepository is undefined');
+        // console.error('❌ jobPostingRepository is undefined');
         await this.bot.sendMessage(chatId, '❌ Service temporarily unavailable. Please try again later.');
         return;
       }
       if (!this.applicationRepository) {
-        console.error('❌ applicationRepository is undefined');
+        // console.error('❌ applicationRepository is undefined');
         await this.bot.sendMessage(chatId, '❌ Service temporarily unavailable. Please try again later.');
         return;
       }
@@ -364,10 +364,10 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         },
       });
       
-      console.log('🔍 User lookup result:', user ? `Found user ID: ${user.id}` : 'No existing user found');
+      // console.log('🔍 User lookup result:', user ? `Found user ID: ${user.id}` : 'No existing user found');
       
       if (!user) {
-        console.log('📱 Requesting contact from new user');
+        // console.log('📱 Requesting contact from new user');
         await this.bot.sendMessage(chatId, '👋 Welcome! Please share your contact info to get started:', {
           reply_markup: {
             keyboard: [[{ text: '📱 Share Contact', request_contact: true }]],
@@ -376,15 +376,15 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           },
         });
       } else {
-        console.log('👋 Welcoming back existing user');
+        //  console.log('👋 Welcoming back existing user');
         await this.bot.sendMessage(chatId, '👋 Welcome back! You can upload your resume or browse available jobs.');
       }
     } catch (error) {
-      console.error('❌ Error in handleStart:', error);
+      // console.error('❌ Error in handleStart:', error);
       try {
         await this.bot.sendMessage(msg.chat.id, '❌ An error occurred. Please try again later.');
       } catch (sendError) {
-        console.error('❌ Failed to send error message:', sendError);
+        // console.error('❌ Failed to send error message:', sendError);
       }
     }
   }
@@ -395,11 +395,11 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const contact = msg.contact;
       
       if (!contact) {
-        console.log('⚠️ Contact message received but no contact data found');
+        // console.log('⚠️ Contact message received but no contact data found');
         return;
       }
 
-      console.log(`📱 Contact received from ${contact.first_name} (${contact.phone_number})`);
+      // console.log(`📱 Contact received from ${contact.first_name} (${contact.phone_number})`);
 
       const { first_name, phone_number } = contact;
       let cleanedPhoneNumber = phone_number;
@@ -410,7 +410,7 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
         cleanedPhoneNumber = cleanedPhoneNumber.replace(/^0+/, '0');
       }
       
-      console.log(`🔍 Searching for user with phone: ${phone_number} or ${cleanedPhoneNumber}`);
+      // console.log(`🔍 Searching for user with phone: ${phone_number} or ${cleanedPhoneNumber}`);
       
       let user = await this.userRepository.findOne({
         where: [{
@@ -422,12 +422,12 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
 
       if (!user || !user.telegramUserId) {
         if (user) {
-          console.log(`🔄 Updating existing user ${user.id} with Telegram ID`);
+          // console.log(`🔄 Updating existing user ${user.id} with Telegram ID`);
           await this.userRepository.update(user.id, {
             telegramUserId: chatId.toString(),
           });
         } else {
-          console.log(`🆕 Creating new user for Telegram ID ${chatId}`);
+          // console.log(`🆕 Creating new user for Telegram ID ${chatId}`);
           user = await this.userRepository.save({
             firstName: first_name,
             phone: phone_number,
@@ -435,17 +435,17 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
           });
         }
       } else {
-        console.log(`✅ User ${user.id} already has Telegram ID configured`);
+        // console.log(`✅ User ${user.id} already has Telegram ID configured`);
       }
       
-      console.log(`✅ Contact saved successfully for user ${user.id}`);
+      // console.log(`✅ Contact saved successfully for user ${user.id}`);
       await this.bot.sendMessage(chatId, '✅ Contact saved! Now upload your resume (PDF/Doc).');
     } catch (error) {
-      console.error('❌ Error in handleContact:', error);
+      // console.error('❌ Error in handleContact:', error);
       try {
         await this.bot.sendMessage(msg.chat.id, '❌ Failed to save contact. Please try again.');
       } catch (sendError) {
-        console.error('❌ Failed to send error message:', sendError);
+        // console.error('❌ Failed to send error message:', sendError);
       }
     }
   }
@@ -455,11 +455,11 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const chatId = msg.chat.id;
       
       if (!msg.document) {
-        console.log('⚠️ Document message received but no document data found');
+        //        console.log('⚠️ Document message received but no document data found');
         return;
       }
 
-      console.log(`📄 Document received: ${msg.document.file_name} (${msg.document.mime_type})`);
+      // console.log(`📄 Document received: ${msg.document.file_name} (${msg.document.mime_type})`);
 
       const user = await this.userRepository.findOne({
         where: {
@@ -468,26 +468,26 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       });
       
       if (!user) {
-        console.log('❌ User not found for resume upload');
+        // console.log('❌ User not found for resume upload');
         await this.bot.sendMessage(chatId, '❌ You need to start with /start first.');
         return;
       }
 
       // Validate file type
       if (!msg.document.mime_type?.includes('pdf') && !msg.document.mime_type?.includes('word')) {
-        console.log('❌ Invalid file type uploaded');
+        // console.log('❌ Invalid file type uploaded');
         await this.bot.sendMessage(chatId, '❌ Please upload a valid PDF or Word resume.');
         return;
       }
 
       // Check file size (2MB limit)
       if (msg.document.file_size && msg.document.file_size > 2 * 1024 * 1024) {
-        console.log('❌ File too large:', msg.document.file_size);
+        // console.log('❌ File too large:', msg.document.file_size);
         await this.bot.sendMessage(chatId, '❌ The file size is larger than 2MB. Please upload a smaller file.');
         return;
       }
 
-      console.log(`📥 Downloading file: ${msg.document.file_name}`);
+      // console.log(`📥 Downloading file: ${msg.document.file_name}`);
       const fileId = msg.document.file_id;
       const file = await this.bot.downloadFile(fileId, '/tmp');
       
@@ -515,11 +515,11 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const fileIdForMinio = `${user.id}/resume/${Date.now()}_${fileName}`;
       
       if (user.resume) {
-        console.log('🗑️ Deleting previous resume');
+        // console.log('🗑️ Deleting previous resume');
         await this.fileService.deleteBucketFile(user.resume.path);
       }
       
-      console.log('📤 Uploading resume to storage');
+      // console.log('📤 Uploading resume to storage');
       const uploadedFile = await this.fileService.uploadAttachment(fileIdForMinio, multerFile);
       
       // Update user with new resume
@@ -529,14 +529,14 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       // Clean up temp file
       fs.unlinkSync(file);
 
-      console.log(`✅ Resume saved successfully for user ${user.id}`);
+      // console.log(`✅ Resume saved successfully for user ${user.id}`);
       await this.bot.sendMessage(chatId, `✅ Resume saved successfully! You can now apply for jobs.`);
     } catch (error) {
-      console.error('❌ Error in handleResume:', error);
+      // console.error('❌ Error in handleResume:', error);
       try {
         await this.bot.sendMessage(msg.chat.id, '❌ Failed to save resume. Please try again.');
       } catch (sendError) {
-        console.error('❌ Failed to send error message:', sendError);
+        // console.error('❌ Failed to send error message:', sendError);
       }
     }
   }
@@ -546,15 +546,15 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       const chatId = query.message.chat.id;
       const data = query.data;
 
-      console.log(`🔘 Callback received: ${data}`);
+      // console.log(`🔘 Callback received: ${data}`);
 
       if (!data?.startsWith('apply_')) {
-        console.log('⚠️ Unknown callback data:', data);
+        // console.log('⚠️ Unknown callback data:', data);
         return;
       }
 
       const jobId = data.split('_')[1];
-      console.log(`📝 Application requested for job ID: ${jobId}`);
+      //    console.log(`📝 Application requested for job ID: ${jobId}`);
 
       const user = await this.userRepository.findOne({
         where: {
@@ -563,18 +563,17 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
       });
 
       if (!user) {
-        console.log('❌ User not found for job application');
+        // console.log('❌ User not found for job application');
         await this.bot.sendMessage(chatId, '❌ Please register first using /start');
         return;
       }
-
-      console.log('📝 Requesting application description');
+      // console.log('📝 Requesting application description');
       await this.bot.sendMessage(chatId, '✍ Please enter a short description for your application:');
 
       this.bot.once('message', async (msg: Message) => {
         try {
           const description = msg.text;
-          console.log(`📝 Creating application for user ${user.id} to job ${jobId}`);
+          // console.log(`📝 Creating application for user ${user.id} to job ${jobId}`);
 
           await this.applicationRepository.create({
             userId: user.id,
@@ -582,19 +581,19 @@ export class TelegramBotService implements OnModuleInit, OnModuleDestroy {
             remark: description,
           });
 
-          console.log(`✅ Application submitted successfully for user ${user.id}`);
+          // console.log(`✅ Application submitted successfully for user ${user.id}`);
           await this.bot.sendMessage(chatId, '✅ Application submitted successfully!');
         } catch (error) {
-          console.error('❌ Error creating application:', error);
+          // console.error('❌ Error creating application:', error);
           await this.bot.sendMessage(chatId, '❌ Failed to submit application. Please try again.');
         }
       });
     } catch (error) {
-      console.error('❌ Error in handleCallback:', error);
+      // console.error('❌ Error in handleCallback:', error);
       try {
         await this.bot.sendMessage(query.message.chat.id, '❌ An error occurred. Please try again.');
       } catch (sendError) {
-        console.error('❌ Failed to send error message:', sendError);
+        // console.error('❌ Failed to send error message:', sendError);
       }
     }
   }

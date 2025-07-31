@@ -28,10 +28,8 @@ export class UserAlertConfiguration {
 export class CreateUserCommand {
   id?: string;
   @ApiProperty()
-  @IsNotEmpty()
   phone: string;
   @ApiProperty()
-  @IsNotEmpty()
   email?: string;
   @ApiProperty()
   firstName: string;
@@ -107,8 +105,8 @@ export class CreateUserCommand {
       return null;
     }
     entity.id = dto?.id;
-    entity.phone = dto.phone;
-    entity.email = dto.email;
+    entity.phone = dto?.phone;
+    entity.email = dto?.email;
     entity.firstName = dto?.firstName;
     entity.middleName = dto?.middleName;
     entity.lastName = dto?.lastName;
@@ -177,6 +175,9 @@ export class AccountPasswordReset {
   @ApiProperty()
   @IsNotEmpty()
   email: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  token: string;
   @ApiProperty()
   @IsNotEmpty()
   newPassword: string;

@@ -30,7 +30,6 @@ import { Response } from 'express';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { ApplicationRepository } from 'src/modules/application/persistences/application.repository';
 import { FileService } from 'src/modules/file/services/file.service';
-import { PdfService } from 'src/libs/pdf/pdf.service';
 import { Util } from 'src/libs/Common/util';
 import { UserRepository } from '../persistence/user.repository';
 import { UserInfo } from 'src/libs/Common/user-information';
@@ -39,6 +38,9 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpStatusCode } from 'axios';
+import { SessionCommand } from 'src/modules/auth/services/session/session.usecase.command';
+import { PasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.usecase.service';
+import { PasswordResetQuery } from 'src/modules/auth/services/password-reset/password-reset.usecase.query';
 @Injectable()
 export class UserService {
   constructor(
@@ -46,11 +48,16 @@ export class UserService {
     private readonly userRepo: Repository<UserEntity>,
     private readonly userRepository: UserRepository,
     private readonly fileService: FileService,
-    // private readonly pdfService: PdfService,
     @Inject(forwardRef(() => ApplicationRepository))
     private readonly applicationRepository: ApplicationRepository,
     private readonly emailService: EmailService,
     private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => SessionCommand))
+    private readonly sessionCommand: SessionCommand,
+    @Inject(forwardRef(() => PasswordResetCommand))
+    private readonly passwordResetCommand: PasswordResetCommand,
+    @Inject(forwardRef(() => PasswordResetQuery))
+    private readonly passwordResetQuery: PasswordResetQuery,
   ) { }
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
     const user = await this.userRepository.findOne(id);
@@ -528,18 +535,49 @@ export class UserService {
     });
     return response;
   }
-  async sendPasswordResetEmail(email: string, link: string): Promise<boolean> {
+
+  async sendPasswordResetEmail(email: string, link = 'http://138.197.105.31:3000/reset-password'): Promise<boolean> {
     const resetLink = `${link}`;
-    const user = await this.userRepository.getOneByCriteria({
-      email: email,
-    });
+    const user = await this.userRepository.getOneByCriteria(
+      {
+        email: email,
+      }
+    );
     if (!user)
       throw new NotFoundException(`User with email ${email} doesn't exist`);
+    const alreadySent = await this.passwordResetQuery.getPasswordResetByEmail(email);
+    if (alreadySent) {
+      const isTokenExpired =await  this.jwtService.verifyAsync(alreadySent.token,{
+        secret:
+          '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
+      });
+      
+      if (isTokenExpired) {
+        throw new ConflictException(`Password reset link already sent to ${email} do not forget to check your spam folder`);
+      } else {
+        await this.passwordResetCommand.deletePasswordResetByEmail(email);
+      }
+    }
+    const payload: UserInfo = {
+      id: user.id,
+      email: user?.email,
+      firstName: user?.firstName,
+      middleName: user?.middleName,
+      lastName: user?.lastName,
+      phoneNumber: user?.phone,
+      profileImage: user?.profile,
+      address: user?.address,
+      skills: user?.technicalSkills,
+      industry: user?.industry,
+    };
+    const token = Util.GenerateToken(payload, '1h');
+    const resetLinkWithToken = `${link}?token=${token}`;
+
     const html = `
    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
   <h2>Hello ${user.firstName} ${user.lastName},</h2>
   <p>We received a request to reset your password. You can set a new password by clicking the button below:</p>
-  <a href="${resetLink}"
+  <a href="${resetLinkWithToken}"
      style="
        display: inline-block;
        padding: 12px 24px;
@@ -565,11 +603,17 @@ export class UserService {
       `Regarding you'r password reset`,
       html,
     );
+    await this.passwordResetCommand.createPasswordReset({
+      email: email,
+      token: token,
+      status: 'Started',
+      userId: user.id,
+    });
     return true;
   }
   async resetUserPasswordByEmail(
     command: AccountPasswordReset,
-  ): Promise<UserResponse> {
+  ): Promise<any> {
     const user = await this.userRepository.getOneByCriteria({
       email: command.email,
     });
@@ -577,7 +621,16 @@ export class UserService {
       throw new NotFoundException(
         `User with email ${command.email} doesn't exist`,
       );
-
+    const resetPasswordData = await this.passwordResetQuery.getPasswordResetByEmail(command.email);
+    if (!resetPasswordData) {
+      throw new NotFoundException(`Password reset link is invalid`);
+    }
+    const isTokenExpired = this.jwtService.verify(resetPasswordData?.token);
+    if (isTokenExpired) {
+      await this.passwordResetCommand.deletePasswordResetByEmail(command.email);
+      await this.sendPasswordResetEmail(command.email);
+      throw new ConflictException(`A new password reset link has been sent to your email please check your inbox or spam folder the link will expire in 24 hours`);
+    }
     if (command.newPassword !== command.confirmNewPassword) {
       throw new ConflictException(
         `The password and confirm password doesn't match`,
@@ -587,7 +640,35 @@ export class UserService {
     const encryptedPassword = await bcrypt.hash(command.newPassword, salt);
     user.password = encryptedPassword;
     const response = await this.userRepository.create(user);
-    return UserResponse.toResponse(response);
+    const payload: UserInfo = {
+      id: user.id,
+      email: user?.email,
+      firstName: user?.firstName,
+      middleName: user?.middleName,
+      lastName: user?.lastName,
+      phoneNumber: user?.phone,
+      profileImage: user?.profile,
+      address: user?.address,
+      skills: user?.technicalSkills,
+      industry: user?.industry,
+    };
+    const accessToken = Util.GenerateToken(payload, '60m'); //60m
+    const refreshToken = Util.GenerateRefreshToken(payload);
+    await this.sessionCommand.createSession(
+      {
+        accountId: payload.id,
+        token: accessToken,
+        refreshToken,
+      },
+      // connection,
+    );
+    return {
+      accessToken,
+      refreshToken,
+      profile: {
+        ...UserResponse.toResponse(user),
+      },
+    };
   }
   async configureUserSmsAlert(command: UserAlertConfiguration[]): Promise<any> {
     if (command.length == 0)
