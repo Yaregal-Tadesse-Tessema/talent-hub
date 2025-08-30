@@ -449,7 +449,7 @@ export class UserService {
   ): Promise<UserResponse> {
     const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
-    user.alertConfiguration?user.alertConfiguration:[]
+    user.alertConfiguration=user.alertConfiguration?user.alertConfiguration:[]
     user.alertConfiguration.push(alertConfiguration);
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
