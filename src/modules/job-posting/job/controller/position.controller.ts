@@ -58,6 +58,19 @@ export class PositionController {
   async create(@Body() command: CreatePositionCommand): Promise<PositionResponse> {
     return await this.positionService.create(command);
   }
+  @Post('bulk')
+  @ApiOperation({ 
+    summary: 'Create multiple positions',
+    description: 'Creates multiple positions with name and optional description'
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Positions created successfully', 
+    type: [PositionResponse] 
+  })
+  async createMany(@Body() commands: CreatePositionCommand[]): Promise<PositionResponse[]> {
+    return await this.positionService.createMany(commands);
+  }
 
   @Get()
   @ApiOperation({ 
@@ -74,7 +87,7 @@ export class PositionController {
     description: 'Positions retrieved successfully', 
     type: DataResponseFormat<PositionResponse> 
   })
-  async findAll(@Query('q') q?: string): Promise<PositionResponse[]> {
+  async findAll(@Query('q') q?: string): Promise<DataResponseFormat<PositionResponse>> {
     const query = q ? JSON.parse(q) : new CollectionQuery();
     const positions = await this.positionService.findAll(query);
     return positions

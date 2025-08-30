@@ -11,7 +11,7 @@ export class BaseRepository<T extends ObjectLiteral> {
   constructor(
     private readonly repository: Repository<T>,
     @Inject(REQUEST) private request: Request,
-  ) {}
+  ) { }
   async create(itemData: DeepPartial<any>, req?: any): Promise<any> {
     const tenantId = await this.request['TENANT_ID'];
     if (tenantId) {
@@ -19,6 +19,18 @@ export class BaseRepository<T extends ObjectLiteral> {
     }
     if (req?.user?.organization) {
       itemData.organizationId = req.user.organization.id;
+    }
+    const res = (await this.repository.save(itemData)) as any;
+    console.log(res);
+    return res;
+  }
+  async createMany(itemData: DeepPartial<any>[], req?: any): Promise<any> {
+    const tenantId = await this.request['TENANT_ID'];
+    if (tenantId) {
+      itemData.forEach(item => item.tenantId = tenantId);
+    }
+    if (req?.user?.organization) {
+      itemData.forEach(item => item.organizationId = req.user.organization.id);
     }
     const res = (await this.repository.save(itemData)) as any;
     console.log(res);

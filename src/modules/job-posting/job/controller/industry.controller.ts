@@ -29,6 +29,7 @@ import {
 import { IndustryResponse } from '../usecase/industry.response';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
+import { ApplicationResponse } from 'src/modules/application/usecase/application.response';
 
 @ApiTags('Industries')
 @Controller('industries')
@@ -59,6 +60,20 @@ export class IndustryController {
     return await this.industryService.create(command);
   }
 
+  @Post('bulk')
+
+  @ApiOperation({ 
+    summary: 'Create multiple industries',
+    description: 'Creates multiple industries with name and optional description'
+  })
+  @ApiResponse({ 
+    status: 201, 
+    description: 'Industries created successfully', 
+    type: [IndustryResponse] 
+  })
+  async createMany(@Body() commands: CreateIndustryCommand[]): Promise<IndustryResponse[]> {
+    return await this.industryService.createMany(commands);
+  }
   @Get()
   @ApiOperation({ 
     summary: 'Get all industries with optional filtering',
@@ -74,10 +89,12 @@ export class IndustryController {
     description: 'Industries retrieved successfully', 
     type: DataResponseFormat<IndustryResponse> 
   })
-  async findAll(@Query('q') q?: string): Promise<IndustryResponse[]> {
+  async findAll(
+    @Query('q') q?: string
+  ): Promise<DataResponseFormat<IndustryResponse>> {
     const query = q ? JSON.parse(q) : new CollectionQuery();
-    const industries = await this.industryService.findAll(query);
-    return industries
+    const positions = await this.industryService.findAll(query);
+    return positions
   }
 
   @Get('active')

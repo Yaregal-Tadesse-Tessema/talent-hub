@@ -6,12 +6,13 @@ import { CreatePositionCommand, UpdatePositionCommand, DeletePositionCommand } f
 import { PositionResponse } from './position.response';
 import { PositionEntity } from '../persistencies/position.entity';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 
 @Injectable()
 export class PositionService {
   constructor(
     private readonly positionRepository: PositionRepository,
-  ) {}
+  ) { }
 
   async create(command: CreatePositionCommand): Promise<PositionResponse> {
     // Check if position with same name already exists (case-insensitive)
@@ -20,7 +21,7 @@ export class PositionService {
     query.where = [[
       { column: 'name', operator: '=', value: command.name.trim() }
     ]];
-    
+
     const existingPositions = await this.positionRepository.findAll(query);
     if (existingPositions && existingPositions.items && existingPositions.items.length > 0) {
       throw new ConflictException(`Position with name '${command.name}' already exists`);
@@ -33,13 +34,33 @@ export class PositionService {
     const createdPosition = await this.positionRepository.create(position);
     return PositionResponse.toResponse(createdPosition);
   }
-
-  async findAll(query: CollectionQuery): Promise<PositionResponse[]> {
-    const positions = await this.positionRepository.findAll(query);
-    if (positions && positions.items) {
-      return PositionResponse.toResponseList(positions.items);
+  async createMany(commands: CreatePositionCommand[]): Promise<PositionResponse[]> {
+    if (!Array.isArray(commands) || commands.length === 0) {
+      throw new BadRequestException('No positions provided for bulk creation');
     }
-    return [];
+    const positionsToCreate = commands.map(cmd => {
+      const entity = new PositionEntity();
+      entity.name = cmd.name.trim();
+      entity.description = cmd.description?.trim();
+      return entity;
+    });
+    const createdPositions: PositionResponse[] = [];
+    for (const position of positionsToCreate) {
+      const response = await this.create(position);
+      createdPositions.push(response);
+    }
+    return createdPositions;
+  }
+  async findAll(
+    query: CollectionQuery,
+  ): Promise<DataResponseFormat<PositionResponse>> {
+    const response = await this.positionRepository.findAllPublic(query);
+    const d = new DataResponseFormat<PositionResponse>();
+    d.items = response?.items?.map((item) =>
+      PositionResponse.toResponse(item),
+    );
+    d.total = response?.total;
+    return d;
   }
 
   async findOne(id: string): Promise<PositionResponse> {
@@ -66,7 +87,7 @@ export class PositionService {
       query.where = [[
         { column: 'name', operator: '=', value: command.name.trim() }
       ]];
-      
+
       const existingPositions = await this.positionRepository.findAll(query);
       if (existingPositions && existingPositions.items && existingPositions.items.length > 0) {
         const existingPosition = existingPositions.items[0];
@@ -90,9 +111,9 @@ export class PositionService {
     }
 
     await this.positionRepository.softDelete(command.id);
-    return { 
-      success: true, 
-      message: `Position '${position.name}' deleted successfully` 
+    return {
+      success: true,
+      message: `Position '${position.name}' deleted successfully`
     };
   }
 
@@ -104,7 +125,7 @@ export class PositionService {
     query.orderBy = [
       { column: 'name', direction: 'ASC' }
     ];
-    
+
     const positions = await this.positionRepository.findAll(query);
     if (positions && positions.items) {
       return PositionResponse.toResponseList(positions.items);
@@ -122,7 +143,7 @@ export class PositionService {
     query.where = [[
       { column: 'id', operator: 'In', value: ids }
     ]];
-    
+
     const positions = await this.positionRepository.findAll(query);
     if (positions && positions.items) {
       return PositionResponse.toResponseList(positions.items);
@@ -143,7 +164,7 @@ export class PositionService {
     query.orderBy = [
       { column: 'name', direction: 'ASC' }
     ];
-    
+
     const positions = await this.positionRepository.findAll(query);
     if (positions && positions.items) {
       return PositionResponse.toResponseList(positions.items);

@@ -68,6 +68,11 @@ export class JobPostingController {
     );
     return result;
   }
+  @Get('get-application-count-by-job-post-id/:id')
+  async getApplicationCountByJobPostId(@Param('id') id: string) {
+    const result = await this.jobPostingService.getApplicationCountByJobPostId(id);
+    return result;
+  }
   @Put('change-job-post-status')
   async changeJobPostStatus(@Body() command: ChangeJobPostStatusCommand) {
     const result = await this.jobPostingService.changeJobPostStatus(command);

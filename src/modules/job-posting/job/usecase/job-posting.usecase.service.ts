@@ -54,6 +54,14 @@ export class JobPostingService {
     await this.notifyUsersOnTelegramBootForNewJobPost(response);
     return response;
   }
+  async getApplicationCountByJobPostId(id: string): Promise<number> {
+    const jobPost = await this.jobPostingRepository.findOne(id);
+    if (!jobPost)
+      throw new BadRequestException(
+        `job post with id ${id} doesn't exist`,
+      );
+    return jobPost.applicationCount;
+  }
   async getJobPostings(
     query: CollectionQuery,
     userInfo?: any,

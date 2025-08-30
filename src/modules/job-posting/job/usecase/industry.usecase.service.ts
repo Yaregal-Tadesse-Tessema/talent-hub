@@ -5,12 +5,13 @@ import { CreateIndustryCommand, UpdateIndustryCommand, DeleteIndustryCommand } f
 import { IndustryResponse } from './industry.response';
 import { IndustryEntity } from '../persistencies/industry.entity';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
+import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 
 @Injectable()
 export class IndustryService {
   constructor(
     private readonly industryRepository: IndustryRepository,
-  ) {}
+  ) { }
 
   async create(command: CreateIndustryCommand): Promise<IndustryResponse> {
     // Check if industry with same name already exists
@@ -18,7 +19,7 @@ export class IndustryService {
     query.where = [[
       { column: 'name', operator: '=', value: command.name.trim() }
     ]];
-    
+
     const existingIndustries = await this.industryRepository.findAll(query);
     if (existingIndustries && existingIndustries.items && existingIndustries.items.length > 0) {
       throw new ConflictException(`Industry with name '${command.name}' already exists`);
@@ -32,12 +33,28 @@ export class IndustryService {
     return IndustryResponse.toResponse(createdIndustry);
   }
 
-  async findAll(query: CollectionQuery): Promise<IndustryResponse[]> {
-    const industries = await this.industryRepository.findAll(query);
-    if (industries && industries.items) {
-      return IndustryResponse.toResponseList(industries.items);
+  async createMany(commands: CreateIndustryCommand[]): Promise<IndustryResponse[]> {
+    if (!Array.isArray(commands) || commands.length === 0) {
+      throw new BadRequestException('No industries provided for bulk creation');
     }
-    return [];
+    const createdIndustries: IndustryResponse[] = [];
+    for (const command of commands) {
+      const response = await this.create(command);
+      createdIndustries.push(response);
+    }
+    return createdIndustries;
+  }
+
+  async findAll(
+    query: CollectionQuery,
+  ): Promise<DataResponseFormat<IndustryResponse>> {
+    const response = await this.industryRepository.findAllPublic(query);
+    const d = new DataResponseFormat<IndustryResponse>();
+    d.items = response?.items?.map((item) =>
+      IndustryResponse.toResponse(item),
+    );
+    d.total = response?.total;
+    return d;
   }
 
   async findOne(id: string): Promise<IndustryResponse> {
@@ -64,7 +81,7 @@ export class IndustryService {
       query.where = [[
         { column: 'name', operator: '=', value: command.name.trim() }
       ]];
-      
+
       const existingIndustries = await this.industryRepository.findAll(query);
       if (existingIndustries && existingIndustries.items && existingIndustries.items.length > 0) {
         const existingIndustry = existingIndustries.items[0];
@@ -88,9 +105,9 @@ export class IndustryService {
     }
 
     await this.industryRepository.softDelete(command.id);
-    return { 
-      success: true, 
-      message: `Industry '${industry.name}' deleted successfully` 
+    return {
+      success: true,
+      message: `Industry '${industry.name}' deleted successfully`
     };
   }
 
@@ -102,7 +119,7 @@ export class IndustryService {
     query.orderBy = [
       { column: 'name', direction: 'ASC' }
     ];
-    
+
     const industries = await this.industryRepository.findAll(query);
     if (industries && industries.items) {
       return IndustryResponse.toResponseList(industries.items);
@@ -120,7 +137,7 @@ export class IndustryService {
     query.where = [[
       { column: 'id', operator: 'In', value: ids }
     ]];
-    
+
     const industries = await this.industryRepository.findAll(query);
     if (industries && industries.items) {
       return IndustryResponse.toResponseList(industries.items);
@@ -141,7 +158,7 @@ export class IndustryService {
     query.orderBy = [
       { column: 'name', direction: 'ASC' }
     ];
-    
+
     const industries = await this.industryRepository.findAll(query);
     if (industries && industries.items) {
       return IndustryResponse.toResponseList(industries.items);

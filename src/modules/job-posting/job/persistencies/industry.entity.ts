@@ -5,7 +5,6 @@ import {
   Column,
   OneToMany,
 } from 'typeorm';
-import { JobPostingEntity } from './job-posting.entity';
 
 @Entity('industries')
 export class IndustryEntity extends CommonEntity {
