@@ -23,6 +23,14 @@ import { UserFavoriteJobService } from './job/usecase/user-favorite-job.usecase.
 import { UserFavoriteJobController } from './job/controller/user-favorite-job.controller';
 import { UserService } from '../user/usecase/user.usecase.service';
 import { ApplicationModule } from '../application/application.module';
+import { PositionEntity } from './job/persistencies/position.entity';
+import { PositionRepository } from './job/persistencies/position.repository';
+import { PositionService } from './job/usecase/position.usecase.service';
+import { PositionController } from './job/controller/position.controller';
+import { IndustryEntity } from './job/persistencies/industry.entity';
+import { IndustryRepository } from './job/persistencies/industry.repository';
+import { IndustryService } from './job/usecase/industry.usecase.service';
+import { IndustryController } from './job/controller/industry.controller';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -31,6 +39,8 @@ import { ApplicationModule } from '../application/application.module';
       UserEntity,
       SaveJobEntity,
       PreScreeningQuestionEntity,
+      PositionEntity,
+      IndustryEntity,
     ]),
     forwardRef(() => UserModule),
     forwardRef(() => TelegramModule),
@@ -51,6 +61,12 @@ import { ApplicationModule } from '../application/application.module';
     UserFavoriteJobRepository,
     UserFavoriteJobService,
 
+    PositionRepository,
+    PositionService,
+
+    IndustryRepository,
+    IndustryService,
+
     UserService
   ],
   controllers: [
@@ -58,7 +74,9 @@ import { ApplicationModule } from '../application/application.module';
     SaveJobController,
     PreScreeningQuestionController,
     UserFavoriteJobController,
+    PositionController,
+    IndustryController,
   ],
-  exports: [JobPostingService, JobPostingRepository,UserService],
+  exports: [JobPostingService, JobPostingRepository, UserService, PositionService, IndustryService],
 })
 export class JobPostingModule {}

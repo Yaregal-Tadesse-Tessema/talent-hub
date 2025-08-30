@@ -40,6 +40,8 @@ import { AdministratorModule } from './modules/administrator/administrator.modul
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
 import { PasswordResetEntity } from './modules/auth/persistances/password-reset/password-reset.entity';
+import { PositionEntity } from './modules/job-posting/job/persistencies/position.entity';
+import { IndustryEntity } from './modules/job-posting/job/persistencies/industry.entity';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { PasswordResetEntity } from './modules/auth/persistances/password-reset/
         MessageEntity,
         InvitationEntity,
         PasswordResetEntity,
+        PositionEntity,
+        IndustryEntity,
       ],
       synchronize: true,
     }),

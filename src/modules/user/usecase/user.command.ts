@@ -21,8 +21,6 @@ export class UserAlertConfiguration {
   @ApiProperty()
   address?: string;
   @ApiProperty()
-  tenantsId?: string;
-  @ApiProperty()
   industry?: string;
 }
 export class CreateUserCommand {

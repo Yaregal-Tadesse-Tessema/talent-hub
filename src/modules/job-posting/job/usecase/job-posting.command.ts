@@ -20,9 +20,9 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   @IsNotEmpty()
   position: string;
-  @ApiProperty({ default: JobIndustryEnums.INFORMATION_TECHNOLOGY })
+  @ApiProperty()
   @IsNotEmpty()
-  industry: JobIndustryEnums;
+  industry: string;
 
   @ApiProperty()
   type: WorkTypeEnums;

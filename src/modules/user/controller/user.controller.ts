@@ -175,7 +175,7 @@ export class UserController {
     @userInfo() user: UserInfo,
   ): Promise<UserResponse> {
     itemData.userId = user.id;
-    return await this.userService.addAlertCOnfiguration(itemData);
+    return await this.userService.addAlertConfiguration(itemData);
   }
   @Put('remove-alert-configuration')
   async removeAlertCOnfiguration(
