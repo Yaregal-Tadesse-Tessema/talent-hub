@@ -19,6 +19,8 @@ import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-co
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 import { JobPostingService } from '../usecase/job-posting.usecase.service';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
+import { SalaryRangeEnum } from '../../constants';
+import { UserEntity } from 'src/modules/user/persistence/users.entity';
 
 @Controller('jobs')
 @ApiTags('jobs')
@@ -130,12 +132,73 @@ export class JobPostingController {
   @AllowAnonymous()
   async getUserByJobPostProperty(): Promise<any> {
     const command: UserAlertConfiguration={
-    salary:"100000",
-    Position:"string",
-    industry:'Banking & Insurance',
-    jobTitle:"Software Engineer",
-    address:"Software Engineer",
+      salary: SalaryRangeEnum.MINIMUM,
+      Position:"string",
+      industry:'Banking & Insurance',
+      jobTitle:"Software Engineer",
+      address:"Software Engineer",
     }
-    return await this.jobPostingService.getUserByJobPostORProperty(command);
+    return await this.jobPostingService.getUserByJobPostProperty(command);
   }
+
+  @Get('job-postings/get-job-postings-by-exact-alert-match')
+  @AllowAnonymous()
+  @ApiOkResponse({ 
+    description: 'Get job postings that exactly match all user alert configuration properties',
+    type: [JobPostingResponse]
+  })
+  async getJobPostingsByExactAlertMatch(
+    @Body() alertConfiguration: UserAlertConfiguration
+  ): Promise<JobPostingResponse[]> {
+    return await this.jobPostingService.getJobPostingsByExactAlertMatch(alertConfiguration);
+  }
+
+  @Get('job-postings/get-job-postings-by-partial-alert-match')
+  @AllowAnonymous()
+  @ApiOkResponse({ 
+    description: 'Get job postings that match at least one user alert configuration property',
+    type: [JobPostingResponse]
+  })
+  async getJobPostingsByPartialAlertMatch(
+    @Body() alertConfiguration: UserAlertConfiguration
+  ): Promise<JobPostingResponse[]> {
+    return await this.jobPostingService.getJobPostingsByPartialAlertMatch(alertConfiguration);
+  }
+
+  @Post('get-users-by-exact-job-match')
+  @AllowAnonymous()
+  @ApiOkResponse({ 
+    description: 'Get users whose alert configuration exactly matches the job posting (AND logic)',
+    type: [UserEntity]
+  })
+  async getUsersByExactJobMatch(
+    @Body() jobData: {
+      title?: string;
+      position?: string;
+      industry?: string;
+      city?: string;
+      salaryRange?: any;
+    }
+  ): Promise<UserEntity[]> {
+    return await this.jobPostingService.getUsersByExactJobMatch(jobData);
+  }
+
+  @Post('get-users-by-partial-job-match')
+  @AllowAnonymous()
+  @ApiOkResponse({ 
+    description: 'Get users whose alert configuration matches at least one job posting property (OR logic)',
+    type: [UserEntity]
+  })
+  async getUsersByPartialJobMatch(
+    @Body() jobData: {
+      title?: string;
+      position?: string;
+      industry?: string;
+      city?: string;
+      salaryRange?: any;
+    }
+  ): Promise<UserEntity[]> {
+    return await this.jobPostingService.getUsersByPartialJobMatch(jobData);
+  }
+
 }

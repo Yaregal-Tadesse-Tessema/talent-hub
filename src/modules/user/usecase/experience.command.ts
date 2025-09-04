@@ -23,3 +23,12 @@ export class CreateExperienceCommand {
   @ApiProperty()
   Attachment: FileDto;
 }
+export class LocationCommand {
+  @ApiProperty()
+  country: string;
+  @ApiProperty()
+  state: string;
+  @ApiProperty()
+  city: string;
+ 
+}

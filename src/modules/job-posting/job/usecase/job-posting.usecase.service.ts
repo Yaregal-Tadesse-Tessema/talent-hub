@@ -459,4 +459,252 @@ export class JobPostingService {
       .getMany();
     return result;
   }
+
+  /**
+   * Get job postings that EXACTLY match user's alert configuration (AND logic)
+   * All specified alert configuration properties must match the job posting
+   */
+  async getJobPostingsByExactAlertMatch(alertConfiguration: UserAlertConfiguration): Promise<JobPostingResponse[]> {
+    try {
+      const query = this.joPoRepo
+        .createQueryBuilder('job')
+        .where('job.deletedAt IS NULL')
+        .andWhere('job.status = :status', { status: JobPostingStatusEnums.POSTED });
+
+      // Build exact match conditions for each alert configuration property
+      if (alertConfiguration.jobTitle) {
+        query.andWhere('job.title ILIKE :jobTitle', { jobTitle: `%${alertConfiguration.jobTitle}%` });
+      }
+
+      if (alertConfiguration.Position) {
+        query.andWhere('job.position ILIKE :position', { position: `%${alertConfiguration.Position}%` });
+      }
+
+      if (alertConfiguration.industry) {
+        query.andWhere('job.industry ILIKE :industry', { industry: `%${alertConfiguration.industry}%` });
+      }
+
+      if (alertConfiguration.address) {
+        query.andWhere('job.city ILIKE :location', { location: `%${alertConfiguration.address}%` });
+      }
+
+      if (alertConfiguration.salary) {
+        // Match salary expectations based on SalaryRangeEnum structure
+        // Check if the job has a salary range that matches the user's salary preference
+        query.andWhere('job."salaryRange" IS NOT NULL')
+          .andWhere('job."salaryRange"->>\'MINIMUM\' = :salaryMin', { salaryMin: alertConfiguration.salary });
+      }
+
+      // Only return active jobs (not expired)
+      const today = new Date();
+      const formatted = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate(),
+          0,
+          0,
+          0,
+        ),
+      ).toISOString();
+      query.andWhere('job.deadline >= :deadline', { deadline: formatted });
+
+      const jobPostings = await query
+        .orderBy('job.postedDate', 'DESC')
+        .getMany();
+
+      return jobPostings.map(job => JobPostingResponse.toResponse(job));
+    } catch (error) {
+      console.error('Error getting job postings by exact alert match:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get job postings that match AT LEAST ONE user's alert configuration property (OR logic)
+   * Any of the specified alert configuration properties can match the job posting
+   */
+  async getJobPostingsByPartialAlertMatch(alertConfiguration: UserAlertConfiguration): Promise<JobPostingResponse[]> {
+    try {
+      const query = this.joPoRepo
+        .createQueryBuilder('job')
+        .where('job.deletedAt IS NULL')
+        .andWhere('job.status = :status', { status: JobPostingStatusEnums.POSTED });
+
+      // Build OR conditions for partial matching
+      const conditions: string[] = [];
+      const parameters: any = {};
+
+      if (alertConfiguration.jobTitle) {
+        conditions.push('job.title ILIKE :jobTitle');
+        parameters.jobTitle = `%${alertConfiguration.jobTitle}%`;
+      }
+
+      if (alertConfiguration.Position) {
+        conditions.push('job.position ILIKE :position');
+        parameters.position = `%${alertConfiguration.Position}%`;
+      }
+
+      if (alertConfiguration.industry) {
+        conditions.push('job.industry ILIKE :industry');
+        parameters.industry = `%${alertConfiguration.industry}%`;
+      }
+
+      if (alertConfiguration.address) {
+        conditions.push('job.location ILIKE :city');
+        parameters.location = `%${alertConfiguration.address}%`;
+      }
+
+      if (alertConfiguration.salary) {
+        // Match salary expectations based on SalaryRangeEnum structure
+        conditions.push('(job."salaryRange" IS NOT NULL AND job."salaryRange"->>\'MINIMUM\' = :salaryMin)');
+        parameters.salaryMin = alertConfiguration.salary;
+      }
+
+      // If we have conditions, apply OR logic
+      if (conditions.length > 0) {
+        query.andWhere(`(${conditions.join(' OR ')})`, parameters);
+      }
+
+      // Only return active jobs (not expired)
+      const today = new Date();
+      const formatted = new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate(),
+          0,
+          0,
+          0,
+        ),
+      ).toISOString();
+      query.andWhere('job.deadline >= :deadline', { deadline: formatted });
+
+      const jobPostings = await query
+        .orderBy('job.postedDate', 'DESC')
+        .getMany();
+
+      return jobPostings.map(job => JobPostingResponse.toResponse(job));
+    } catch (error) {
+      console.error('Error getting job postings by partial alert match:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get users whose alert configuration EXACTLY matches the job posting (AND logic)
+   * All specified job posting properties must match the user's alert configuration
+   */
+  async getUsersByExactJobMatch(jobData: {
+    title?: string;
+    position?: string;
+    industry?: string;
+    city?: string;
+    salaryRange?: any;
+  }): Promise<UserEntity[]> {
+    try {
+      const query = this.userRepo
+        .createQueryBuilder('user')
+        .where('user.deletedAt IS NULL');
+
+      // Build exact match conditions for each job property
+      if (jobData.title) {
+        query.andWhere('user.alertConfiguration->>\'jobTitle\' ILIKE :jobTitle', { 
+          jobTitle: `%${jobData.title}%` 
+        });
+      }
+
+      if (jobData.position) {
+        query.andWhere('user.alertConfiguration->>\'Position\' ILIKE :position', { 
+          position: `%${jobData.position}%` 
+        });
+      }
+
+      if (jobData.industry) {
+        query.andWhere('user.alertConfiguration->>\'industry\' ILIKE :industry', { 
+          industry: `%${jobData.industry}%` 
+        });
+      }
+
+      if (jobData.city) {
+        query.andWhere('user.alertConfiguration->>\'address\' ILIKE :address', { 
+          address: `%${jobData.city}%` 
+        });
+      }
+
+      if (jobData.salaryRange) {
+        // Match salary expectations based on SalaryRangeEnum structure
+        query.andWhere('user.alertConfiguration->>\'salary\' IS NOT NULL')
+          .andWhere('user.alertConfiguration->>\'salary\' = :salaryMin', { 
+            salaryMin: jobData.salaryRange?.MINIMUM || jobData.salaryRange 
+          });
+      }
+
+      const users = await query.getMany();
+      return users;
+    } catch (error) {
+      console.error('Error getting users by exact job match:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get users whose alert configuration matches AT LEAST ONE job posting property (OR logic)
+   * Any of the specified job posting properties can match the user's alert configuration
+   */
+  async getUsersByPartialJobMatch(jobData: {
+    title?: string;
+    position?: string;
+    industry?: string;
+    city?: string;
+    salaryRange?: any;
+  }): Promise<UserEntity[]> {
+    try {
+      const query = this.userRepo
+        .createQueryBuilder('user')
+        .where('user.deletedAt IS NULL');
+
+      // Build OR conditions for partial matching
+      const conditions: string[] = [];
+      const parameters: any = {};
+
+      if (jobData.title) {
+        conditions.push('user.alertConfiguration->>\'jobTitle\' ILIKE :jobTitle');
+        parameters.jobTitle = `%${jobData.title}%`;
+      }
+
+      if (jobData.position) {
+        conditions.push('user.alertConfiguration->>\'Position\' ILIKE :position');
+        parameters.position = `%${jobData.position}%`;
+      }
+
+      if (jobData.industry) {
+        conditions.push('user.alertConfiguration->>\'industry\' ILIKE :industry');
+        parameters.industry = `%${jobData.industry}%`;
+      }
+
+      if (jobData.city) {
+        conditions.push('user.alertConfiguration->>\'address\' ILIKE :address');
+        parameters.address = `%${jobData.city}%`;
+      }
+
+      if (jobData.salaryRange) {
+        // Match salary expectations based on SalaryRangeEnum structure
+        conditions.push('(user.alertConfiguration->>\'salary\' IS NOT NULL AND user.alertConfiguration->>\'salary\' = :salaryMin)');
+        parameters.salaryMin = jobData.salaryRange?.MINIMUM || jobData.salaryRange;
+      }
+
+      // If we have conditions, apply OR logic
+      if (conditions.length > 0) {
+        query.andWhere(`(${conditions.join(' OR ')})`, parameters);
+      }
+
+      const users = await query.getMany();
+      return users;
+    } catch (error) {
+      console.error('Error getting users by partial job match:', error);
+      throw error;
+    }
+  }
+
 }

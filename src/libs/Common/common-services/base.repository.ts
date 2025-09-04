@@ -320,4 +320,26 @@ export class BaseRepository<T extends ObjectLiteral> {
     });
     return response;
   }
+
+  async getLastInsertedItem(
+    relations = [],
+    withDeleted = false,
+  ): Promise<T | undefined> {
+    const tenantId = await this.request['TENANT_ID'];
+    
+    const whereCondition: any = {};
+    if (tenantId) {
+      whereCondition.tenantId = tenantId;
+    }
+
+    const response = await this.repository.findOne({
+      where: whereCondition,
+      relations,
+      withDeleted,
+      order: {
+        createdAt: 'DESC' as any,
+      },
+    });
+    return response;
+  }
 }

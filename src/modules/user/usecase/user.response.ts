@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { UserEntity } from '../persistence/users.entity';
 import { SocialMediaLinks, UserStatusEnums } from '../constants';
-import { UserAlertConfiguration } from './user.command';
+import { NotificationSetting, UserAlertConfiguration } from './user.command';
 import { CreateExperienceCommand } from './experience.command';
 import { CreateEducationCommand } from './education.command';
 export class UserResponse {
@@ -71,7 +71,7 @@ export class UserResponse {
   @ApiProperty()
   isResumePublic: boolean;
   @ApiProperty()
-  notificationSetting: string[];
+  notificationSetting: NotificationSetting;
   @ApiProperty()
   alertConfiguration: UserAlertConfiguration[];
   @ApiProperty()

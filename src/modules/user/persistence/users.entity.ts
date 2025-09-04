@@ -8,7 +8,7 @@ import { ApplicationEntity } from 'src/modules/application/persistences/applicat
 import { SaveJobEntity } from 'src/modules/job-posting/job/persistencies/save-job-post.entity';
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
-import { UserAlertConfiguration } from '../usecase/user.command';
+import { NotificationSetting, UserAlertConfiguration } from '../usecase/user.command';
 import { CreateEducationCommand } from '../usecase/education.command';
 import { CreateExperienceCommand } from '../usecase/experience.command';
 @Entity({ name: 'users' })
@@ -49,6 +49,8 @@ export class UserEntity extends CommonEntity {
   industry: string[];
   @Column({ type: 'text', array: true, nullable: true })
   preferredJobLocation: string[];
+  @Column({ type: 'text', array: true, nullable: true })
+  currentLocation: string[];
   @Column({ nullable: true })
   highestLevelOfEducation: string;
   @Column({ nullable: true, type: 'decimal' })
@@ -75,10 +77,10 @@ export class UserEntity extends CommonEntity {
   experiences: CreateExperienceCommand[];
   @Column({ default: true })
   isProfilePublic: boolean;
-  @Column({ default: false })
+  @Column({ default: true })
   isResumePublic: boolean;
-  @Column({ type: 'text', array: true, nullable: true })
-  notificationSetting: string[];
+  @Column({ type: 'json',  nullable: true })
+  notificationSetting: NotificationSetting;
   @Column({ nullable: true, type: 'jsonb' })
   alertConfiguration: UserAlertConfiguration[];
   @Column({ nullable: true, type: 'jsonb' })

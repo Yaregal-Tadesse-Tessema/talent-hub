@@ -115,10 +115,9 @@ export class TenantService {
         throw new NotFoundException(
           `Organization with License Number ${command.licenseNumber} does not exist`,
         );
-      const registrationNumber = await this.generateRegistrationNumber(
-        'Emp',
-        'ORG',
-      );
+      // const registrationNumber = await this.generateRegistrationNumber(
+      //   'org',
+      // );
       const salt = process.env.BCRYPT_SALT;
       const createCommand: CreateTenantCommand = {
         name: licenseInformation.data.TradeName,
@@ -126,7 +125,7 @@ export class TenantService {
         isVerified: true,
         address: licenseInformation.data?.AddressInfo,
         licenseNumber: command.licenseNumber,
-        registrationNumber: registrationNumber,
+        registrationNumber: command.tin,
         email: licenseInformation.data.email,
         phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
       };
@@ -163,39 +162,37 @@ export class TenantService {
       throw new BadRequestException('Unable to verify TIN. Please try again');
     }
   }
-  async generateRegistrationNumber(orgCode = 'TALHUB', serviceCode: string) {
-    const today = new Date();
-    const dateFormatted = new Date(
-      today.getFullYear(),
-      today.getMonth(),
-      today.getDate(),
-      0,
-      0,
-      0,
-      0,
-    );
-    const shortDate =
-      today.getFullYear().toString().slice(-2) +
-      '' +
-      ('0' + (today.getMonth() + 1)).slice(-2) +
-      '' +
-      ('0' + today.getDate()).slice(-2);
-    const lastApplication = await this.tenantRepository.getOneByCriteria({
-      createdAt: MoreThanOrEqual(dateFormatted),
-      order: { createdAt: 'DESC' },
-    });
-    const applicationResult = lastApplication.registrationNumber;
-    const applicationNo = orgCode.concat(
-      '-',
-      serviceCode,
-      '-',
-      shortDate,
-      '-',
-      (applicationResult + 1).toString(),
-    );
-    console.log(applicationNo);
-    return applicationNo;
-  }
+  // async generateRegistrationNumber(orgCode = '', serviceCode?: string) {
+  //   const today = new Date();
+  //   // const dateFormatted = new Date(
+  //   //   today.getFullYear(),
+  //   //   today.getMonth(),
+  //   //   today.getDate(),
+  //   //   0,
+  //   //   0,
+  //   //   0,
+  //   //   0,
+  //   // );
+  //   const shortDate =
+  //     today.getFullYear().toString().slice(-2) +
+  //     '' +
+  //     ('0' + (today.getMonth() + 1)).slice(-2) +
+  //     '' +
+  //     ('0' + today.getDate()).slice(-2);
+  //   const lastApplication = await this.tenantRepository.getLastInsertedItem()
+  //   const applicationResult = lastApplication.registrationNumber;
+
+  //   const applicationNo = orgCode.concat(
+  //     '-',
+  //     serviceCode,
+  //     '-',
+  //     shortDate,
+  //     '-',
+  //     (applicationResult + 1).toString(),
+  //   );
+  //   console.log(applicationNo);
+  //   return applicationNo;
+  // }
   async getBusinessLicenseFromEtrade(
     LicenseNo: string,
     tin: string,

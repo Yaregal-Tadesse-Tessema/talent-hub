@@ -9,11 +9,23 @@ import {
 } from '../constants';
 import { CreateExperienceCommand } from './experience.command';
 import { CreateEducationCommand } from './education.command';
-
+import { SalaryRangeEnum } from 'src/modules/job-posting/constants';
+export class NotificationSetting{
+  @ApiProperty()
+  isShortlisted?: boolean;
+  @ApiProperty()
+  iseExpired?: boolean;
+  @ApiProperty()
+  isProfileSaved?: boolean;
+  @ApiProperty()
+  isRejected?: boolean;
+  @ApiProperty()
+  hasMoreThanFiveJobs?: boolean;
+}
 export class UserAlertConfiguration {
   userId?: string;
   @ApiProperty()
-  salary?: string;
+  salary?: SalaryRangeEnum;
   @ApiProperty()
   jobTitle?: string;
   @ApiProperty()
@@ -88,7 +100,7 @@ export class CreateUserCommand {
   @ApiProperty()
   isResumePublic?: boolean;
   @ApiProperty()
-  notificationSetting?: string[];
+  notificationSetting?: NotificationSetting;
   @ApiProperty()
   alertConfiguration?: UserAlertConfiguration[];
   @ApiProperty()
