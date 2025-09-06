@@ -193,7 +193,6 @@ export class TenantService {
             }`,
         };
       }
-
     } catch (error) {
       console.log(error);
       throw new BadRequestException('Unable to verify TIN. Please try again');

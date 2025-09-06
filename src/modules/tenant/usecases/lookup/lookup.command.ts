@@ -4,6 +4,7 @@ import { IsNotEmpty } from 'class-validator';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { LookupEntity } from '../../persistencies/lookup.entity';
 import { UserType } from '../../constants';
+import { Util } from 'src/libs/Common/util';
 
 export class CreateLookupCommand {
   id?: string;
@@ -44,7 +45,8 @@ export class CreateLookupCommand {
     lookUp.firstName = command.firstName;
     lookUp.middleName = command.middleName;
     lookUp.lastName = command.lastName;
-    lookUp.password = command.password;
+    const password = Util.hashPassword(command.password??'C0mplex!');
+    lookUp.password = password;
     lookUp.email = command.email;
     lookUp.phoneNumber = command.phoneNumber;
     lookUp.status = command?.status;
