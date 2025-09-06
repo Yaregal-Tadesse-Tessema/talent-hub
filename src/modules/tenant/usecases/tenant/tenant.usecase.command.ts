@@ -104,16 +104,16 @@ export class TenantService {
         `Organization Already exists Please Login`,
       );
     try {
-      const response = await this.axiosInstance.get(
-        `/Registration/GetRegistrationInfoByTin/${command.tin}/en`,
-      );
-      if (!response.data)
-        throw new NotFoundException(
-          `Organization with tin ${command.tin} does not exist`,
-        );
+      // const response = await this.axiosInstance.get(
+      //   `/Registration/GetRegistrationInfoByTin/${command.tin}/en`,
+      // );
+      // if (!response.data)
+      //   throw new NotFoundException(
+      //     `Organization with tin ${command.tin} does not exist`,
+      //   );
       const licenseInformation = await this.getBusinessLicenseFromEtrade(
-        command.licenseNumber,
-        command.tin,
+        command.licenseNumber.trim(),
+        command.tin.trim(),
       );
       if (!licenseInformation.data)
         throw new NotFoundException(
