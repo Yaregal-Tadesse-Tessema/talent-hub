@@ -9,8 +9,10 @@ export class PasswordResetEntity extends CommonEntity {
   @Column({ nullable: true,unique:true })
   @Index()
   token: string;
-  @Column({ nullable: true ,unique:true})
+  @Column({ nullable: true})
   userId: string;
+  @Column({ nullable: true})
+  employeerId: string;
   @Column({ nullable: true,unique:true })
   email: string;
   @Column({ nullable: true,default:"Started" })

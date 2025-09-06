@@ -52,8 +52,6 @@ export class CreateUserCommand {
   @ApiProperty({ default: UserStatusEnums.ACTIVE })
   status?: UserStatusEnums;
   @ApiProperty()
-  password?: string;
-  @ApiProperty()
   address?: any;
   @ApiProperty()
   birthDate?: Date;

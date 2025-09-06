@@ -26,7 +26,7 @@ export class GoogleAuthService {
       path: user.picture,
     };
     command.isFirstTime = true;
-    command.password = 'C0mplex';
+    // command.password = 'C0mplex';
     const res = await this.userService.create(command);
     // redirect to login page
     return res;

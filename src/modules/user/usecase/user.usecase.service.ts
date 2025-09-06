@@ -41,6 +41,11 @@ import { HttpStatusCode } from 'axios';
 import { SessionCommand } from 'src/modules/auth/services/session/session.usecase.command';
 import { PasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.usecase.service';
 import { PasswordResetQuery } from 'src/modules/auth/services/password-reset/password-reset.usecase.query';
+import { CreateLookupCommand } from 'src/modules/tenant/usecases/lookup/lookup.command';
+import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { LookupRepository } from 'src/modules/tenant/persistencies/lookup.repository';
+import { UserType } from 'src/modules/tenant/constants';
+import { CreatePasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.command';
 @Injectable()
 export class UserService {
   constructor(
@@ -58,6 +63,7 @@ export class UserService {
     private readonly passwordResetCommand: PasswordResetCommand,
     @Inject(forwardRef(() => PasswordResetQuery))
     private readonly passwordResetQuery: PasswordResetQuery,
+    private readonly lookupRepository: LookupRepository,
   ) { }
   async getProfileCompleteness(id: string): Promise<{ percentage: number }> {
     const user = await this.userRepository.findOne(id);
@@ -380,16 +386,26 @@ export class UserService {
         status: UserStatusEnums.PENDING,
       });
     }
-    itemData.password = itemData?.password
-      ? Util.hashPassword(itemData.password)
-      : Util.hashPassword('C0mplex!');
+    const password = Util.hashPassword('C0mplex!');
     const item: UserEntity = await this.userRepository.create(itemData);
+    const lookupCommand: CreateLookupCommand = {
+      email: item.email,
+      phoneNumber: item.phone,
+      password: password,
+      status: AccountStatusEnums.ACTIVE,
+      firstName: item.firstName,
+      middleName: item.middleName,
+      lastName: item.lastName,
+      userType: UserType.EMPLOYEE,
+    };
+    const lookup = await this.lookupRepository.create(lookupCommand);
     const uerInfo: UserInfo = {
       id: item.id,
       email: item?.email,
       firstName: item?.firstName,
       middleName: item?.middleName,
       lastName: item?.lastName,
+      lookupId: lookup.id,
     };
     if (item?.email) {
       const token = Util.GenerateToken(uerInfo);
@@ -449,7 +465,7 @@ export class UserService {
   ): Promise<UserResponse> {
     const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
-    user.alertConfiguration=user.alertConfiguration?user.alertConfiguration:[]
+    user.alertConfiguration = user.alertConfiguration ? user.alertConfiguration : []
     user.alertConfiguration.push(alertConfiguration);
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
@@ -539,44 +555,81 @@ export class UserService {
 
   async sendPasswordResetEmail(email: string, link = 'http://138.197.105.31:3000/reset-password'): Promise<boolean> {
     const resetLink = `${link}`;
-    const user = await this.userRepository.getOneByCriteria(
-      {
+    const lookup = await this.lookupRepository.getOneByCriteria(
+      [{
         email: email,
-      }
+      }, {
+        phoneNumber: email,
+      }], ['user']
     );
-    if (!user)
+    if (!lookup)
       throw new NotFoundException(`User with email ${email} doesn't exist`);
     const alreadySent = await this.passwordResetQuery.getPasswordResetByEmail(email);
     if (alreadySent) {
-      const isTokenExpired =await  this.jwtService.verifyAsync(alreadySent.token,{
+      const isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
         secret:
           '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
       });
-      
-      if (isTokenExpired) {
+
+      if (isTokenValid) {
         throw new ConflictException(`Password reset link already sent to ${email} do not forget to check your spam folder`);
       } else {
         await this.passwordResetCommand.deletePasswordResetByEmail(email);
       }
     }
-    const payload: UserInfo = {
-      id: user.id,
-      email: user?.email,
-      firstName: user?.firstName,
-      middleName: user?.middleName,
-      lastName: user?.lastName,
-      phoneNumber: user?.phone,
-      profileImage: user?.profile,
-      address: user?.address,
-      skills: user?.technicalSkills,
-      industry: user?.industry,
-    };
+    let payload: UserInfo = null
+    let firstName = '';
+    let middleName = '';
+    let lastName = '';
+    const createPasswordResetCommand: CreatePasswordResetCommand = {
+      email: email,
+      token: null,
+      status: 'Started',
+      userId: null,
+      employeerId: null
+    }
+    if (lookup.userType == UserType.EMPLOYEE) {
+      const user = lookup.user;
+      firstName = user.firstName;
+      middleName = user.middleName;
+      lastName = user.lastName;
+      createPasswordResetCommand.userId = user.id;
+      payload = {
+        id: user.id,
+        email: user?.email,
+        firstName: user?.firstName,
+        middleName: user?.middleName,
+        lastName: user?.lastName,
+        phoneNumber: user?.phone,
+        profileImage: user?.profile,
+        address: user?.address,
+        skills: user?.technicalSkills,
+        industry: user?.industry,
+        userType: UserType.EMPLOYEE
+      };
+    } else {
+      createPasswordResetCommand.employeerId = lookup.id;
+      firstName = lookup.firstName;
+      middleName = lookup.middleName;
+      lastName = lookup.lastName;
+      payload = {
+        id: lookup.id,
+        email: lookup?.email,
+        firstName: lookup?.firstName,
+        middleName: lookup?.middleName,
+        lastName: lookup?.lastName,
+        phoneNumber: lookup?.phoneNumber,
+        profileImage: lookup?.profileImage,
+        address: lookup?.address,
+        userType: UserType.EMPLOYER
+      };
+    }
     const token = Util.GenerateToken(payload, '1h');
     const resetLinkWithToken = `${link}?token=${token}`;
 
     const html = `
    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-  <h2>Hello ${user.firstName} ${user.lastName},</h2>
+  <h2>Hello ${firstName} ${middleName} ${lastName},</h2>
   <p>We received a request to reset your password. You can set a new password by clicking the button below:</p>
   <a href="${resetLinkWithToken}"
      style="
@@ -604,21 +657,23 @@ export class UserService {
       `Regarding you'r password reset`,
       html,
     );
-    await this.passwordResetCommand.createPasswordReset({
-      email: email,
-      token: token,
-      status: 'Started',
-      userId: user.id,
-    });
+    await this.passwordResetCommand.createPasswordReset(createPasswordResetCommand);
     return true;
   }
   async resetUserPasswordByEmail(
     command: AccountPasswordReset,
   ): Promise<any> {
-    const user = await this.userRepository.getOneByCriteria({
-      email: command.email,
-    });
-    if (!user)
+    const lookup = await this.lookupRepository.getOneByCriteria(
+      [
+        {
+          email: command.email,
+        },
+        {
+          phoneNumber: command.email,
+        }
+      ], ['user']
+    );
+    if (!lookup)
       throw new NotFoundException(
         `User with email ${command.email} doesn't exist`,
       );
@@ -637,6 +692,7 @@ export class UserService {
         `The password and confirm password doesn't match`,
       );
     }
+    const user = lookup.user;
     const salt = process.env.BCRYPT_SALT;
     const encryptedPassword = await bcrypt.hash(command.newPassword, salt);
     user.password = encryptedPassword;
@@ -653,6 +709,8 @@ export class UserService {
       skills: user?.technicalSkills,
       industry: user?.industry,
     };
+    lookup.password = encryptedPassword;
+    await this.lookupRepository.create(lookup);
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);
     await this.sessionCommand.createSession(

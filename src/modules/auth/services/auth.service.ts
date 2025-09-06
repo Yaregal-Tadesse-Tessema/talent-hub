@@ -301,7 +301,31 @@ export class AuthService {
         `Your account is not Activated please check your email do not forget you Spam folder too`,
       );
     if (!lookup?.employeeTenant || lookup?.employeeTenant.length == 0) {
-      return [];
+      const payload: UserInfo = {
+        id: lookup.id,
+        tenantId: lookup.employeeTenant[0]?.tenantId,
+        email: lookup?.email,
+        firstName: lookup?.firstName,
+        middleName: lookup?.middleName,
+        lastName: lookup?.lastName,
+        profileImage: lookup?.profileImage,
+        address: lookup?.address,
+        phoneNumber: lookup?.phoneNumber,
+        roles: [],
+        tenantSchemaName: lookup.employeeTenant[0]?.tenant?.name,
+      };
+      const accessToken = Util.GenerateToken(payload, '60m'); //60m
+      const refreshToken = Util.GenerateRefreshToken(payload);
+      await this.sessionCommand.createSession({
+        accountId: payload.id,
+        token: accessToken,
+        refreshToken,
+      });
+      return {
+        accessToken,
+        refreshToken,
+        employeeTenant: [],
+      };
     }
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
@@ -367,12 +391,12 @@ export class AuthService {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
         },
-      ],
+      ],relations:{lookup:true}
     });
     if (!user)
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (
-      !(await Util.comparePassword(loginCommand.password.trim(), user.password))
+      !(await Util.comparePassword(loginCommand.password.trim(), user.lookup.password))
     ) {
       throw new BadRequestException(`Incorrect credentials`);
     }

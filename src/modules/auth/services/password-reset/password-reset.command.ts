@@ -13,9 +13,12 @@ export class CreatePasswordResetCommand {
   token?: string;
 
   @IsOptional()
-  @IsString()
   @ApiProperty()
   userId?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  employeerId?: string;
 
   @IsOptional()
   @IsEmail()
@@ -32,6 +35,7 @@ export class CreatePasswordResetCommand {
     if (command.id) entity.id = command.id;
     if (command.token) entity.token = command.token;
     if (command.userId) entity.userId = command.userId;
+    if (command.employeerId) entity.employeerId = command.employeerId;
     if (command.email) entity.email = command.email;
     if (command.status) entity.status = command.status;
     return entity;

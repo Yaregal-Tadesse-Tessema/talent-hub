@@ -24,14 +24,6 @@ export class AuthController {
     private authService: AuthService,
     private sessionQuery: SessionQuery,
   ) {}
-  // @Post('login')
-  // async login(@Body() body: LoginDto): Promise<any> {
-  //   return await this.authService.login(body);
-  // }
-  // @Post('employee-login')
-  // async employeeLogin(@Body() body: LoginDto): Promise<any> {
-  //   return await this.authService.employeeLogin(body);
-  // }
   @Post('refresh')
   @AllowAnonymous()
   async getRefreshToken(@Headers() headers: object) {

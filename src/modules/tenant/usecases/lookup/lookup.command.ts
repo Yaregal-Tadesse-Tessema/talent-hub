@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { LookupEntity } from '../../persistencies/lookup.entity';
+import { UserType } from '../../constants';
 
 export class CreateLookupCommand {
   id?: string;
@@ -23,6 +24,8 @@ export class CreateLookupCommand {
   phoneNumber: string;
   @ApiProperty()
   status: AccountStatusEnums;
+  @ApiProperty()
+  userType: UserType;
   currentUser?: any;
 
   @ApiProperty()
@@ -45,6 +48,7 @@ export class CreateLookupCommand {
     lookUp.email = command.email;
     lookUp.phoneNumber = command.phoneNumber;
     lookUp.status = command?.status;
+    lookUp.userType = command?.userType;
     lookUp.createdBy = command?.currentUser?.id;
     lookUp.updatedBy = command?.currentUser?.id;
     return lookUp;

@@ -22,6 +22,7 @@ import { UserInfo } from 'src/libs/Common/user-information';
 import { Response } from 'express';
 import { UserStatusEnums } from 'src/modules/user/constants';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { UserType } from '../../constants';
 @Injectable()
 export class LookupService {
   constructor(
@@ -78,6 +79,7 @@ export class LookupService {
         );
     }
     const lookupEntity = CreateLookupCommand.fromCommand(command);
+    lookupEntity.userType = UserType.EMPLOYER;
     const lookup = await this.lookupRepository.create(lookupEntity);
     if (lookup?.status == UserStatusEnums.PENDING) {
       const payload: UserInfo = {
@@ -90,6 +92,7 @@ export class LookupService {
         address: lookupEntity?.address,
         phoneNumber: lookupEntity?.phoneNumber,
         roles: [],
+        userType: UserType.EMPLOYEE,
       };
       const token = Util.GenerateToken(payload);
       await this.sendActivationMessage(

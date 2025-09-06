@@ -61,6 +61,6 @@ import { TestimonialsController } from './controllers/testimonials.controller';
     UserTenantController,
     TestimonialsController,
   ],
-  exports: [TenantService],
+  exports: [TenantService,LookupRepository],
 })
 export class TenantModule {}

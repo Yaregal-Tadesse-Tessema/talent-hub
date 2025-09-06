@@ -125,6 +125,8 @@ export class CheckOrganizationFromETrade {
   tin: string;
   @ApiProperty()
   licenseNumber: string;
+  @ApiProperty()
+  otpCode: number;
 
   currentUser?: UserInfo;
 }

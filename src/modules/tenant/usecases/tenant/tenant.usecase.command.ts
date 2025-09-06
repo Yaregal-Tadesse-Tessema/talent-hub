@@ -26,6 +26,8 @@ import { EmployeeTenantRepository } from '../../persistencies/employee-tenant.re
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 import { FileService } from 'src/modules/file/services/file.service';
 import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
+import { AfroMessageService } from 'src/modules/sms/afro-message.service';
+import { UserType } from '../../constants';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -34,7 +36,8 @@ export class TenantService {
     private readonly lookupRepository: LookupRepository,
     private readonly employeeTenantRepository: EmployeeTenantRepository,
     private readonly fileService: FileService,
-  ) {}
+    private readonly afroMessageService: AfroMessageService,
+  ) { }
   private readonly axiosInstance = axios.create({
     baseURL: 'https://etrade.gov.et/api',
     timeout: 5000,
@@ -91,15 +94,16 @@ export class TenantService {
   async registerOrganizationWithETrade(
     command: CheckOrganizationFromETrade,
   ): Promise<any> {
-    try {
-      const alreadyExist = await this.tenantRepository.getOneByCriteria({
-        tin: command.tin,
-      });
 
-      if (alreadyExist)
-        throw new BadRequestException(
-          `Organization Already exists Please Login`,
-        );
+    const alreadyExist = await this.tenantRepository.getOneByCriteria({
+      tin: command.tin,
+    });
+
+    if (alreadyExist)
+      throw new BadRequestException(
+        `Organization Already exists Please Login`,
+      );
+    try {
       const response = await this.axiosInstance.get(
         `/Registration/GetRegistrationInfoByTin/${command.tin}/en`,
       );
@@ -115,48 +119,81 @@ export class TenantService {
         throw new NotFoundException(
           `Organization with License Number ${command.licenseNumber} does not exist`,
         );
-      // const registrationNumber = await this.generateRegistrationNumber(
-      //   'org',
-      // );
-      const salt = process.env.BCRYPT_SALT;
-      const createCommand: CreateTenantCommand = {
-        name: licenseInformation.data.TradeName,
-        tin: command.tin,
-        isVerified: true,
-        address: licenseInformation.data?.AddressInfo,
-        licenseNumber: command.licenseNumber,
-        registrationNumber: command.tin,
-        email: licenseInformation.data.email,
-        phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
-      };
+      const phoneNumber = licenseInformation.data?.AddressInfo.MobilePhone
+      if (!phoneNumber) {
+        throw new BadRequestException(`Phone number is not associated with this organization please Register Manually`);
+      }
+      if (!command?.otpCode) {
+        await this.afroMessageService.sendOtp(phoneNumber);
+        const last4Digits = phoneNumber.slice(-4);
+        const message = `One time password is sent to the phone Number ending with ${last4Digits}`;
+        return {
+          stsus: 'Otp sent',
+          message: message,
+        };
+      } else {
+        const res = await this.afroMessageService.verifyOtp({ phoneNumber, otpCode: command.otpCode.toString() });
+        if (res.acknowledge === 'error') {
+          throw new BadRequestException('Invalid OTP');
+        }
+        const salt = process.env.BCRYPT_SALT;
+        const createCommand: CreateTenantCommand = {
+          name: licenseInformation.data.TradeName,
+          tin: command.tin,
+          isVerified: true,
+          address: licenseInformation.data?.AddressInfo,
+          licenseNumber: command.licenseNumber,
+          registrationNumber: command.tin,
+          email: licenseInformation.data.email,
+          phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
+          status: AccountStatusEnums.ACTIVE,
+        };
+        const tenantAlreadyExists = await this.tenantRepository.getOneByCriteria({
+          tin: command.tin,
+        });
+        createCommand.id = tenantAlreadyExists?.id;
+        const tenantEntity = await this.createTenant(createCommand);
+        const lookUpId = command?.currentUser?.id;
+        let lookupEntity = await this.lookupRepository.findOne(lookUpId);
+        if (!lookUpId) {
+          const lookupCommand: CreateLookupCommand = {
+            email: tenantEntity?.email,
+            phoneNumber: tenantEntity.phoneNumber,
+            password: await bcrypt.hash('C0mplex!', salt),
+            status: AccountStatusEnums.ACTIVE,
+            userType: UserType.EMPLOYER,
+          };
+          const lookupAlreadyExists = await this.lookupRepository.getOneByCriteria({
+            phoneNumber: tenantEntity.phoneNumber,
+          });
+          lookupCommand.id = lookupAlreadyExists?.id;
+          lookupEntity = await this.lookupRepository.create(lookupCommand);
+        }
+        console.log(createCommand);
+        const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
+          tenant_Id: tenantEntity.id,
+          lookupId: lookUpId,
+          startDate: new Date(),
+          status: EmployeeStatus.ACTIVE,
+          tenantName: tenantEntity.name,
+          jobTitle: 'Administrator',
+        };
+        const employeeTenantAlreadyExists = await this.employeeTenantRepository.getOneByCriteria({
+          tenant_Id: tenantEntity.id,
+          lookupId: lookUpId,
+        });
+        employeeoRganizationCommand.id = employeeTenantAlreadyExists?.id;
+        const employeeORganizationEntity =
+          await this.employeeTenantRepository.create(employeeoRganizationCommand);
+        return {
+          tenantEntity,
+          lookupEntity,
+          employeeORganizationEntity,
+          message: `One time password is sent to the phone Numner ${licenseInformation.data?.AddressInfo.MobilePhone
+            }`,
+        };
+      }
 
-      const tenantEntity = await this.createTenant(createCommand);
-      const lookupCommand: CreateLookupCommand = {
-        email: tenantEntity?.email,
-        phoneNumber: tenantEntity.phoneNumber,
-        password: await bcrypt.hash('C0mplex!', salt),
-        status: AccountStatusEnums.ACTIVE,
-      };
-      const lookupEntity = await this.lookupRepository.create(lookupCommand);
-      console.log(createCommand);
-      const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
-        tenant_Id: tenantEntity.id,
-        lookupId: lookupEntity.id,
-        startDate: new Date(),
-        status: EmployeeStatus.ACTIVE,
-        tenantName: tenantEntity.name,
-        jobTitle: 'Administrator',
-      };
-      const employeeORganizationEntity =
-        await this.employeeTenantRepository.create(employeeoRganizationCommand);
-      return {
-        tenantEntity,
-        lookupEntity,
-        employeeORganizationEntity,
-        message: `One time password is sent to the phone Numner ${
-          licenseInformation.data?.AddressInfo.MobilePhone
-        }`,
-      };
     } catch (error) {
       console.log(error);
       throw new BadRequestException('Unable to verify TIN. Please try again');

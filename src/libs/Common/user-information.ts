@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+import { UserType } from "src/modules/tenant/constants";
 import { FileDto } from "./dtos/file.dto";
 
 export type RoleInfo = {
@@ -27,7 +28,7 @@ export type UserInfo = {
   profileImage?: FileDto;
   address?: any;
   preferredName?: string;
-
+  userType?: UserType;
   industry?: string[];
   skills?: string[];
   tenantAddress?: any;

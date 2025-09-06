@@ -30,7 +30,7 @@ export class AfroMessageService {
             },
             params: {
               from: this.identifierId,
-              sender: this.sender,
+              // sender: '+251910108360',
               to: phoneNumber,
               message,
               callback,
@@ -54,22 +54,8 @@ export class AfroMessageService {
     const codeType = 0; // 0 for number only codes. 1 for alphabet only codes and 2 for alphanumeric codes.
     const timeToLive = 60 * 60; // in seconds
     const postMessage = ' is Your login verification code.';
-    // const preMessage = 'Your login verification code is ';
-    // const spacesBefore = 1;
     const spacesAfter = 2;
-    // const response = await instance.get(`/challenge`, {
-    //   params: {
-    //     from: identifierId,
-    //     sender: sender,
-    //     to: phoneNumber,
-    //     ps: postMessage,
-    //     sa: spacesAfter,
-    //     ttl: timeToLive,
-    //     len: codeLength,
-    //     t: codeType,
-    //     callback: callback,
-    //   },
-    // });
+ 
     const { data } = await firstValueFrom(
       this.httpService
         .get<any>(`${this.baseUrl}/challenge`, {
@@ -79,7 +65,7 @@ export class AfroMessageService {
           },
           params: {
             from: this.identifierId,
-            sender: this.sender,
+            // sender: this.sender,
             to: phoneNumber,
             ps: postMessage,
             sa: spacesAfter,
