@@ -328,8 +328,6 @@ export class AuthService {
       };
     }
     const tenant = lookup.employeeTenant[0]?.tenant;
-    if (!lookup)
-      throw new BadRequestException("user Doesn't exist contact administrator");
     if (
       !(await Util.comparePassword(
         loginCommand.password.trim(),

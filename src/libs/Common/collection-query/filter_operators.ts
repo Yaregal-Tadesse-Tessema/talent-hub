@@ -7,7 +7,7 @@ export const FilterOperators = {
   GreaterThan: '>',
   GreaterThanOrEqualTo: '>=',
   In: 'IN',
-  NotIn: 'NotIn',
+  NotIn: 'NOT IN',
   Any: 'ANY',
   NotNull: 'NotNull',
   IsNotNull: 'IsNotNull',
@@ -16,5 +16,5 @@ export const FilterOperators = {
   Like: 'LIKE',
   ILike: 'ILIKE',
   All: 'All',
-  NotEqual: 'NotEqual',
+  NotEqual: '<>',
 };

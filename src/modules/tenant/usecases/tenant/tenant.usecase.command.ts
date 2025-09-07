@@ -28,6 +28,7 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 import { UserType } from '../../constants';
+import { Util } from 'src/libs/Common/util';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -143,7 +144,7 @@ export class TenantService {
           isVerified: true,
           address: licenseInformation.data?.AddressInfo,
           licenseNumber: command.licenseNumber,
-          registrationNumber: command.tin,
+          registrationNumber: Util.makeId('Tenant'),
           email: licenseInformation.data.email,
           phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
           status: AccountStatusEnums.ACTIVE,

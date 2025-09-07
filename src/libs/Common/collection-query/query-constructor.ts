@@ -25,8 +25,8 @@ const addFilterConditions = (
     // Handle "in" operator for the main ${aggregate}
     return `${queryCondition} IN (:...${queryParam})`;
   } else if (op === FilterOperators.NotIn && Array.isArray(value)) {
-    // Handle "in" operator for the main ${aggregate}
-    return `${queryCondition} Not IN (:...${queryParam})`;
+    // Handle "not in" operator for the main ${aggregate}
+    return `${queryCondition} NOT IN (:...${queryParam})`;
   } else if (op === FilterOperators.IsNull) {
     // Handle "isNull" operator for the main ${aggregate}
     return `${queryCondition} IS NULL`;

@@ -6,6 +6,7 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantSubscriptionTypes } from '../../constants';
 import { UserInfo } from 'src/libs/Common/user-information';
+import { Util } from 'src/libs/Common/util';
 export class CreateTenantCommand {
   @ApiProperty()
   id?: string;
@@ -78,7 +79,7 @@ export class CreateTenantCommand {
     tenant.tin = command.tin;
     tenant.tags = command?.tags;
     tenant.licenseNumber = command.licenseNumber;
-    tenant.registrationNumber = command.registrationNumber;
+    tenant.registrationNumber = Util.makeId('Tenant');
     tenant.status = command?.status;
     tenant.logo = command.logo;
     tenant.cover = command.cover;

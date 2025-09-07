@@ -427,7 +427,7 @@ export class UserService {
     return UserResponse.toResponse(res);
   }
   async findAll(query: CollectionQuery) {
-    query.where.push();
+    if (!query.where) query.where = [];
     //  query.orderBy.push({
     //    column: 'updatedAt',
     //    direction: 'DESC',
@@ -437,7 +437,7 @@ export class UserService {
     return response;
   }
   async findAllPublic(query: CollectionQuery) {
-    query.where.push();
+    if (!query.where) query.where = [];
     //  query.orderBy.push({
     //    column: 'updatedAt',
     //    direction: 'DESC',
