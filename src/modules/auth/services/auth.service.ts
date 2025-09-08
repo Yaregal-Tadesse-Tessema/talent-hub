@@ -149,7 +149,7 @@ export class AuthService {
         throw new BadRequestException(
           "user Doesn't exist contact administrator",
         );
-      if (loginCommand.password != lookupData.password) {
+      if (loginCommand.password !== lookupData.password) {
         throw new BadRequestException(`Incorrect credentials`);
       }
       const tenant =
@@ -158,7 +158,7 @@ export class AuthService {
           : null;
       if (!tenant)
         throw new BadRequestException(
-          `Something is went wrong please contact admin`,
+          `Something went wrong please contact admin`,
         );
       const payload: UserInfo = {
         lookupId: lookupData.id,
@@ -246,7 +246,7 @@ export class AuthService {
           : null;
       if (!tenant)
         throw new BadRequestException(
-          `Something is went wrong please contact admin`,
+          `Something went wrong please contact admin`,
         );
       const payload: UserInfo = {
         lookupId: lookupData.id,
@@ -296,11 +296,19 @@ export class AuthService {
       throw new BadRequestException(
         `Account with UserName ${loginCommand.userName} doesn't exist `,
       );
-    if (lookup.status == AccountStatusEnums.PENDING)
+    if (lookup.status === AccountStatusEnums.PENDING)
       throw new BadRequestException(
         `Your account is not Activated please check your email do not forget you Spam folder too`,
       );
-    if (!lookup?.employeeTenant || lookup?.employeeTenant.length == 0) {
+      if (
+        !(await Util.comparePassword(
+          loginCommand.password.trim(),
+          lookup.password,
+        ))
+      ) {
+        throw new BadRequestException(`Incorrect credentials`);
+      }
+    if (!lookup?.employeeTenant || lookup?.employeeTenant.length === 0) {
       const payload: UserInfo = {
         id: lookup.id,
         tenantId: lookup.employeeTenant[0]?.tenantId,
@@ -330,16 +338,9 @@ export class AuthService {
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    if (
-      !(await Util.comparePassword(
-        loginCommand.password.trim(),
-        lookup.password,
-      ))
-    ) {
-      throw new BadRequestException(`Incorrect credentials`);
-    }
+    
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
-    if ((lookup.employeeTenant.length = 0)) return null;
+    if ((lookup.employeeTenant.length === 0)) return null;
     const payload: UserInfo = {
       id: lookup.id,
       tenantId: lookup.employeeTenant[0]?.tenantId,
@@ -370,6 +371,7 @@ export class AuthService {
         tenantName: tenant.name,
         tenantLogo: tenant.logo,
       },
+      tenant: lookup?.employeeTenant
     };
   }
   async portalLogin(loginCommand: UserLoginCommand) {
@@ -391,7 +393,8 @@ export class AuthService {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
         },
-      ],relations:{lookup:true}
+      ],
+      relations: { lookup: true }
     });
     if (!user)
       throw new BadRequestException("user Doesn't exist contact administrator");
@@ -400,7 +403,7 @@ export class AuthService {
     ) {
       throw new BadRequestException(`Incorrect credentials`);
     }
-    if (user.status == UserStatusEnums.PENDING)
+    if (user.status === UserStatusEnums.PENDING)
       throw new BadRequestException(
         `Your account is not Activated please check your email do not forget you Spam folder too`,
       );
