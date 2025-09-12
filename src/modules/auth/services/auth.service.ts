@@ -16,6 +16,7 @@ import { LookupResponse } from 'src/modules/tenant/usecases/lookup/lookup.respon
 import { UserLoginCommand } from '../auth.command';
 import { SwitchOrganizationCommand } from '../dto/login.dto';
 import { UserStatusEnums } from 'src/modules/user/constants';
+import { UserType } from 'src/modules/tenant/constants';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
@@ -267,17 +268,19 @@ export class AuthService {
         {
           phoneNumber: loginCommand.userName,
           status: In(activeEmployeesStatus),
+          userType:UserType.EMPLOYER
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
+          userType:UserType.EMPLOYER
         },
       ],
       relations: { employeeTenant: { tenant: true } },
     });
     if (!lookup)
       throw new BadRequestException(
-        `Account with UserName ${loginCommand.userName} doesn't exist `,
+        `Account with UserName ${loginCommand.userName} doesn't exist.`,
       );
     if (lookup.status === AccountStatusEnums.PENDING)
       throw new BadRequestException(
@@ -371,10 +374,12 @@ export class AuthService {
         {
           phone: loginCommand.userName,
           status: In(activeEmployeesStatus),
+          lookup:{userType:UserType.EMPLOYEE}
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
+          lookup:{userType:UserType.EMPLOYEE}
         },
       ],
       relations: { lookup: true }
