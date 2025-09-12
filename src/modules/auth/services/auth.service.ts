@@ -191,6 +191,7 @@ export class AuthService {
         where: [
           {
             phoneNumber: loginCommand.userName,
+            userType:In([UserType.EMPLOYER,UserType.ADMIN]),
             employeeTenant: {
               status: In(activeEmployeesStatus),
               tenant: {
@@ -201,6 +202,7 @@ export class AuthService {
           },
           {
             email: loginCommand.userName,
+            userType:In([UserType.EMPLOYER,UserType.ADMIN]),
             employeeTenant: {
               status: In(activeEmployeesStatus),
               tenant: {
@@ -418,6 +420,7 @@ export class AuthService {
       },
       // connection,
     );
+    await this.userRepository.update(user.id, { lastLoginDate: new Date() });
     return {
       accessToken,
       refreshToken,

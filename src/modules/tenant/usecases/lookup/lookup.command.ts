@@ -40,6 +40,11 @@ export class CreateLookupCommand {
   tenantId?: string;
   @ApiProperty()
   tenantName?: string;
+
+  @ApiProperty()
+  createdBy?: string;
+  @ApiProperty()
+  updatedBy?: string;
   static fromCommand(command: CreateLookupCommand): LookupEntity {
     const lookUp = new LookupEntity();
     lookUp.id = command?.id;

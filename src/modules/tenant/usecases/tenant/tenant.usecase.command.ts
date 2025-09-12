@@ -101,7 +101,7 @@ export class TenantService {
 
     if (alreadyExist)
       throw new BadRequestException(
-        `Organization Already exists Please Login`,
+        `Organization Already exists. Please login to access your account.`,
       );
     try {
       // const response = await this.axiosInstance.get(
@@ -162,6 +162,9 @@ export class TenantService {
             password: await bcrypt.hash('C0mplex!', salt),
             status: AccountStatusEnums.ACTIVE,
             userType: UserType.EMPLOYER,
+            tenantId: tenantEntity.id,
+            createdBy: command?.currentUser?.id,
+            updatedBy: command?.currentUser?.id,
           };
           const lookupAlreadyExists = await this.lookupRepository.getOneByCriteria({
             phoneNumber: tenantEntity.phoneNumber,
@@ -177,6 +180,8 @@ export class TenantService {
           status: EmployeeStatus.ACTIVE,
           tenantName: tenantEntity.name,
           jobTitle: 'Administrator',
+          createdBy: command?.currentUser?.id,
+          updatedBy: command?.currentUser?.id,
         };
         const employeeTenantAlreadyExists = await this.employeeTenantRepository.getOneByCriteria({
           tenant_Id: tenantEntity.id,

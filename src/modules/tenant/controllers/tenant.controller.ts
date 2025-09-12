@@ -63,6 +63,7 @@ export class TenantController {
     @Body() command: CheckOrganizationFromETrade,
     @userInfo() currentUser: UserInfo,
   ) {
+    
     command.currentUser = currentUser;
     return await this.tenantService.registerOrganizationWithETrade(command);
   }

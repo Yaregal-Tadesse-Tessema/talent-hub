@@ -12,7 +12,6 @@ export class AfroMessageService {
   private readonly identifierId = process.env.AFRO_MESSAGE_IDENTIFIER_ID;
   private readonly apiKey = process.env.AFRO_MESSAGE_API_KEY;
   constructor(private readonly httpService: HttpService) {}
-
   async sendMessage(
     message: string,
     phoneNumber: string,

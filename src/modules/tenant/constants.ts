@@ -5,4 +5,5 @@ export enum TenantSubscriptionTypes {
 export enum UserType {
   EMPLOYEE = 'Employee',
   EMPLOYER = 'Employer',
+  ADMIN = 'Admin',
 }

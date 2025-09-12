@@ -21,6 +21,8 @@ export class TenantEntity extends CommonEntity {
   tradeName: string;
   @Column({ nullable: true, unique: true })
   email: string;
+  @Column({ default: false })
+  haAiActivated: boolean;
   @Column({ nullable: true })
   code: string;
   @Column({ unique: true, nullable: true })

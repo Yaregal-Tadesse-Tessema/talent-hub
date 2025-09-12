@@ -22,6 +22,10 @@ export class CreateEmployeeTenantCommand {
   tenantName: string;
   currentUser?: any;
 
+  @ApiProperty()
+  createdBy?: string;
+  @ApiProperty()
+  updatedBy?: string;
   static fromCommand(
     command: CreateEmployeeTenantCommand,
   ): EmployeeTenantEntity {
@@ -33,6 +37,9 @@ export class CreateEmployeeTenantCommand {
     entity.status = command.status;
     entity.jobTitle = command.jobTitle;
     entity.tenantName = command.tenantName;
+    
+    entity.createdBy = command.createdBy;
+    entity.updatedBy = command.updatedBy;
     return entity;
   }
 }

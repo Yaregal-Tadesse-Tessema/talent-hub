@@ -25,16 +25,20 @@ import { Brackets, Repository } from 'typeorm';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-bot.service';
+import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
+import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 @Injectable()
 export class JobPostingService {
   constructor(
     private readonly jobPostingRepository: JobPostingRepository,
-    private readonly telegramBotService: TelegramBotService,
     private readonly userRepository: UserService,
     @InjectRepository(JobPostingEntity)
     private readonly joPoRepo: Repository<JobPostingEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
+    private readonly telegramBotService: TelegramBotService,
+    private readonly emailService: EmailService,
+    private readonly afroMessageService: AfroMessageService,
   ) { }
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);
@@ -208,8 +212,48 @@ export class JobPostingService {
         );
       }
     }
+    if (command.status == JobPostingStatusEnums.POSTED) {
+      const payload = {
+        jobTitle: jobPostDomain.title,
+        position: jobPostDomain.position,
+        industry: jobPostDomain.industry,
+        city: jobPostDomain.city,
+        // salaryRange: jobPostDomain.salaryRange
+      }
+
+      const filteredPayload = Object.fromEntries(
+        Object.entries(payload).filter(([key, value]) =>
+          value &&
+          typeof value === 'string' &&
+          value !== 'string' &&
+          value.trim() !== '' &&
+          value !== 'null' &&
+          value !== 'undefined'
+        )
+      );
+      const users: { phoneNumber: string,email:string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
+      // to be replaced by the job link
+      const link = process.env.LOGIN_PAGE ?? 'http://138.197.105.31:3000/login'
+      await this.notifayUsers(users, link)
+    }
     return JobPostingResponse.toResponse(response);
   }
+  async notifayUsers(payload: { phoneNumber: string,email:string, fullName: string }[], link: string) {
+    const response: any[] = []
+
+    // Check if payload is valid array with users
+    if (!payload || !Array.isArray(payload) || payload.length === 0) {
+      return response;
+    }
+    for (const user of payload) {
+      const message = `Dear ${user.fullName} This Jobs match your skill please check them ${link}`
+      const result = await this.afroMessageService.sendMessage(message, user.phoneNumber, null)
+      const resultEmail = await this.emailService.sendEmail(user.email, message, null)
+      response.push(result)
+    }
+    return response
+  }
+  
   async notifyUsersOnTelegramBootForNewJobPost(
     response: JobPostingEntity
   ) {
@@ -350,7 +394,7 @@ export class JobPostingService {
     response.isSaved = isSaved;
     return response;
   }
-    async getOneById(
+  async getOneById(
     id: any,
     relations = [],
     withDeleted = false,
@@ -361,7 +405,7 @@ export class JobPostingService {
       withDeleted,
     );
     if (!result) return null;
-    
+
     return JobPostingResponse.toResponse(result);
   }
   async rePostJob(command: RePostJobCommand) {
@@ -415,34 +459,34 @@ export class JobPostingService {
   }
   async getUserByJobPostProperty(command: UserAlertConfiguration) {
     const query = this.userRepo
-  .createQueryBuilder('user')
-  .where(new Brackets(qb => {
-    const filters: [string, string, any][] = [
-      ['address', 'address', command.address],
-      ['Position', 'Position', command.Position],
-      ['jobTitle', 'jobTitle', command.jobTitle],
-      ['industry', 'industry', command.industry],
-      ['salary', 'salary', command.salary],
-    ];
+      .createQueryBuilder('user')
+      .where(new Brackets(qb => {
+        const filters: [string, string, any][] = [
+          ['address', 'address', command.address],
+          ['Position', 'Position', command.Position],
+          ['jobTitle', 'jobTitle', command.jobTitle],
+          ['industry', 'industry', command.industry],
+          ['salary', 'salary', command.salary],
+        ];
 
-    let hasAtLeastOneFilter = false;
+        let hasAtLeastOneFilter = false;
 
-    for (const [key, param, value] of filters) {
-      if (value !== undefined && value !== null && value !== '') {
-        qb.andWhere(`"user"."smsAlertConfiguration"->>:${param} = :${param}`, { [param]: value });
-        hasAtLeastOneFilter = true;
-      }
-    }
+        for (const [key, param, value] of filters) {
+          if (value !== undefined && value !== null && value !== '') {
+            qb.andWhere(`"user"."smsAlertConfiguration"->>:${param} = :${param}`, { [param]: value });
+            hasAtLeastOneFilter = true;
+          }
+        }
 
-    // Prevent empty brackets which cause invalid SQL
-    if (!hasAtLeastOneFilter) {
-      qb.where('TRUE'); // Always true
-    }
-  }))
-  .andWhere(`"user"."deletedAt" IS NULL`);
-    const result=await query.getMany(); 
+        // Prevent empty brackets which cause invalid SQL
+        if (!hasAtLeastOneFilter) {
+          qb.where('TRUE'); // Always true
+        }
+      }))
+      .andWhere(`"user"."deletedAt" IS NULL`);
+    const result = await query.getMany();
     console.log(query.getSql())
-  return result;
+    return result;
   }
   async getUserByJobPostORProperty(command: UserAlertConfiguration) {
     // Find users where at least one smsAlertConfiguration matches ANY of the given command properties (OR logic)
@@ -551,8 +595,8 @@ export class JobPostingService {
       }
 
       if (alertConfiguration.address) {
-        conditions.push('job.location ILIKE :city');
-        parameters.location = `%${alertConfiguration.address}%`;
+        conditions.push('job.city ILIKE :city');
+        parameters.city = `%${alertConfiguration.address}%`;
       }
 
       if (alertConfiguration.salary) {
@@ -609,35 +653,34 @@ export class JobPostingService {
 
       // Build exact match conditions for each job property
       if (jobData.title) {
-        query.andWhere('user.alertConfiguration->>\'jobTitle\' ILIKE :jobTitle', { 
-          jobTitle: `%${jobData.title}%` 
+        query.andWhere('(user.alertConfiguration IS NOT NULL AND jsonb_array_length(user.alertConfiguration) > 0 AND EXISTS(SELECT 1 FROM jsonb_array_elements(user.alertConfiguration) AS config WHERE config->>\'jobTitle\' ILIKE :jobTitle))', {
+          jobTitle: `%${jobData.title}%`
         });
       }
 
       if (jobData.position) {
-        query.andWhere('user.alertConfiguration->>\'Position\' ILIKE :position', { 
-          position: `%${jobData.position}%` 
+        query.andWhere('(user.alertConfiguration IS NOT NULL AND jsonb_array_length(user.alertConfiguration) > 0 AND EXISTS(SELECT 1 FROM jsonb_array_elements(user.alertConfiguration) AS config WHERE config->>\'Position\' ILIKE :position))', {
+          position: `%${jobData.position}%`
         });
       }
 
       if (jobData.industry) {
-        query.andWhere('user.alertConfiguration->>\'industry\' ILIKE :industry', { 
-          industry: `%${jobData.industry}%` 
+        query.andWhere('(user.alertConfiguration IS NOT NULL AND jsonb_array_length(user.alertConfiguration) > 0 AND EXISTS(SELECT 1 FROM jsonb_array_elements(user.alertConfiguration) AS config WHERE config->>\'industry\' ILIKE :industry))', {
+          industry: `%${jobData.industry}%`
         });
       }
 
       if (jobData.city) {
-        query.andWhere('user.alertConfiguration->>\'address\' ILIKE :address', { 
-          address: `%${jobData.city}%` 
+        query.andWhere('(user.alertConfiguration IS NOT NULL AND jsonb_array_length(user.alertConfiguration) > 0 AND EXISTS(SELECT 1 FROM jsonb_array_elements(user.alertConfiguration) AS config WHERE config->>\'address\' ILIKE :address))', {
+          address: `%${jobData.city}%`
         });
       }
 
       if (jobData.salaryRange) {
         // Match salary expectations based on SalaryRangeEnum structure
-        query.andWhere('user.alertConfiguration->>\'salary\' IS NOT NULL')
-          .andWhere('user.alertConfiguration->>\'salary\' = :salaryMin', { 
-            salaryMin: jobData.salaryRange?.MINIMUM || jobData.salaryRange 
-          });
+        query.andWhere('(user.alertConfiguration IS NOT NULL AND jsonb_array_length(user.alertConfiguration) > 0 AND EXISTS(SELECT 1 FROM jsonb_array_elements(user.alertConfiguration) AS config WHERE config->>\'salary\' IS NOT NULL AND config->>\'salary\' = :salaryMin))', {
+          salaryMin: jobData.salaryRange?.MINIMUM || jobData.salaryRange
+        });
       }
 
       const users = await query.getMany();
@@ -653,12 +696,12 @@ export class JobPostingService {
    * Any of the specified job posting properties can match the user's alert configuration
    */
   async getUsersByPartialJobMatch(jobData: {
-    title?: string;
+    jobTitle?: string;
     position?: string;
     industry?: string;
     city?: string;
     salaryRange?: any;
-  }): Promise<UserEntity[]> {
+  }): Promise<{ phoneNumber: string, email: string, fullName: string }[]> {
     try {
       const query = this.userRepo
         .createQueryBuilder('user')
@@ -668,39 +711,54 @@ export class JobPostingService {
       const conditions: string[] = [];
       const parameters: any = {};
 
-      if (jobData.title) {
-        conditions.push('user.alertConfiguration->>\'jobTitle\' ILIKE :jobTitle');
-        parameters.jobTitle = `%${jobData.title}%`;
+      if (jobData.jobTitle) {
+        conditions.push('("user"."smsAlertConfiguration" IS NOT NULL AND jsonb_typeof("user"."smsAlertConfiguration") = \'array\' AND EXISTS(SELECT 1 FROM jsonb_array_elements("user"."smsAlertConfiguration") AS config WHERE config->>\'jobTitle\' ILIKE :jobTitle))');
+        parameters.jobTitle = `%${jobData.jobTitle}%`;
       }
 
       if (jobData.position) {
-        conditions.push('user.alertConfiguration->>\'Position\' ILIKE :position');
+        conditions.push('("user"."smsAlertConfiguration" IS NOT NULL AND jsonb_typeof("user"."smsAlertConfiguration") = \'array\' AND EXISTS(SELECT 1 FROM jsonb_array_elements("user"."smsAlertConfiguration") AS config WHERE config->>\'Position\' ILIKE :position))');
         parameters.position = `%${jobData.position}%`;
       }
 
       if (jobData.industry) {
-        conditions.push('user.alertConfiguration->>\'industry\' ILIKE :industry');
+        conditions.push('("user"."smsAlertConfiguration" IS NOT NULL AND jsonb_typeof("user"."smsAlertConfiguration") = \'array\' AND EXISTS(SELECT 1 FROM jsonb_array_elements("user"."smsAlertConfiguration") AS config WHERE config->>\'industry\' ILIKE :industry))');
         parameters.industry = `%${jobData.industry}%`;
       }
 
       if (jobData.city) {
-        conditions.push('user.alertConfiguration->>\'address\' ILIKE :address');
+        conditions.push('("user"."smsAlertConfiguration" IS NOT NULL AND jsonb_typeof("user"."smsAlertConfiguration") = \'array\' AND EXISTS(SELECT 1 FROM jsonb_array_elements("user"."smsAlertConfiguration") AS config WHERE config->>\'address\' ILIKE :address))');
         parameters.address = `%${jobData.city}%`;
       }
 
       if (jobData.salaryRange) {
         // Match salary expectations based on SalaryRangeEnum structure
-        conditions.push('(user.alertConfiguration->>\'salary\' IS NOT NULL AND user.alertConfiguration->>\'salary\' = :salaryMin)');
+        conditions.push('("user"."smsAlertConfiguration" IS NOT NULL AND jsonb_typeof("user"."smsAlertConfiguration") = \'array\' AND EXISTS(SELECT 1 FROM jsonb_array_elements("user"."smsAlertConfiguration") AS config WHERE config->>\'salary\' IS NOT NULL AND config->>\'salary\' = :salaryMin))');
         parameters.salaryMin = jobData.salaryRange?.MINIMUM || jobData.salaryRange;
       }
 
       // If we have conditions, apply OR logic
       if (conditions.length > 0) {
         query.andWhere(`(${conditions.join(' OR ')})`, parameters);
+      } else {
+        // If no conditions are provided, return empty array to prevent returning all users
+        console.log('No job data provided, returning empty array');
+        return [];
       }
 
+      // Debug: Log the generated SQL and parameters
+      console.log('=== getUsersByPartialJobMatch DEBUG ===');
+      console.log('Job Data:', jobData);
+      console.log('Conditions:', conditions);
+      console.log('Parameters:', parameters);
+      console.log('Generated SQL:', query.getSql());
+      console.log('SQL Parameters:', query.getParameters());
+
       const users = await query.getMany();
-      return users;
+
+      const usersInfo: { phoneNumber: string, email: string, fullName: string }[] = users?.map(user => ({ phoneNumber: user.phone, email: user.email, fullName: `${user.firstName} ${user.middleName} ${user.lastName}` }))
+
+      return usersInfo;
     } catch (error) {
       console.error('Error getting users by partial job match:', error);
       throw error;

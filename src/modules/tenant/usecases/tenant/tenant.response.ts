@@ -17,6 +17,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.type = entity.type;
     response.tradeName = entity.tradeName;
     response.email = entity.email;
+    response.haAiActivated = entity.haAiActivated;
     response.code = entity.code;
     response.phoneNumber = entity.phoneNumber;
     response.address = entity.address;

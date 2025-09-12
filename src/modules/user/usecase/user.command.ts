@@ -31,6 +31,7 @@ export class UserAlertConfiguration {
   @ApiProperty()
   Position?: string;
   @ApiProperty()
+  // consider the address as city
   address?: string;
   @ApiProperty()
   industry?: string;
@@ -110,6 +111,10 @@ export class CreateUserCommand {
   isFirstTime?: boolean;
   @ApiProperty()
   isPayingUser?: boolean;
+  @ApiProperty()
+  lastLoginDate?: Date;
+  @ApiProperty()
+  reciveNotification?: boolean;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
     if (!dto) {
@@ -151,7 +156,8 @@ export class CreateUserCommand {
     entity.smsAlertConfiguration = dto?.smsAlertConfiguration;
     entity.isFirstTime = dto?.isFirstTime;
     entity.isPayingUser = dto?.isPayingUser;
-
+    entity.lastLoginDate = dto?.lastLoginDate;
+    entity.reciveNotification = dto?.reciveNotification;
     return entity;
   }
   static fromDtos(dto: CreateUserCommand[]): UserEntity[] {

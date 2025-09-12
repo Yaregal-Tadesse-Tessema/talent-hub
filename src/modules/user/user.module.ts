@@ -14,6 +14,7 @@ import { NotificationEntity } from '../notification/persistencies/notification.e
 import { TelegramModule } from '../telegram/telegram.module';
 import { AuthModule } from '../auth/auth.module';
 import { TenantModule } from '../tenant/tenant.module';
+import { UserCronJobService } from './usecase/user-cron-service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -28,7 +29,7 @@ import { TenantModule } from '../tenant/tenant.module';
     forwardRef(() => AuthModule),
      TenantModule
   ],
-  providers: [UserService, UserRepository, PdfService],
+  providers: [UserService, UserRepository, PdfService,UserCronJobService],
   controllers: [UserController],
   exports: [UserService, UserRepository],
 })

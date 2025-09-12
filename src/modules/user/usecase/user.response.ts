@@ -79,13 +79,17 @@ export class UserResponse {
   @ApiProperty()
   isFirstTime: boolean;
   @ApiProperty()
+  lastLoginDate: Date;
+  @ApiProperty()
   isPayingUser: boolean;
+  @ApiProperty()
+  reciveNotification: boolean;
   static toResponse(entity: UserEntity): UserResponse {
     const response = new UserResponse();
     if (!entity) {
       return null;
     }
-    response.id = entity?.id;
+    response.id = entity.id;
     response.phone = entity.phone;
     response.email = entity.email;
     // response.password = entity.password;
@@ -122,6 +126,8 @@ export class UserResponse {
     response.smsAlertConfiguration = entity.smsAlertConfiguration;
     response.isFirstTime = entity.isFirstTime;
     response.isPayingUser = entity.isPayingUser;
+    response.lastLoginDate = entity.lastLoginDate;
+    response.reciveNotification = entity.reciveNotification;
     return response;
   }
 }

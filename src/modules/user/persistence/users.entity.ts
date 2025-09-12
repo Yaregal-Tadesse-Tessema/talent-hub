@@ -89,6 +89,10 @@ export class UserEntity extends CommonEntity {
   isFirstTime: boolean;
   @Column({ default: false })
   isPayingUser: boolean;
+  @Column({type:'date', default: () => 'CURRENT_TIMESTAMP' })
+  lastLoginDate: Date;
+  @Column({default: true })
+  reciveNotification: boolean;
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.user,

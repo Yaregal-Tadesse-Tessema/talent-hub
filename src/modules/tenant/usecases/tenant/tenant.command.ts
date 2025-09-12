@@ -22,6 +22,8 @@ export class CreateTenantCommand {
   @ApiProperty()
   email: string;
   @ApiProperty()
+  haAiActivated?:boolean
+  @ApiProperty()
   code?: string;
   @ApiProperty()
   phoneNumber: string;
@@ -70,6 +72,7 @@ export class CreateTenantCommand {
     tenant.type = command.type;
     tenant.tradeName = command.tradeName;
     tenant.email = command.email;
+    tenant.haAiActivated = command?.haAiActivated;
     tenant.code = command.code;
     tenant.phoneNumber = command.phoneNumber;
     tenant.address = command.address;
