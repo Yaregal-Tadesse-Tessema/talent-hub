@@ -193,6 +193,7 @@ export class AccountPasswordReset {
   @IsNotEmpty()
   confirmNewPassword: string;
 }
+
 export class SendPasswordResetLinkCommand {
   @ApiProperty()
   email: string;

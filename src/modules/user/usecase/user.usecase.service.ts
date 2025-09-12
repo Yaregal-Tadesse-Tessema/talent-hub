@@ -386,9 +386,9 @@ export class UserService {
         status: UserStatusEnums.PENDING,
       });
     }
-    const password = Util.hashPassword('C0mplex!');
+    const password = Util.hashPassword(command.password??'C0mplex!');
     const item: UserEntity = await this.userRepository.create(itemData);
-    const lookupCommand: CreateLookupCommand = {
+    const lookupCommand: CreateLookupCommand = CreateLookupCommand.fromCommand({
       email: item.email,
       phoneNumber: item.phone,
       password: password,
@@ -397,7 +397,8 @@ export class UserService {
       middleName: item.middleName,
       lastName: item.lastName,
       userType: UserType.EMPLOYEE,
-    };
+      userId: item.id,
+    });
     const lookup = await this.lookupRepository.create(lookupCommand);
     const uerInfo: UserInfo = {
       id: item.id,
@@ -428,21 +429,11 @@ export class UserService {
   }
   async findAll(query: CollectionQuery) {
     query.where.push();
-    //  query.orderBy.push({
-    //    column: 'updatedAt',
-    //    direction: 'DESC',
-    //    nulls: 'NULLS LAST',
-    //  });
     const response = await this.userRepository.findAll(query);
     return response;
   }
   async findAllPublic(query: CollectionQuery) {
     query.where.push();
-    //  query.orderBy.push({
-    //    column: 'updatedAt',
-    //    direction: 'DESC',
-    //    nulls: 'NULLS LAST',
-    //  });
     const response = await this.userRepository.findAllPublic(query);
     return response;
   }

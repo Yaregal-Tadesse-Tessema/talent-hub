@@ -7,6 +7,8 @@ import { UserType } from '../../constants';
 import { Util } from 'src/libs/Common/util';
 
 export class CreateLookupCommand {
+  @ApiProperty()
+  userId?: string;
   id?: string;
   @ApiProperty()
   firstName?: string;
@@ -41,6 +43,7 @@ export class CreateLookupCommand {
   static fromCommand(command: CreateLookupCommand): LookupEntity {
     const lookUp = new LookupEntity();
     lookUp.id = command?.id;
+    lookUp.userId = command?.userId;
     lookUp.fullName = `${command?.firstName} ${command?.middleName} ${command?.lastName}`;
     lookUp.firstName = command.firstName;
     lookUp.middleName = command.middleName;

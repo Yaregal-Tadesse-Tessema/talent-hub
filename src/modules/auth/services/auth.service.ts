@@ -80,23 +80,6 @@ export class AuthService {
       organization: account,
     };
   }
-  // async login({ username, password }: LoginDto) {
-  //   const user = await this.accountRepository.findOne({
-  //     where: { email: username },
-  //   });
-  //   if (!user)
-  //     throw new UnauthorizedException(`invalid user name : ${username}`);
-  //   if (password !== user.password)
-  //     throw new UnauthorizedException(`Incorrect Password`);
-  //   const token = await this.generateTokenForEmployee(user);
-  //   await this.sessionRepository.save({
-  //     accountId: user.id,
-  //     token: token.accessToken,
-  //     refreshToken: token.refreshToken,
-  //   });
-  //   return token;
-  // }
-
   async regenerateToken(decodedToken: any, command: SwitchOrganizationCommand) {
     const lookUpData = await this.lookupRepository.findOne({
       where: {
@@ -396,7 +379,8 @@ export class AuthService {
       ],
       relations: { lookup: true }
     });
-    if (!user)
+
+    if (!user||!user.lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (
       !(await Util.comparePassword(loginCommand.password.trim(), user.lookup.password))

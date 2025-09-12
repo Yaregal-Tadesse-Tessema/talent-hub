@@ -94,7 +94,7 @@ import { IndustryEntity } from './modules/job-posting/job/persistencies/industry
     ApplicationModule,
     NotificationModule,
     TenantModule,
-    GeminiModule,
+    // GeminiModule,
     SmsModule,
     AdministratorModule,
     IntelligenceModule,
