@@ -386,7 +386,7 @@ export class UserService {
         status: UserStatusEnums.PENDING,
       });
     }
-    const password = Util.hashPassword(command.password??'C0mplex!');
+    const password = Util.hashPassword(itemData.password??'C0mplex!');
     const item: UserEntity = await this.userRepository.create(itemData);
     const lookupCommand: CreateLookupCommand = CreateLookupCommand.fromCommand({
       email: item.email,

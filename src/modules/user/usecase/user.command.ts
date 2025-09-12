@@ -40,6 +40,9 @@ export class CreateUserCommand {
   @ApiProperty()
   phone: string;
   @ApiProperty()
+  @IsNotEmpty()
+  password: string;
+  @ApiProperty()
   email?: string;
   @ApiProperty()
   firstName: string;
