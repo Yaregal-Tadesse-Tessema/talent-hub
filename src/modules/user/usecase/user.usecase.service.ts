@@ -379,16 +379,15 @@ export class UserService {
         token,
         userAlreadyCreated.id,
       );
-      // redirect to an error page
       throw new ConflictException({
         message:
           'Activation Link is Sent please check your inbox if you can not found check your spam folder',
         status: UserStatusEnums.PENDING,
       });
     }
-    const password = Util.hashPassword(itemData.password??'C0mplex!');
+    const password = Util.hashPassword(itemData.password);
     const item: UserEntity = await this.userRepository.create(itemData);
-    const lookupCommand: CreateLookupCommand = CreateLookupCommand.fromCommand({
+    const lookupCommand: CreateLookupCommand = {
       email: item.email,
       phoneNumber: item.phone,
       password: password,
@@ -398,7 +397,7 @@ export class UserService {
       lastName: item.lastName,
       userType: UserType.EMPLOYEE,
       userId: item.id,
-    });
+    };
     const lookup = await this.lookupRepository.create(lookupCommand);
     const uerInfo: UserInfo = {
       id: item.id,
