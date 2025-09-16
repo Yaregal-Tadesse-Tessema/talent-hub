@@ -6,8 +6,8 @@ import { UnsaveJobPostCommand } from '../usecase/saved-jobs.command';
 import { SavedJobsService } from '../usecase/saved-jobs.usecase.service';
 import { decodeCollectionQuery } from 'src/libs/Common/collection-query/query-converter';
 
-@Controller('save-jobs')
-@ApiTags('save-jobs')
+@Controller('saved-jobs')
+@ApiTags('saved-jobs')
 @ApiExtraModels(DataResponseFormat)
 export class SaveJobController {
   constructor(private readonly savedJobsService: SavedJobsService) {}

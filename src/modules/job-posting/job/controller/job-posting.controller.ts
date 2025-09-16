@@ -21,6 +21,7 @@ import { JobPostingService } from '../usecase/job-posting.usecase.service';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { SalaryRangeEnum } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { UserInfo } from 'src/libs/Common/user-information';
 
 @Controller('jobs')
 @ApiTags('jobs')
@@ -87,14 +88,30 @@ export class JobPostingController {
     description: 'includes. Optional',
     required: false,
   })
-  @ApiOkResponse({ type: JobPostingResponse })
   @AllowAnonymous()
+  @ApiOkResponse({ type: JobPostingResponse })
   async getOne(
     @Param('id') id: string,
     @Query('i') i?: string,
   ): Promise<JobPostingResponse> {
     const relations = i ? i.split(',') : [];
     return await this.jobPostingService.getOne(id, relations);
+  }
+  @Get('get-one-by-id/:id')
+  @ApiQuery({
+    name: 'i',
+    type: String,
+    description: 'includes. Optional',
+    required: false,
+  })
+  @ApiOkResponse({ type: JobPostingResponse })
+  async getOnePrivate(
+    @Param('id') id: string,
+    @userInfo() userInfo: UserInfo,
+    @Query('i') i?: string,
+  ): Promise<JobPostingResponse> {
+    const relations = i ? i.split(',') : [];
+    return await this.jobPostingService.getOne(id, relations,false,userInfo.id,);
   }
   @Get('get-active-job-post/count')
   @AllowAnonymous()

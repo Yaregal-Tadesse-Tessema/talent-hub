@@ -17,6 +17,7 @@ import {
   AccountPasswordReset,
   CreateUserCommand,
   CvTemplateEnums,
+  SendPasswordResetLinkCommand,
   UpdateUserCommand,
   UserAlertConfiguration,
 } from './user.command';
@@ -46,6 +47,8 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { LookupRepository } from 'src/modules/tenant/persistencies/lookup.repository';
 import { UserType } from 'src/modules/tenant/constants';
 import { CreatePasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.command';
+import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
+import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 @Injectable()
 export class UserService {
   constructor(
@@ -56,6 +59,7 @@ export class UserService {
     @Inject(forwardRef(() => ApplicationRepository))
     private readonly applicationRepository: ApplicationRepository,
     private readonly emailService: EmailService,
+    private readonly afroMessageService: AfroMessageService,
     private readonly jwtService: JwtService,
     @Inject(forwardRef(() => SessionCommand))
     private readonly sessionCommand: SessionCommand,
@@ -550,34 +554,30 @@ export class UserService {
     return response;
   }
 
-  async sendPasswordResetEmail(userName: string, link = 'http://138.197.105.31:3000/reset-password'): Promise<boolean> {
-    const resetLink = `${link}`;
-    const lookup = await this.lookupRepository.getOneByCriteria(
-      [{
-        email: userName,
-      }, {
-        phoneNumber: userName,
-      }], ['user']
-    );
-    if (!lookup)
-      throw new NotFoundException(`User with email ${userName} doesn't exist`);
-    const alreadySent = await this.passwordResetQuery.getPasswordResetByEmail(userName);
-    if (alreadySent) {
-      const isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
-        secret:
-          '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
-      });
+  async sendPasswordResetEmail(command: SendPasswordResetLinkCommand): Promise<{
+    message: string,
+    data: any,
+  }> {
+    const resetLink = `${process.env.PASSWORD_RESET_LINK}`;
+    let lookup: LookupEntity = null
+    if (command.email) {
+      lookup = await this.lookupRepository.getOneByCriteria(
+        {
+          email: command.email,
+        }, ['user']
+      );
 
-      if (isTokenValid) {
-        throw new ConflictException(`Password reset link already sent to ${userName} do not forget to check your spam folder`);
-      } else {
-        await this.passwordResetCommand.deletePasswordResetByEmail(userName);
-      }
+    } else if (command.phoneNumber) {
+      lookup = await this.lookupRepository.getOneByCriteria(
+        {
+          phoneNumber: command.phoneNumber,
+        }, ['user']
+      );
     }
-    let payload: UserInfo = null
-    let firstName = '';
-    let middleName = '';
-    let lastName = '';
+
+    if (!lookup)
+      throw new NotFoundException(`User with email ${command.email} or phone number ${command.phoneNumber} doesn't exist`);
+    const userName = command.email ? command.email : command.phoneNumber;
     const createPasswordResetCommand: CreatePasswordResetCommand = {
       email: userName,
       token: null,
@@ -585,111 +585,171 @@ export class UserService {
       userId: null,
       employeerId: null
     }
-    if (lookup.userType == UserType.EMPLOYEE) {
-      const user = lookup.user;
-      firstName = user.firstName;
-      middleName = user.middleName;
-      lastName = user.lastName;
-      createPasswordResetCommand.userId = user.id;
-      payload = {
-        id: user.id,
-        email: user?.email,
-        firstName: user?.firstName,
-        middleName: user?.middleName,
-        lastName: user?.lastName,
-        phoneNumber: user?.phone,
-        profileImage: user?.profile,
-        address: user?.address,
-        skills: user?.technicalSkills,
-        industry: user?.industry,
-        userType: UserType.EMPLOYEE
-      };
+    if (command.email) {
+      const alreadySent = await this.passwordResetQuery.getPasswordResetByEmailOrPhone(userName);
+      if (alreadySent) {
+        const isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
+          secret:
+            '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
+        });
+        if (isTokenValid) {
+          throw new BadRequestException('Password reset link is already sent please check your inbox or spam folder');
+        } else {
+          const userName = command.email ? command.email : command.phoneNumber;
+          await this.passwordResetCommand.deletePasswordResetByEmailOrPhone(userName);
+        }
+      }
+      let payload: UserInfo = null
+      let firstName = '';
+      let middleName = '';
+      let lastName = '';
+
+      if (lookup.userType == UserType.EMPLOYEE) {
+        const user = lookup.user;
+        firstName = user.firstName;
+        middleName = user.middleName;
+        lastName = user.lastName;
+        createPasswordResetCommand.userId = user.id;
+        payload = {
+          id: user.id,
+          email: user?.email,
+          firstName: user?.firstName,
+          middleName: user?.middleName,
+          lastName: user?.lastName,
+          phoneNumber: user?.phone,
+          profileImage: user?.profile,
+          address: user?.address,
+          skills: user?.technicalSkills,
+          industry: user?.industry,
+          userType: UserType.EMPLOYEE
+        };
+      } else {
+        createPasswordResetCommand.employeerId = lookup.id;
+        firstName = lookup.firstName;
+        middleName = lookup.middleName;
+        lastName = lookup.lastName;
+        payload = {
+          id: lookup.id,
+          email: lookup?.email,
+          firstName: lookup?.firstName,
+          middleName: lookup?.middleName,
+          lastName: lookup?.lastName,
+          phoneNumber: lookup?.phoneNumber,
+          profileImage: lookup?.profileImage,
+          address: lookup?.address,
+          userType: UserType.EMPLOYER
+        };
+      }
+      const token = Util.GenerateToken(payload, '1d');
+      const resetLinkWithToken = `${command.link}?token=${token}`;
+      const html = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                  <h2>Hello ${firstName} ${middleName} ${lastName},</h2>
+                  <p>
+                    We received a request to reset your password. You can set a new password by clicking the button below:
+                  </p>
+                  <a 
+                    href="${resetLinkWithToken}"
+                    style="
+                      display: inline-block;
+                      padding: 12px 24px;
+                      margin: 20px 0;
+                      font-size: 16px;
+                      color: white;
+                      background-color: #28a745;
+                      text-decoration: none;
+                      border-radius: 6px;
+                    "
+                    target="_blank"
+                  >
+                    Reset My Password
+                  </a>
+                  <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
+                  <p><a href="${resetLink}">${resetLink}</a></p>
+                  <p>This link will expire in 24 hours for your security. If you did not request a password reset, please ignore this email.</p>
+                  <p>Stay safe!<br/>— The YourCompany Team</p>
+         </div>
+      `;
+      const response = this.emailService.sendGridEmail(
+        userName,
+        `Regarding you'r password reset`,
+        html,
+      );
+      if (response) {
+        createPasswordResetCommand.token = token;
+        createPasswordResetCommand.status = 'Started';
+        createPasswordResetCommand.email = userName;
+        createPasswordResetCommand.userId = lookup?.userId;
+        const result = await this.passwordResetCommand.createPasswordReset(createPasswordResetCommand);
+        return {
+          message: 'Email sent successfully',
+          data: result,
+        }
+      } else {
+        throw new BadRequestException('Failed to send email');
+      }
+    } else if (command.phoneNumber) {
+      const response = await this.afroMessageService.sendOtp(command.phoneNumber, null);
+      if (response) {
+        createPasswordResetCommand.employeerId=lookup.userType==UserType.EMPLOYER?lookup.id:null
+        createPasswordResetCommand.userId=lookup.userType==UserType.EMPLOYEE?lookup?.userId:null
+        createPasswordResetCommand.userId=lookup?.userId
+        const result = await this.passwordResetCommand.createPasswordReset(createPasswordResetCommand);
+        return {
+          message: 'Otp sent successfully',
+          data: result,
+        }
+      } else {
+        throw new BadRequestException('Failed to send otp');
+      }
     } else {
-      createPasswordResetCommand.employeerId = lookup.id;
-      firstName = lookup.firstName;
-      middleName = lookup.middleName;
-      lastName = lookup.lastName;
-      payload = {
-        id: lookup.id,
-        email: lookup?.email,
-        firstName: lookup?.firstName,
-        middleName: lookup?.middleName,
-        lastName: lookup?.lastName,
-        phoneNumber: lookup?.phoneNumber,
-        profileImage: lookup?.profileImage,
-        address: lookup?.address,
-        userType: UserType.EMPLOYER
-      };
+      throw new BadRequestException('Either email or phone number is required');
     }
-    const token = Util.GenerateToken(payload, '1h');
-    const resetLinkWithToken = `${link}?token=${token}`;
 
-    const html = `
-   <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-  <h2>Hello ${firstName} ${middleName} ${lastName},</h2>
-  <p>We received a request to reset your password. You can set a new password by clicking the button below:</p>
-  <a href="${resetLinkWithToken}"
-     style="
-       display: inline-block;
-       padding: 12px 24px;
-       margin: 20px 0;
-       font-size: 16px;
-       color: white;
-       background-color: #28a745;
-       text-decoration: none;
-       border-radius: 6px;
-     "
-     target="_blank">
-    Reset My Password
-  </a>
-  <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
-  <p><a href="${resetLink}">${resetLink}</a></p>
-  <p>This link will expire in 24 hours for your security. If you did not request a password reset, please ignore this email.</p>
-  <p>Stay safe!<br/>— The YourCompany Team</p>
-</div>
-
-     `;
-    this.emailService.sendGridEmail(
-      email,
-      `Regarding you'r password reset`,
-      html,
-    );
-    await this.passwordResetCommand.createPasswordReset(createPasswordResetCommand);
-    return true;
   }
-  async resetUserPasswordByEmail(
+  async resetUserPasswordByEmailOrPhone(
     command: AccountPasswordReset,
   ): Promise<any> {
-    const lookup = await this.lookupRepository.getOneByCriteria(
-      [
-        {
-          email: command.email,
-        },
-        {
-          phoneNumber: command.email,
-        }
-      ], ['user']
-    );
+    let lookup: LookupEntity = null
+    if (command.email) {
+      lookup = await this.lookupRepository.getOneByCriteria({
+        email: command.email,
+      }, ['user']
+      );
+    } else if (command.phoneNumber) {
+      lookup = await this.lookupRepository.getOneByCriteria({
+        phoneNumber: command.phoneNumber,
+      }, ['user']
+      );
+    } else {
+      throw new BadRequestException('Either email or phone number is required');
+    }
     if (!lookup)
       throw new NotFoundException(
-        `User with email ${command.email} doesn't exist`,
+        `User with email ${command.email} or phone number ${command.phoneNumber} doesn't exist`,
       );
-    const resetPasswordData = await this.passwordResetQuery.getPasswordResetByEmail(command.email);
+    const resetPasswordData = await this.passwordResetQuery.getPasswordResetByEmailOrPhone(command.email ?? command.phoneNumber);
     if (!resetPasswordData) {
       throw new NotFoundException(`Password reset link is invalid`);
     }
-    const isTokenExpired = this.jwtService.verify(resetPasswordData?.token);
-    if (isTokenExpired) {
-      await this.passwordResetCommand.deletePasswordResetByEmail(command.email);
-      await this.sendPasswordResetEmail(command.email);
-      throw new ConflictException(`A new password reset link has been sent to your email please check your inbox or spam folder the link will expire in 24 hours`);
+    const isTOkenVerified = this.jwtService.verify(resetPasswordData?.token, {
+      secret: process.env.JWT_SECRET,
+    });
+    if (!isTOkenVerified) {
+      await this.passwordResetCommand.deletePasswordResetByEmailOrPhone(command.email);
+      return await this.sendPasswordResetEmail({
+        email: command.email,
+        link: `${process.env.PASSWORD_RESET_LINK}`,
+        phoneNumber: command.phoneNumber,
+      });
+      // throw new ConflictException(`A new password reset link has been sent to your email please check your inbox or spam folder the link will expire in 24 hours`);
     }
     if (command.newPassword !== command.confirmNewPassword) {
       throw new ConflictException(
         `The password and confirm password doesn't match`,
       );
     }
-    const user = lookup.user;
+    const user = lookup?.user;
     const salt = process.env.BCRYPT_SALT;
     const encryptedPassword = await bcrypt.hash(command.newPassword, salt);
     user.password = encryptedPassword;
@@ -705,9 +765,12 @@ export class UserService {
       address: user?.address,
       skills: user?.technicalSkills,
       industry: user?.industry,
+      userType: user?UserType.EMPLOYEE:UserType.EMPLOYER
     };
     lookup.password = encryptedPassword;
     await this.lookupRepository.create(lookup);
+    resetPasswordData.status = 'Completed';
+    await this.passwordResetCommand.updatePasswordReset(resetPasswordData)
     const accessToken = Util.GenerateToken(payload, '60m'); //60m
     const refreshToken = Util.GenerateRefreshToken(payload);
     await this.sessionCommand.createSession(

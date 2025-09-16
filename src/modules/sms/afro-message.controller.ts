@@ -3,9 +3,11 @@ import { Body, Controller, Post } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { AfroMessageService } from "./afro-message.service";
 import { SendMessageDto, VerifyOtpDto } from "./dto";
+import { AllowAnonymous } from "../auth/allow-anonymous.decorator";
 
 @Controller('afro-messages')
 @ApiTags('afro-messages')
+@AllowAnonymous()
 export class AfroMEssageController {
   constructor(private readonly afroMessageService: AfroMessageService) {}
   @Post('send-message')

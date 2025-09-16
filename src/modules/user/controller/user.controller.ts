@@ -211,19 +211,19 @@ export class UserController {
   @Post('send-password-reset-email')
   async sendPasswordResetEmail(
     @Body() command: SendPasswordResetLinkCommand,
-  ): Promise<boolean> {
+  ): Promise<{
+    message: string,
+    data: any,
+  }> {
     
-    return await this.userService.sendPasswordResetEmail(
-      command.email,
-      command.link,
-    );
+    return await this.userService.sendPasswordResetEmail(command);
   }
   @AllowAnonymous()
-  @Post('reset-user-password-by-email')
+  @Post('reset-user-password')
   async ResetUserPasswordByEmail(
     @Body() command: AccountPasswordReset,
   ): Promise<UserResponse> {
-    return await this.userService.resetUserPasswordByEmail(command);
+    return await this.userService.resetUserPasswordByEmailOrPhone(command);
   }
   @Put('configure-user-sms-alert')
   async configureUserSmsAlert(

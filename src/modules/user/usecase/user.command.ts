@@ -195,7 +195,9 @@ export class AccountPasswordChange {
 export class AccountPasswordReset {
   @ApiProperty()
   @IsNotEmpty()
-  email: string;
+  email?: string;
+  @ApiProperty()
+  phoneNumber?: string;
   @ApiProperty()
   @IsNotEmpty()
   token: string;
@@ -212,6 +214,8 @@ export class SendPasswordResetLinkCommand {
   email: string;
   @ApiProperty()
   link: string;
+  @ApiProperty()
+  phoneNumber: string;
 }
 export enum EmployeeStatus {
   ACTIVE = 'Active',

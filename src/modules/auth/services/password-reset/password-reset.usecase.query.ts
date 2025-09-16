@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PasswordResetResponse } from './password-reset.response';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,14 +43,17 @@ export class PasswordResetQuery {
         };
         return d;
     }
-    async getPasswordResetByEmail(userName: string): Promise<PasswordResetResponse> {
+    async getPasswordResetByEmailOrPhone(userName: string): Promise<PasswordResetResponse> {
+        if (!userName) throw new BadRequestException('Either email or phone number is required');
         const passwordReset = await this.passwordResetRepository.findOne({
-            where:[
+            where: [
                 {
                     email: userName,
+                    status: 'Started'
                 },
                 {
                     phoneNumber: userName,
+                    status: 'Started'
                 }
             ]
         });

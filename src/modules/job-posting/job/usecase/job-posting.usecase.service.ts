@@ -231,14 +231,14 @@ export class JobPostingService {
           value !== 'undefined'
         )
       );
-      const users: { phoneNumber: string,email:string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
+      const users: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
       // to be replaced by the job link
       const link = process.env.LOGIN_PAGE ?? 'http://138.197.105.31:3000/login'
       await this.notifayUsers(users, link)
     }
     return JobPostingResponse.toResponse(response);
   }
-  async notifayUsers(payload: { phoneNumber: string,email:string, fullName: string }[], link: string) {
+  async notifayUsers(payload: { phoneNumber: string, email: string, fullName: string }[], link: string) {
     const response: any[] = []
 
     // Check if payload is valid array with users
@@ -253,7 +253,7 @@ export class JobPostingService {
     }
     return response
   }
-  
+
   async notifyUsersOnTelegramBootForNewJobPost(
     response: JobPostingEntity
   ) {
@@ -375,38 +375,46 @@ export class JobPostingService {
 
   async getOne(
     id: any,
-    userId: any,
     relations = [],
     withDeleted = false,
+    userId?: any,
   ): Promise<JobPostingResponse> {
-    relations.push('savedUsers');
-    relations.push('applications');
-    relations.push('favoriteJobs');
-    
+    if(userId){
+      relations.push('savedUsers');
+      relations.push('applications');
+      relations.push('favoriteJobs');
+    }
     const result = await this.jobPostingRepository.findOne(
       id,
       relations,
       withDeleted,
     );
     if (!result) return null;
-    const Saved = result?.savedUsers?.find(
-      (item) => item.userId == userId && item.jobPostId == result.id,
-    );
+
     let isApplied = false;
     let isFavorite = false;
-    if (result.applications?.length > 0) {
-      const userExists = result.applications.some(
-        (application) => application.userId === userId,
-      );
-      isApplied = userExists ? true : false;
+    let isSaved = false;
+
+    if (userId) {
+      if (result.savedUsers?.length > 0) {
+        const userExists = result.savedUsers.some(
+          (savedUser) => savedUser.userId === userId,
+        );
+        isSaved = userExists ? true : false;
+      }
+      if (result.applications?.length > 0) {
+        const userExists = result.applications.some(
+          (application) => application.userId === userId,
+        );
+        isApplied = userExists ? true : false;
+      }
+      if (result.favoriteJobs?.length > 0) {
+        const userExists = result.favoriteJobs.some(
+          (user) => user.userId === userId,
+        );
+        isFavorite = userExists ? true : false;
+      }
     }
-    if (result.favoriteJobs?.length > 0) {
-      const userExists = result.favoriteJobs.some(
-        (user) => user.userId === userId,
-      );
-      isFavorite = userExists ? true : false;
-    }
-    const isSaved = Saved ? true : false;
     const response = JobPostingResponse.toResponse(result);
     response.isSaved = isSaved;
     response.isApplied = isApplied;
