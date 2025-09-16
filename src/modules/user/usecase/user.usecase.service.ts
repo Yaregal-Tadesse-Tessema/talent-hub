@@ -352,7 +352,7 @@ export class UserService {
       });
     });
   }
-  async create(itemData: CreateUserCommand): Promise<any> {
+  async create(itemData: CreateUserCommand, @Res() res: Response): Promise<any> {
     const command: any = {
       phone: itemData.phone,
       email: itemData.email,
@@ -361,10 +361,16 @@ export class UserService {
       command,
       [],
     );
+    const userAlreadyCreatedByGoogle = await this.lookupRepository.getOneByEmailORPhone(
+      command,
+      [],
+    );
     if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE) {
-      throw new HttpException('User already created', HttpStatusCode.AlreadyReported);
+      return res.redirect('http://138.197.105.31:3000/login?status=alreadyExists');
     }
-
+    if (userAlreadyCreatedByGoogle) {
+      return res.redirect('http://138.197.105.31:3000/login?status=alreadyExists');
+    }
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
       const uerInfo: UserInfo = {
         id: userAlreadyCreated.id,
@@ -386,7 +392,7 @@ export class UserService {
         status: UserStatusEnums.PENDING,
       });
     }
-    const password = Util.hashPassword(itemData.password);
+    const password = Util.hashPassword(itemData.password ?? 'C0mplex');
     const item: UserEntity = await this.userRepository.create(itemData);
     const lookupCommand: CreateLookupCommand = {
       email: item.email,

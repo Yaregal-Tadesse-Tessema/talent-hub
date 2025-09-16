@@ -39,7 +39,7 @@ export class AfroMessageService {
         .pipe(
           catchError((error: AxiosError) => {
             this.logger.error(error.response.data);
-            throw 'An error happened!';
+            throw 'An error happened!'+error;
           }),
         ),
     );

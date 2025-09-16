@@ -6,7 +6,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { AllowAnonymous } from '../allow-anonymous.decorator';
 
 @Controller('google-auth')
-@ApiTags('Google-Auth')
+@ApiTags('google-Auth')
 @AllowAnonymous()
 export class GoogleAuthController {
   constructor(private readonly googleAuthService: GoogleAuthService) {}
@@ -23,7 +23,7 @@ export class GoogleAuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res) {
     // req.user is set by GoogleStrategy.validate
-    await this.googleAuthService.googUserSignUp(req.user);
+    await this.googleAuthService.googUserSignUp(req.user, res);
     return res.redirect(
       'http://138.197.105.31:3000/login?status=alreadyActivated',
     );

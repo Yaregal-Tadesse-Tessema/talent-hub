@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 import { FileDto } from 'src/modules/file/dtos/command/fileUploadDto';
 import { TenantService } from 'src/modules/tenant/usecases/tenant/tenant.usecase.command';
 import { CreateUserCommand } from 'src/modules/user/usecase/user.command';
@@ -11,9 +12,8 @@ export class GoogleAuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
-    private readonly tenantService: TenantService,
   ) {}
-  async googUserSignUp(user: any) {
+  async googUserSignUp(user: any, res: Response) {
     if (!user) {
       return 'No user from Google';
     }
@@ -27,9 +27,9 @@ export class GoogleAuthService {
     };
     command.isFirstTime = true;
     // command.password = 'C0mplex';
-    const res = await this.userService.create(command);
+    const result = await this.userService.create(command, res);
     // redirect to login page
-    return res;
+   res.redirect('http://138.197.105.31:3000/login?status=alreadyExists');
     // const token = await this.jwtService.sign(payload);
     // return {
     //   message: 'User info from Google',
