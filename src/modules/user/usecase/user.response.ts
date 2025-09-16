@@ -81,6 +81,8 @@ export class UserResponse {
   @ApiProperty()
   lastLoginDate: Date;
   @ApiProperty()
+  isHired: boolean;
+  @ApiProperty()
   isPayingUser: boolean;
   @ApiProperty()
   reciveNotification: boolean;
@@ -127,6 +129,7 @@ export class UserResponse {
     response.isFirstTime = entity.isFirstTime;
     response.isPayingUser = entity.isPayingUser;
     response.lastLoginDate = entity.lastLoginDate;
+    response.isHired = entity.isHired;
     response.reciveNotification = entity.reciveNotification;
     return response;
   }

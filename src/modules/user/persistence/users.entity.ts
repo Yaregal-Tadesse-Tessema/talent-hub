@@ -89,6 +89,8 @@ export class UserEntity extends CommonEntity {
   isFirstTime: boolean;
   @Column({ default: false })
   isPayingUser: boolean;
+  @Column({ default: false })
+  isHired: boolean;
   @Column({type:'date', default: () => 'CURRENT_TIMESTAMP' })
   lastLoginDate: Date;
   @Column({default: true })

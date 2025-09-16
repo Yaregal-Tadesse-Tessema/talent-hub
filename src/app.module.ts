@@ -39,9 +39,12 @@ import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { IntelligenceModule } from './modules/intelligence/intelligence.module';
+import { PaymentModule } from './modules/payment/payment.module';
 import { PasswordResetEntity } from './modules/auth/persistances/password-reset/password-reset.entity';
 import { PositionEntity } from './modules/job-posting/job/persistencies/position.entity';
 import { IndustryEntity } from './modules/job-posting/job/persistencies/industry.entity';
+import { PaymentEntity } from './modules/payment/entities/payment.entity';
+import { PaymentSubscriptionEntity } from './modules/payment/entities/payment-subscription.entity';
 
 @Module({
   imports: [
@@ -79,6 +82,8 @@ import { IndustryEntity } from './modules/job-posting/job/persistencies/industry
         PasswordResetEntity,
         PositionEntity,
         IndustryEntity,
+        PaymentEntity,
+        PaymentSubscriptionEntity,
       ],
       synchronize: true,
     }),
@@ -98,6 +103,7 @@ import { IndustryEntity } from './modules/job-posting/job/persistencies/industry
     SmsModule,
     AdministratorModule,
     IntelligenceModule,
+    PaymentModule,
   ],
   controllers: [],
   providers: [

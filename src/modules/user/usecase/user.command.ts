@@ -114,6 +114,8 @@ export class CreateUserCommand {
   @ApiProperty()
   lastLoginDate?: Date;
   @ApiProperty()
+  isHired?: boolean;
+  @ApiProperty()
   reciveNotification?: boolean;
   static fromDto(dto: CreateUserCommand): UserEntity {
     const entity = new UserEntity();
@@ -157,6 +159,8 @@ export class CreateUserCommand {
     entity.isFirstTime = dto?.isFirstTime;
     entity.isPayingUser = dto?.isPayingUser;
     entity.lastLoginDate = dto?.lastLoginDate;
+    entity.isHired = dto?.isHired;
+
     entity.reciveNotification = dto?.reciveNotification;
     return entity;
   }

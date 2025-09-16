@@ -30,6 +30,15 @@ export class CreatePasswordResetCommand {
   @ApiProperty()
   status?: string;
 
+  @IsOptional()
+  @IsString()
+  @ApiProperty()
+  phoneNumber?: string;
+
+  @IsOptional()
+  @ApiProperty()
+  date?: Date;
+
   static fromCommand(command: CreatePasswordResetCommand): PasswordResetEntity {
     const entity = new PasswordResetEntity();
     if (command.id) entity.id = command.id;
@@ -38,6 +47,8 @@ export class CreatePasswordResetCommand {
     if (command.employeerId) entity.employeerId = command.employeerId;
     if (command.email) entity.email = command.email;
     if (command.status) entity.status = command.status;
+    if (command.phoneNumber) entity.phoneNumber = command.phoneNumber;
+    if (command.date) entity.date = command.date;
     return entity;
   }
 }

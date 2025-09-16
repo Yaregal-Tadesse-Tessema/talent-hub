@@ -43,11 +43,16 @@ export class PasswordResetQuery {
         };
         return d;
     }
-    async getPasswordResetByEmail(email: string): Promise<PasswordResetResponse> {
+    async getPasswordResetByEmail(userName: string): Promise<PasswordResetResponse> {
         const passwordReset = await this.passwordResetRepository.findOne({
-            where: {
-                email: email,
-            }
+            where:[
+                {
+                    email: userName,
+                },
+                {
+                    phoneNumber: userName,
+                }
+            ]
         });
         if (!passwordReset) {
             return null;

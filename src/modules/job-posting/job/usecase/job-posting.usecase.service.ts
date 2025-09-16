@@ -380,6 +380,9 @@ export class JobPostingService {
     withDeleted = false,
   ): Promise<JobPostingResponse> {
     relations.push('savedUsers');
+    relations.push('applications');
+    relations.push('favoriteJobs');
+    
     const result = await this.jobPostingRepository.findOne(
       id,
       relations,
@@ -389,9 +392,25 @@ export class JobPostingService {
     const Saved = result?.savedUsers?.find(
       (item) => item.userId == userId && item.jobPostId == result.id,
     );
+    let isApplied = false;
+    let isFavorite = false;
+    if (result.applications?.length > 0) {
+      const userExists = result.applications.some(
+        (application) => application.userId === userId,
+      );
+      isApplied = userExists ? true : false;
+    }
+    if (result.favoriteJobs?.length > 0) {
+      const userExists = result.favoriteJobs.some(
+        (user) => user.userId === userId,
+      );
+      isFavorite = userExists ? true : false;
+    }
     const isSaved = Saved ? true : false;
     const response = JobPostingResponse.toResponse(result);
     response.isSaved = isSaved;
+    response.isApplied = isApplied;
+    response.isFavorite = isFavorite;
     return response;
   }
   async getOneById(

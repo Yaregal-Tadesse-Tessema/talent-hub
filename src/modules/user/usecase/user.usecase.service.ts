@@ -451,7 +451,7 @@ export class UserService {
     return await this.userRepository.findOne(id, relations, withDeleted);
   }
   async update(itemData: any): Promise<UserResponse> {
-    if (!itemData.id) throw new BadRequestException(`Id id mandatory`);
+    if (!itemData.id) throw new BadRequestException(`Id is mandatory`);
     await this.findOneOrFail(itemData.id);
     await this.userRepository.update(itemData.id, itemData);
     const res = await this.findOne(itemData.id);
@@ -507,7 +507,7 @@ export class UserService {
   ): Promise<UserResponse> {
     const item = await this.findOne(id, relations, withDeleted);
     if (!item) {
-      throw new NotFoundException(`not_found`);
+      throw new NotFoundException(`Not found`);
     }
     return item;
   }
@@ -550,18 +550,18 @@ export class UserService {
     return response;
   }
 
-  async sendPasswordResetEmail(email: string, link = 'http://138.197.105.31:3000/reset-password'): Promise<boolean> {
+  async sendPasswordResetEmail(userName: string, link = 'http://138.197.105.31:3000/reset-password'): Promise<boolean> {
     const resetLink = `${link}`;
     const lookup = await this.lookupRepository.getOneByCriteria(
       [{
-        email: email,
+        email: userName,
       }, {
-        phoneNumber: email,
+        phoneNumber: userName,
       }], ['user']
     );
     if (!lookup)
-      throw new NotFoundException(`User with email ${email} doesn't exist`);
-    const alreadySent = await this.passwordResetQuery.getPasswordResetByEmail(email);
+      throw new NotFoundException(`User with email ${userName} doesn't exist`);
+    const alreadySent = await this.passwordResetQuery.getPasswordResetByEmail(userName);
     if (alreadySent) {
       const isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
         secret:
@@ -569,9 +569,9 @@ export class UserService {
       });
 
       if (isTokenValid) {
-        throw new ConflictException(`Password reset link already sent to ${email} do not forget to check your spam folder`);
+        throw new ConflictException(`Password reset link already sent to ${userName} do not forget to check your spam folder`);
       } else {
-        await this.passwordResetCommand.deletePasswordResetByEmail(email);
+        await this.passwordResetCommand.deletePasswordResetByEmail(userName);
       }
     }
     let payload: UserInfo = null
@@ -579,7 +579,7 @@ export class UserService {
     let middleName = '';
     let lastName = '';
     const createPasswordResetCommand: CreatePasswordResetCommand = {
-      email: email,
+      email: userName,
       token: null,
       status: 'Started',
       userId: null,

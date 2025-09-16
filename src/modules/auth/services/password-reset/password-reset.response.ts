@@ -17,6 +17,12 @@ export class PasswordResetResponse {
   @ApiProperty()
   status: string;
 
+  @ApiProperty()
+  phoneNumber: string;
+
+  @ApiProperty()
+  date: Date;
+
   static toResponse(entity: PasswordResetEntity): PasswordResetResponse {
     const response = new PasswordResetResponse();
     response.id = entity.id;
@@ -24,6 +30,8 @@ export class PasswordResetResponse {
     response.userId = entity.userId;
     response.email = entity.email;
     response.status = entity.status;
+    response.phoneNumber = entity.phoneNumber;
+    response.date = entity.date;
     return response;
   }
 }

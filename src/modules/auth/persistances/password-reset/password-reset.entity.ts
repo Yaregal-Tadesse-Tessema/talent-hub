@@ -13,8 +13,12 @@ export class PasswordResetEntity extends CommonEntity {
   userId: string;
   @Column({ nullable: true})
   employeerId: string;
-  @Column({ nullable: true,unique:true })
+  @Column({ nullable: true })
   email: string;
+  @Column({ nullable: true })
+  phoneNumber: string;
   @Column({ nullable: true,default:"Started" })
   status: string;
+  @Column({type:'date', default: () => 'CURRENT_TIMESTAMP' })
+  date: Date;
 }
