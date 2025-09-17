@@ -60,6 +60,7 @@ export class ApplicationEntity extends CommonEntity {
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,
+    { onDelete:'CASCADE'}
   )
   @JoinColumn({ name: 'JobPostId' })
   JobPost: JobPostingEntity;
@@ -67,6 +68,6 @@ export class ApplicationEntity extends CommonEntity {
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
-  @OneToMany(() => MessageEntity, (messageEntity) => messageEntity.application)
+  @OneToMany(() => MessageEntity, (messageEntity) => messageEntity.application, { cascade: true})
   applicationMessages: MessageEntity[];
 }

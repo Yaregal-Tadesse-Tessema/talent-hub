@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, Unique } from 'typeorm';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { UserType } from '../constants';
@@ -9,6 +9,8 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { NotificationEntity } from 'src/modules/notification/persistencies/notification.entity';
 
 @Entity({ name: 'lookup_table' })
+@Unique(['email','userType'])
+@Unique(['phoneNumber','userType'])
 export class LookupEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
   userId: string;

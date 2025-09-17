@@ -14,6 +14,7 @@ export class UserFavoriteJobEntity extends CommonEntity {
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.favoriteJobs,
+    { onDelete:'CASCADE'}
   )
   @JoinColumn({ name: 'jobPostId' })
   jobPost: JobPostingEntity;

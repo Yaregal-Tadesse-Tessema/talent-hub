@@ -28,6 +28,9 @@ import { FileService } from 'src/modules/file/services/file.service';
 import { EmployeeTenantEntity } from '../../persistencies/employee-tenant.entity';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 import { UserType } from '../../constants';
+import { UserInfo } from 'src/libs/Common/user-information';
+import { Util } from 'src/libs/Common/util';
+import { TenantEntity } from '../../persistencies/tenant.entity';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -175,7 +178,7 @@ export class TenantService {
         console.log(createCommand);
         const employeeoRganizationCommand: CreateEmployeeTenantCommand = {
           tenant_Id: tenantEntity.id,
-          lookupId: lookUpId,
+          lookupId: lookupEntity.id,
           startDate: new Date(),
           status: EmployeeStatus.ACTIVE,
           tenantName: tenantEntity.name,
@@ -188,14 +191,28 @@ export class TenantService {
           lookupId: lookUpId,
         });
         employeeoRganizationCommand.id = employeeTenantAlreadyExists?.id;
-        const employeeORganizationEntity =
-          await this.employeeTenantRepository.create(employeeoRganizationCommand);
+        const employeeORganizationEntity: EmployeeTenantEntity =await this.employeeTenantRepository.create(employeeoRganizationCommand);
+          const payload: UserInfo = {
+            id: lookupEntity.id,
+            tenantId: tenantEntity.id,
+            email: lookupEntity?.email,
+            firstName: lookupEntity?.firstName,
+            middleName: lookupEntity?.middleName,
+            lastName: lookupEntity?.lastName,
+            profileImage: lookupEntity?.profileImage,
+            address: lookupEntity?.address,
+            phoneNumber: lookupEntity?.phoneNumber,
+            roles: [],
+            tenantSchemaName: tenantEntity.name,
+          };
+          const accessToken = Util.GenerateToken(payload, '60m'); //60m
+          const refreshToken = Util.GenerateRefreshToken(payload);
+          employeeORganizationEntity.tenant = tenantEntity as TenantEntity;
         return {
-          tenantEntity,
-          lookupEntity,
-          employeeORganizationEntity,
-          message: `One time password is sent to the phone Numner ${licenseInformation.data?.AddressInfo.MobilePhone
-            }`,
+          employeeTenant: employeeORganizationEntity,
+          accessToken,
+          refreshToken,
+          message: `Tenant created successfully`,
         };
       }
     } catch (error) {

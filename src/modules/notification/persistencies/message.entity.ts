@@ -48,6 +48,7 @@ export class MessageEntity extends CommonEntity {
   @ManyToOne(
     () => ApplicationEntity,
     (messageEntity) => messageEntity.applicationMessages,
+    { onDelete: 'SET NULL' }
   )
   @JoinColumn({ name: 'applicationId' })
   application: ApplicationEntity;

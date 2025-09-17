@@ -30,6 +30,7 @@ export class PreScreeningQuestionEntity extends CommonEntity {
   @ManyToOne(
     () => JobPostingEntity,
     (institutionEntity) => institutionEntity.preScreeningQuestions,
+    { onDelete: 'CASCADE' }
   )
   @JoinColumn({ name: 'jobPostId' })
   jobPosting: JobPostingEntity;

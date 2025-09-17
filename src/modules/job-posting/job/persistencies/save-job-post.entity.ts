@@ -19,6 +19,7 @@ export class SaveJobEntity extends CommonEntity {
   @ManyToOne(
     () => JobPostingEntity,
     (institutionEntity) => institutionEntity.savedUsers,
+    { onDelete: 'CASCADE' }
   )
   @JoinColumn({ name: 'jobPostId' })
   jobPosting: JobPostingEntity;

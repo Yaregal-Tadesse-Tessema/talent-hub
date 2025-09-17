@@ -92,24 +92,30 @@ export class JobPostingEntity extends CommonEntity {
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,
+    { cascade: true }
+
   )
   applications: ApplicationEntity[];
 
   @OneToMany(
     () => SaveJobEntity,
-    (applicationEntity) => applicationEntity.jobPosting,
+    (saveJobEntity) => saveJobEntity.jobPosting,
+    { cascade: true }
   )
   savedUsers: SaveJobEntity[];
 
   @OneToMany(
     () => PreScreeningQuestionEntity,
     (applicationEntity) => applicationEntity.jobPosting,
+    { cascade: true }
   )
   preScreeningQuestions: PreScreeningQuestionEntity[];
 
   @OneToMany(
     () => UserFavoriteJobEntity,
     (userFavoriteJobEntity) => userFavoriteJobEntity.jobPost,
+    { cascade: true }
+
   )
   favoriteJobs: UserFavoriteJobEntity[];
 }
