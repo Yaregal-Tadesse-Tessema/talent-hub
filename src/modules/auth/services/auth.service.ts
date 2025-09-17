@@ -359,7 +359,7 @@ export class AuthService {
         tenantName: tenant.name,
         tenantLogo: tenant.logo,
       },
-      tenant: lookup?.employeeTenant
+      employeeTenant: lookup?.employeeTenant
     };
   }
   async portalLogin(loginCommand: UserLoginCommand) {
