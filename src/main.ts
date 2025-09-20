@@ -10,7 +10,7 @@ import { GlobalExceptionFilter } from './libs/Common/filters/error-handling';
 import { JwtAuthGuard } from './modules/auth/jwt.auth.guard';
 import { Telegraf } from 'telegraf';
 import { TelegramBotService } from './modules/telegram/usecase/telegram-bot.service';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule,{
     logger: ['error', 'warn', 'log', 'debug', 'verbose'],
@@ -19,20 +19,6 @@ async function bootstrap() {
   const reflector = app.get(Reflector);
   const botService = app.get(TelegramBotService);
   await botService.onModuleInit();
-  
-  // Configure global validation pipe
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: false, // Allow non-whitelisted properties
-    transformOptions: {
-      enableImplicitConversion: true,
-    },
-    exceptionFactory: (errors) => {
-      console.log('Validation Errors:', JSON.stringify(errors, null, 2));
-      return new BadRequestException(errors);
-    },
-  }));
   
   app.useGlobalGuards(new JwtAuthGuard(reflector));
   app.useGlobalFilters(new GlobalExceptionFilter());

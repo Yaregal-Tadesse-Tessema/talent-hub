@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
 import { Transform } from 'class-transformer';
 import {
   EmploymentTypeEnums,
@@ -16,8 +16,7 @@ export class CreateJobPostingCommand {
   @IsNotEmpty()
   title: string;
   @ApiProperty()
-  @IsOptional()
-  description?: string;
+  description: string;
   @ApiProperty()
   @IsNotEmpty()
   position: string;
@@ -25,105 +24,67 @@ export class CreateJobPostingCommand {
   @IsNotEmpty()
   industry: string;
   @ApiProperty({ enum: WorkTypeEnums })
-  @IsOptional()
   @IsEnum(WorkTypeEnums, { message: 'workMode must be a valid WorkTypeEnums value' })
   workMode?: WorkTypeEnums;
   @ApiProperty({ example: 'Addis Abeba' })
-  @IsOptional()
-  city?: string;
+  city: string;
   @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
-  @IsOptional()
-  location?: string;
+  location: string;
   @ApiProperty({ enum: EmploymentTypeEnums })
-  @IsOptional()
   @IsEnum(EmploymentTypeEnums, { message: 'employmentType must be a valid EmploymentTypeEnums value' })
   employmentType?: EmploymentTypeEnums;
   @ApiProperty()
-  @IsOptional()
-  salaryRange?: any;
+  salaryRange: any;
   @ApiProperty()
-  @IsOptional()
-  tenantId?: string;
+  tenantId: string;
   @ApiProperty()
-  @IsOptional()
-  deadline?: Date;
+  deadline: Date;
   @ApiProperty()
-  @IsOptional()
-  skill?: string[];
+  skill: string[];
   @ApiProperty()
-  @IsOptional()
-  benefits?: string[];
+  benefits: string[];
   @ApiProperty()
-  @IsOptional()
-  responsibilities?: string[];
+  responsibilities: string[];
   @ApiProperty({ enum: JobPostingStatusEnums })
-  @IsOptional()
   @IsEnum(JobPostingStatusEnums, { message: 'status must be a valid JobPostingStatusEnums value' })
   status?: JobPostingStatusEnums;
   @ApiProperty()
-  @IsOptional()
-  gender?: string;
+  gender: string;
   @ApiProperty()
-  @IsOptional()
-  minimumGPA?: number;
+  minimumGPA: number;
   @ApiProperty()
-  @IsOptional()
-  companyName?: string;
+  companyName: string;
   @ApiProperty()
-  @IsOptional()
-  companyLogo?: FileDto;
+  companyLogo: FileDto;
   @ApiProperty()
-  @IsOptional()
-  postedDate?: Date;
+  postedDate: Date;
   @ApiProperty()
-  @IsOptional()
-  applicationURL?: string;
+  applicationURL: string;
   @ApiProperty()
-  @IsOptional()
-  experienceLevel?: string;
+  experienceLevel: string;
   @ApiProperty()
-  @IsOptional()
-  fieldOfStudy?: string;
+  fieldOfStudy: string;
   @ApiProperty()
-  @IsOptional()
-  educationLevel?: string;
+  educationLevel: string;
   @ApiProperty()
-  @IsOptional()
-  howToApply?: string;
+  howToApply: string;
   @ApiProperty()
-  @IsOptional()
-  onHoldDate?: Date;
+  onHoldDate: Date;
   @ApiProperty()
-  @IsOptional()
-  jobPostRequirement?: string[];
+  jobPostRequirement: string[];
   @ApiProperty()
-  @IsOptional()
-  positionNumbers?: number;
+  positionNumbers: number;
   @ApiProperty({ enum: PaymentTypeEnums })
-  @IsOptional()
   @IsEnum(PaymentTypeEnums, { message: 'paymentType must be a valid PaymentTypeEnums value' })
   paymentType?: PaymentTypeEnums;
   @ApiProperty()
-  @IsOptional()
   isFeatured?: boolean;
   @ApiProperty()
-  @IsOptional()
   hasAiFilter?: boolean;
   @ApiProperty()
-  @IsOptional()
   hasNormalFilter?: boolean;
   @ApiProperty()
-  @IsOptional()
   requiredYearOfExperience?: number;
-  
-  @ApiProperty({ required: false })
-  @IsOptional()
-  organizationId?: string;
-  
-  @ApiProperty({ required: false })
-  @IsOptional()
-  requirementId?: string;
-  
   currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
