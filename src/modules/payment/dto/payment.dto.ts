@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, IsEmail, IsUUID, Min } from 'class-validator';
-import { PaymentStatus, PaymentMethod, PaymentType } from '../entities/payment.entity';
+import { PaymentStatus, PaymentMethod, PaymentType, PaymentEntity } from '../entities/payment.entity';
+import { UserInfo } from 'src/libs/Common/user-information';
 
 export class CreatePaymentDto {
   @ApiProperty({ description: 'Amount in ETB cents' })
@@ -61,6 +62,38 @@ export class CreatePaymentDto {
   @IsUUID()
   @IsOptional()
   tenantId?: string;
+
+  @ApiProperty({ description: 'Current user' })
+  currentUser?: UserInfo;
+
+  @ApiProperty({ description: 'Created at' })
+  createdAt?: Date;
+
+  @ApiProperty({ description: 'Updated at' })
+  updatedAt?: Date;
+
+  static fromCommand(command: CreatePaymentDto): PaymentEntity {
+    const payment = new PaymentEntity();
+    payment.amount = command.amount;
+    payment.currency = command.currency;
+    payment.paymentMethod = command.paymentMethod;
+    payment.paymentType = command?.paymentType;
+    payment.description = command?.description;
+    payment.customerEmail = command?.customerEmail;
+    payment.customerPhone = command?.customerPhone;
+    payment.customerName = command?.customerName;
+    payment.referenceId = command?.referenceId;
+    payment.referenceType = command?.referenceType;
+    payment.userId = command?.userId;
+    payment.tenantId = command?.tenantId;
+
+    payment.createdAt = command?.createdAt;
+    payment.updatedAt = command?.updatedAt;
+    payment.createdBy = command?.currentUser?.id;
+    payment.updatedBy = command?.currentUser?.id;
+    return payment;
+  }
+
 }
 
 export class UpdatePaymentDto {
@@ -165,8 +198,43 @@ export class PaymentResponseDto {
 
   @ApiProperty({ required: false })
   checkoutUrl?: string;
-}
 
+  static toResponse(entity: PaymentEntity): PaymentResponseDto {
+    const response = new PaymentResponseDto();
+    response.id = entity.id;
+    response.transactionId = entity.transactionId;
+    response.amount = entity.amount;
+    response.currency = entity.currency;
+    response.status = entity.status;
+    response.paymentMethod = entity.paymentMethod;
+    response.paymentType = entity.paymentType;
+    response.description = entity.description;
+    response.customerEmail = entity.customerEmail;
+    response.customerPhone = entity.customerPhone;
+    response.customerName = entity.customerName;
+    response.chapaReference = entity.chapaReference;
+    response.failureReason = entity.failureReason;
+    response.refundAmount = entity.refundAmount;
+    response.refundReason = entity.refundReason;
+    response.refundedAt = entity.refundedAt;
+    response.completedAt = entity.completedAt;
+    response.expiresAt = entity.expiresAt;
+    response.referenceId = entity.referenceId;
+    response.referenceType = entity.referenceType;
+    response.userId = entity.userId;
+    response.tenantId = entity.tenantId;
+    response.createdAt = entity.createdAt;
+    response.updatedAt = entity.updatedAt;
+    // response.checkoutUrl = entity.checkoutUrl;
+    return response;
+  }
+}
+export class ChapaMakePaymentRequestDto {
+  @ApiProperty({ description: 'Transaction reference' })
+  @IsString()
+  @IsNotEmpty()
+  checkoutUrl: string;
+}
 export class ChapaPaymentRequestDto {
   @ApiProperty({ description: 'Amount in ETB' })
   @IsNumber()

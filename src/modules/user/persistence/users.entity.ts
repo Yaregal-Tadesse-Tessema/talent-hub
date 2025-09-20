@@ -11,6 +11,7 @@ import { NotificationEntity } from 'src/modules/notification/persistencies/notif
 import { NotificationSetting, UserAlertConfiguration } from '../usecase/user.command';
 import { CreateEducationCommand } from '../usecase/education.command';
 import { CreateExperienceCommand } from '../usecase/experience.command';
+import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
 @Entity({ name: 'users' })
 export class UserEntity extends CommonEntity {
   @Column({ unique: true, nullable: true })
@@ -122,4 +123,10 @@ export class UserEntity extends CommonEntity {
     (notificationEntity) => notificationEntity.user,
   )
   notifications: NotificationEntity[];
+
+  @OneToMany(() => PaymentEntity, (payment) => payment.user, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  payments: PaymentEntity[];
 }

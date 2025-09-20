@@ -2,10 +2,12 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { AccountStatusEnums, LinkTypeEnums } from 'src/modules/auth/constants';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { TenantSubscriptionTypes } from '../constants';
 import { UserTenantEntity } from './user-tenant.entity';
+import { PaymentEntity } from 'src/modules/payment/entities/payment.entity';
+import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-posting.entity';
 
 @Entity({ name: 'tenants' })
 export class TenantEntity extends CommonEntity {
@@ -59,6 +61,8 @@ export class TenantEntity extends CommonEntity {
   selectedCalender: string;
   @Column({ default: true })
   isProfilePublic: boolean;
+  @Column({ type: 'text', array: true, nullable: true  })
+  links: LinkTypeEnums[];
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.tenant, {
     cascade: true,
     onDelete: 'CASCADE',
@@ -69,4 +73,16 @@ export class TenantEntity extends CommonEntity {
     onDelete: 'CASCADE',
   })
   tenantUsers: UserTenantEntity[];
+
+  @OneToMany(() => PaymentEntity, (payment) => payment.tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  payments: PaymentEntity[];
+
+  @OneToMany(() => JobPostingEntity, (jobPosting) => jobPosting.tenant, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
+  jobPostings: JobPostingEntity[];
 }

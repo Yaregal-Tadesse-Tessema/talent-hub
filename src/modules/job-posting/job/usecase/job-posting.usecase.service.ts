@@ -24,7 +24,6 @@ import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { Brackets, Repository } from 'typeorm';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
-import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-bot.service';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 @Injectable()
@@ -36,7 +35,6 @@ export class JobPostingService {
     private readonly joPoRepo: Repository<JobPostingEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
-    private readonly telegramBotService: TelegramBotService,
     private readonly emailService: EmailService,
     private readonly afroMessageService: AfroMessageService,
   ) { }

@@ -21,9 +21,9 @@ import { MessageEntity } from 'src/modules/notification/persistencies/message.en
 @Entity({ name: 'applications' })
 @Unique(['userId', 'JobPostId'])
 export class ApplicationEntity extends CommonEntity {
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   userId: string;
-  @Column()
+  @Column({ nullable: false })
   JobPostId: string;
   @Column({ name: 'referral_information', type: 'jsonb', nullable: true })
   referralInformation: ReferralInformation;
@@ -64,6 +64,7 @@ export class ApplicationEntity extends CommonEntity {
   )
   @JoinColumn({ name: 'JobPostId' })
   JobPost: JobPostingEntity;
+  
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;

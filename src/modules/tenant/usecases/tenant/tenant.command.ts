@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { AccountStatusEnums, LinkTypeEnums } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantSubscriptionTypes } from '../../constants';
 import { UserInfo } from 'src/libs/Common/user-information';
@@ -61,6 +61,9 @@ export class CreateTenantCommand {
   archiveReason?: string;
   @ApiProperty()
   isProfilePublic?: boolean;
+  @ApiProperty()
+  links?: LinkTypeEnums[];
+
   currentUser?: UserInfo;
 
   static fromCommand(command: CreateTenantCommand): TenantEntity {
@@ -90,7 +93,7 @@ export class CreateTenantCommand {
     tenant.organizationType = command.organizationType;
     tenant.selectedCalender = command.selectedCalender;
     tenant.isProfilePublic = command?.isProfilePublic;
-
+    tenant.links = command?.links;
     tenant.updatedAt = new Date();
     tenant.updatedBy = command?.currentUser?.id;
     return tenant;
@@ -129,7 +132,7 @@ export class CheckOrganizationFromETrade {
   @ApiProperty()
   licenseNumber: string;
   @ApiProperty()
-  otpCode: number;
+  otpCode?: number;
 
   currentUser?: UserInfo;
 }

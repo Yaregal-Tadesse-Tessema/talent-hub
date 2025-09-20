@@ -37,7 +37,7 @@ import * as jwt from 'jsonwebtoken';
 @ApiTags('tenants')
 @ApiExtraModels(DataResponseFormat)
 export class TenantController {
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly tenantService: TenantService) { }
 
   @Post()
   @ApiOkResponse({ type: TenantResponse })
@@ -65,6 +65,15 @@ export class TenantController {
   ) {
     command.currentUser = currentUser;
     return await this.tenantService.registerOrganizationWithETrade(command);
+  }
+  @Post('verify-tenant-from-trade')
+  @ApiOkResponse({ type: TenantResponse })
+  async verifyTenantFromETrade(
+    @Body() command: CheckOrganizationFromETrade,
+    @userInfo() currentUser: UserInfo,
+  ) {
+    command.currentUser = currentUser;
+    return await this.tenantService.verifyTenantFromETrade(command);
   }
   @Get()
   @ApiOkResponse({ type: TenantResponse })
@@ -147,5 +156,10 @@ export class TenantController {
   @Get('verify/e-trade-works')
   async verifyETradeWorks() {
     return await this.tenantService.verifyETradeWorks();
+  }
+  @Get('get-profile-completeness/:tenantId')
+  async getProfileCompleteness(@Param('tenantId') tenantId: string) {
+    const result = await this.tenantService.getProfileCompleteness(tenantId);
+    return result;
   }
 }

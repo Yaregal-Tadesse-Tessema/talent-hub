@@ -107,13 +107,6 @@ export class TenantService {
         `Organization Already exists. Please login to access your account.`,
       );
     try {
-      // const response = await this.axiosInstance.get(
-      //   `/Registration/GetRegistrationInfoByTin/${command.tin}/en`,
-      // );
-      // if (!response.data)
-      //   throw new NotFoundException(
-      //     `Organization with tin ${command.tin} does not exist`,
-      //   );
       const licenseInformation = await this.getBusinessLicenseFromEtrade(
         command.licenseNumber.trim(),
         command.tin.trim(),
@@ -191,23 +184,23 @@ export class TenantService {
           lookupId: lookUpId,
         });
         employeeoRganizationCommand.id = employeeTenantAlreadyExists?.id;
-        const employeeORganizationEntity: EmployeeTenantEntity =await this.employeeTenantRepository.create(employeeoRganizationCommand);
-          const payload: UserInfo = {
-            id: lookupEntity.id,
-            tenantId: tenantEntity.id,
-            email: lookupEntity?.email,
-            firstName: lookupEntity?.firstName,
-            middleName: lookupEntity?.middleName,
-            lastName: lookupEntity?.lastName,
-            profileImage: lookupEntity?.profileImage,
-            address: lookupEntity?.address,
-            phoneNumber: lookupEntity?.phoneNumber,
-            roles: [],
-            tenantSchemaName: tenantEntity.name,
-          };
-          const accessToken = Util.GenerateToken(payload, '60m'); //60m
-          const refreshToken = Util.GenerateRefreshToken(payload);
-          employeeORganizationEntity.tenant = tenantEntity as TenantEntity;
+        const employeeORganizationEntity: EmployeeTenantEntity = await this.employeeTenantRepository.create(employeeoRganizationCommand);
+        const payload: UserInfo = {
+          id: lookupEntity.id,
+          tenantId: tenantEntity.id,
+          email: lookupEntity?.email,
+          firstName: lookupEntity?.firstName,
+          middleName: lookupEntity?.middleName,
+          lastName: lookupEntity?.lastName,
+          profileImage: lookupEntity?.profileImage,
+          address: lookupEntity?.address,
+          phoneNumber: lookupEntity?.phoneNumber,
+          roles: [],
+          tenantSchemaName: tenantEntity.name,
+        };
+        const accessToken = Util.GenerateToken(payload, '60m'); //60m
+        const refreshToken = Util.GenerateRefreshToken(payload);
+        employeeORganizationEntity.tenant = tenantEntity as TenantEntity;
         return {
           employeeTenant: employeeORganizationEntity,
           accessToken,
@@ -220,37 +213,87 @@ export class TenantService {
       throw new BadRequestException('Unable to verify TIN. Please try again');
     }
   }
-  // async generateRegistrationNumber(orgCode = '', serviceCode?: string) {
-  //   const today = new Date();
-  //   // const dateFormatted = new Date(
-  //   //   today.getFullYear(),
-  //   //   today.getMonth(),
-  //   //   today.getDate(),
-  //   //   0,
-  //   //   0,
-  //   //   0,
-  //   //   0,
-  //   // );
-  //   const shortDate =
-  //     today.getFullYear().toString().slice(-2) +
-  //     '' +
-  //     ('0' + (today.getMonth() + 1)).slice(-2) +
-  //     '' +
-  //     ('0' + today.getDate()).slice(-2);
-  //   const lastApplication = await this.tenantRepository.getLastInsertedItem()
-  //   const applicationResult = lastApplication.registrationNumber;
+  async verifyTenantFromETrade(
+    command: CheckOrganizationFromETrade,
+  ): Promise<any> {
 
-  //   const applicationNo = orgCode.concat(
-  //     '-',
-  //     serviceCode,
-  //     '-',
-  //     shortDate,
-  //     '-',
-  //     (applicationResult + 1).toString(),
-  //   );
-  //   console.log(applicationNo);
-  //   return applicationNo;
-  // }
+    const alreadyExist = await this.tenantRepository.getOneByCriteria({
+      tin: command.tin,
+    });
+
+    if (alreadyExist)
+      throw new BadRequestException(
+        `Organization Already exists. Please login to access your account.`,
+      );
+    try {
+      const licenseInformation = await this.getBusinessLicenseFromEtrade(
+        command.licenseNumber.trim(),
+        command.tin.trim(),
+      );
+      if (!licenseInformation.data)
+        throw new NotFoundException(
+          `Organization with License Number ${command.licenseNumber} does not exist`,
+        );
+      const phoneNumber = licenseInformation.data?.AddressInfo.MobilePhone
+      if (!phoneNumber) {
+        throw new BadRequestException(`Phone number is not associated with this organization please Register Manually`);
+      }
+      if (!command?.otpCode) {
+        await this.afroMessageService.sendOtp(phoneNumber);
+        const last4Digits = phoneNumber.slice(-4);
+        const message = `One time password is sent to the phone Number ending with  ${last4Digits}`;
+        return {
+          stsus: 'Otp sent',
+          message: message,
+        };
+      } else {
+        const res = await this.afroMessageService.verifyOtp({ phoneNumber, otpCode: command.otpCode.toString() });
+        if (res.acknowledge === 'error') {
+          throw new BadRequestException('Invalid OTP');
+        }
+        const salt = process.env.BCRYPT_SALT;
+        const createCommand: CreateTenantCommand = {
+          name: licenseInformation.data.TradeName,
+          tin: command.tin,
+          isVerified: true,
+          address: licenseInformation.data?.AddressInfo,
+          licenseNumber: command.licenseNumber,
+          registrationNumber: command.tin,
+          email: licenseInformation.data.email,
+          phoneNumber: licenseInformation.data.AddressInfo.MobilePhone,
+          status: AccountStatusEnums.ACTIVE,
+        };
+        createCommand.id = alreadyExist?.id;
+        const tenantEntity = await this.createTenant(createCommand);
+        const lookUpId = command?.currentUser?.id;
+        let lookupEntity = await this.lookupRepository.findOne(lookUpId, ['employeeTenant']);
+        const payload: UserInfo = {
+          id: lookupEntity.id,
+          tenantId: tenantEntity.id,
+          email: lookupEntity?.email,
+          firstName: lookupEntity?.firstName,
+          middleName: lookupEntity?.middleName,
+          lastName: lookupEntity?.lastName,
+          profileImage: lookupEntity?.profileImage,
+          address: lookupEntity?.address,
+          phoneNumber: lookupEntity?.phoneNumber,
+          roles: [],
+          tenantSchemaName: tenantEntity.name,
+        };
+        const accessToken = Util.GenerateToken(payload, '60m'); //60m
+        const refreshToken = Util.GenerateRefreshToken(payload);
+        return {
+          employeeTenant: lookupEntity?.employeeTenant,
+          accessToken,
+          refreshToken,
+          message: `Tenant verified and updated successfully`,
+        };
+      }
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException('Unable to verify TIN. Please try again');
+    }
+  }
   async getBusinessLicenseFromEtrade(
     LicenseNo: string,
     tin: string,
@@ -344,5 +387,49 @@ export class TenantService {
       console.log(error);
       return false;
     }
+  }
+  async getProfileCompleteness(tenantId: string): Promise<{ percentage: number }> {
+    const tenant = await this.tenantRepository.findOne(tenantId);
+
+    if (!tenant) {
+      return { percentage: 0 };
+    }
+    // Define fields and their weights
+    const fieldsWithWeights = [
+      { key: 'phone', weight: 25 },
+      { key: 'email', weight: 25 },
+      { key: 'tradeName', weight: 20 },
+      { key: 'haAiActivated', weight: 5 },
+      { key: 'address', weight: 20 },
+      { key: 'isVerified', weight: 20 },
+      { key: 'tin', weight: 25 },
+      { key: 'licenseNumber', weight: 15 },
+      { key: 'registrationNumber', weight: 15 },
+      { key: 'logo', weight: 20 },
+      { key: 'cover', weight: 20 },
+      { key: 'companySize', weight: 10 },
+      { key: 'industry', weight: 25 },
+      { key: 'organizationType', weight: 5 },
+      { key: 'selectedCalender', weight: 5 },
+      { key: 'isProfilePublic', weight: 5 },
+      { key: 'links', weight: 5 },
+    ];
+
+    // Calculate total score
+    let filledScore = 0;
+    let totalWeight = 0;
+
+    for (const field of fieldsWithWeights) {
+      totalWeight += field.weight;
+      if (
+        tenant[field.key] &&
+        (Array.isArray(tenant[field.key]) ? tenant[field.key].length > 0 : true)
+      ) {
+        filledScore += field.weight;
+      }
+    }
+    const percentage = Math.round((filledScore / totalWeight) * 100);
+
+    return { percentage };
   }
 }

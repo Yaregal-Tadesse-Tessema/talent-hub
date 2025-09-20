@@ -37,18 +37,6 @@ export class BaseRepository<T extends ObjectLiteral> {
     return res;
   }
   async findAll(query: CollectionQuery) {
-    // if (
-    //   !query?.orderBy ||
-    //   query?.orderBy == null ||
-    //   query?.orderBy.length == 0
-    // ) {
-    //   query.orderBy = [];
-    //   query.orderBy.push({
-    //     column: 'updatedAt',
-    //     direction: 'DESC',
-    //     nulls: 'NULLS LAST',
-    //   });
-    // }
     let dataQuery: any = null;
     const tenantId = await this.request['TENANT_ID'];
     if (!tenantId) {

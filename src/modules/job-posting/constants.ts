@@ -6,8 +6,8 @@ export enum WorkTypeEnums {
 }
 export enum EmploymentTypeEnums {
   FULL_TIME = 'Full Time',
-  REMOTE = 'Part Time',
-  HYBRID = 'Contract',
+  PART_TIME = 'Part Time',
+  CONTRACT = 'Contract',
 }
 export enum SalaryRangeEnum {
   MINIMUM = 'Minimum',

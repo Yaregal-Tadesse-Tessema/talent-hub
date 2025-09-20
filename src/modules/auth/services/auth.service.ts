@@ -21,8 +21,6 @@ dotenv.config({ path: '.env' });
 @Injectable()
 export class AuthService {
   constructor(
-    // @InjectRepository(AccountEntity)
-    // private readonly accountRepository: Repository<AccountEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private jwtService: JwtService,
@@ -270,12 +268,22 @@ export class AuthService {
         {
           phoneNumber: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:UserType.EMPLOYER
+          userType:UserType.EMPLOYER,
+          employeeTenant: {
+            tenant: {
+              status: AccountStatusEnums.ACTIVE,
+            },
+          },
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:UserType.EMPLOYER
+          userType:UserType.EMPLOYER,
+          employeeTenant: {
+            tenant: {
+              status: AccountStatusEnums.ACTIVE,
+            },
+          },
         },
       ],
       relations: { employeeTenant: { tenant: true } },

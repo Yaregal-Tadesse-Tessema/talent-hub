@@ -26,7 +26,7 @@ export class JobPostingResponse {
   industry: string;
 
   @ApiProperty()
-  type: WorkTypeEnums;
+  workMode: WorkTypeEnums;
   @ApiProperty({ example: 'Addis Abeba' })
   city: string;
   @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
@@ -36,7 +36,7 @@ export class JobPostingResponse {
   @ApiProperty()
   salaryRange: any;
   @ApiProperty()
-  organizationId: string;
+  tenantId: string;
   @ApiProperty()
   deadline: Date;
   @ApiProperty()
@@ -93,8 +93,6 @@ export class JobPostingResponse {
   @ApiProperty()
   paymentType: PaymentTypeEnums;
   @ApiProperty()
-  tenantId: string;
-  @ApiProperty()
   isFeatured: boolean;
   @ApiProperty()
   hasAiFilter: boolean;
@@ -116,12 +114,11 @@ export class JobPostingResponse {
     response.description = entity.description;
     response.position = entity.position;
     response.industry = entity.industry;
-    response.type = entity.type;
+    response.workMode = entity.workMode;
     response.city = entity.city;
     response.location = entity.location;
     response.employmentType = entity.employmentType;
     response.salaryRange = entity.salaryRange;
-    response.organizationId = entity.organizationId;
     response.deadline = entity.deadline;
     response.skill = entity.skill;
     response.benefits = entity.benefits;

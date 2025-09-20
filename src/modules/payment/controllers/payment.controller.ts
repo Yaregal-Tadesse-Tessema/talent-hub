@@ -10,6 +10,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { PaymentService } from '../services/payment.service';
@@ -28,7 +29,7 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly chapaService: ChapaService,
-  ) {}
+  ) { }
 
   @Post()
   @ApiOperation({ summary: 'Create a new payment' })
@@ -39,10 +40,22 @@ export class PaymentController {
     @userInfo() currentUser: UserInfo,
   ): Promise<PaymentResponseDto & { checkoutUrl?: string }> {
     // Set user and tenant from current user context
-    createPaymentDto.userId = currentUser.id;
-    createPaymentDto.tenantId = currentUser.tenantId;
-
+    createPaymentDto.currentUser = currentUser
+    createPaymentDto.tenantId = currentUser?.tenantId;
     return await this.paymentService.createPayment(createPaymentDto);
+  }
+
+  @Get('call-back-url')
+  @AllowAnonymous()
+  @ApiOperation({ summary: 'Call back URL' })
+  @ApiResponse({ status: 200, description: 'Call back URL', type: PaymentResponseDto })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  async callBackUrl(
+    @Query('trx_ref') trx_ref: string,
+    @Query('ref_id') ref_id: string,
+    @Query('status') status: string,
+  ): Promise<any> {
+    return await this.paymentService.callBackUrl({ trx_ref, ref_id, status });
   }
 
   @Get()

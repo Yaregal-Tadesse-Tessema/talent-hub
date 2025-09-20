@@ -45,7 +45,7 @@ export class ChapaService {
         callback_url: paymentData.callback_url,
         return_url: paymentData.return_url,
         customization: {
-          title: 'Ethio Talent Hub Payment',
+          title: 'Service Payment',
           description: paymentData.description || 'Payment for services',
         },
       };
@@ -76,7 +76,16 @@ export class ChapaService {
       throw new InternalServerErrorException('Failed to initialize payment with Chapa');
     }
   }
-
+async makePayment(paymentData: ChapaPaymentRequestDto): Promise<any> {
+  const response: AxiosResponse = await axios.post(
+    `${this.baseUrl}/transaction/initialize`,
+    paymentData,
+  );
+  return response.data;
+}
+async callBackUrl(paymentData: any): Promise<any> {
+  console.log('Callback URL', paymentData);
+}
   /**
    * Verify payment status
    */
@@ -235,11 +244,23 @@ export class ChapaService {
   }
 
   /**
-   * Generate transaction reference
+   * Generate a (very likely) unique transaction reference.
+   * 
+   * This method combines a prefix, the current timestamp, a random string, and a high-resolution process-based value.
+   * While this greatly reduces the chance of collision, it does not absolutely guarantee uniqueness
+   * (e.g., in a distributed system with clock skew or extremely high concurrency).
+   * For absolute uniqueness, consider using a UUID.
    */
   generateTransactionRef(prefix: string = 'TALENT'): string {
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
-    return `${prefix}_${timestamp}_${random}`;
+    const random = Math.random().toString(36).substring(2, 10).toUpperCase();
+    // Add process.hrtime for more entropy (if available)
+    let extra = '';
+    if (typeof process !== 'undefined' && process.hrtime) {
+      extra = process.hrtime.bigint().toString(36).toUpperCase();
+    } else {
+      extra = (performance.now ? performance.now() : Math.floor(Math.random() * 1e8)).toString(36).toUpperCase();
+    }
+    return `${prefix}_${timestamp}_${random}_${extra}`;
   }
 }

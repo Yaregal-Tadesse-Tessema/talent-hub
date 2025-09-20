@@ -5,12 +5,13 @@ import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { TenantEntity } from 'src/modules/tenant/persistencies/tenant.entity';
 
 export enum PaymentStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  CANCELLED = 'cancelled',
-  REFUNDED = 'refunded',
+  DRAFT = 'Draft',
+  PENDING = 'Pending',
+  PROCESSING = 'Processing',
+  COMPLETED = 'Completed',
+  FAILED = 'Failed',
+  CANCELLED = 'Cancelled',
+  REFUNDED = 'Refunded',
 }
 
 export enum PaymentMethod {
@@ -27,6 +28,7 @@ export enum PaymentType {
   APPLICATION_FEE = 'application_fee',
   FEATURED_JOB = 'featured_job',
   PREMIUM_USER = 'premium_user',
+  JOB_SMS_ALERT = 'job_sms_alert',
 }
 
 @Entity({ name: 'payments' })
@@ -37,7 +39,7 @@ export class PaymentEntity extends CommonEntity {
   @Column()
   amount: number; // Amount in ETB (cents)
 
-  @Column()
+  @Column({default: 'ETB'})
   currency: string; // Default: ETB
 
   @Column({ type: 'enum', enum: PaymentStatus, default: PaymentStatus.PENDING })
@@ -60,7 +62,6 @@ export class PaymentEntity extends CommonEntity {
 
   @Column({ nullable: true })
   customerName: string;
-
   @Column({ nullable: true })
   chapaReference: string; // Chapa reference number
 
@@ -88,17 +89,11 @@ export class PaymentEntity extends CommonEntity {
   @Column({ nullable: true })
   expiresAt: Date;
 
-  // Relations
-  @ManyToOne(() => UserEntity, { nullable: true })
-  @JoinColumn({ name: 'userId' })
-  user: UserEntity;
+ 
 
   @Column({ nullable: true })
   userId: string;
 
-  @ManyToOne(() => TenantEntity, { nullable: true })
-  @JoinColumn({ name: 'tenantId' })
-  tenant: TenantEntity;
 
   @Column({ nullable: true })
   tenantId: string;
@@ -108,5 +103,18 @@ export class PaymentEntity extends CommonEntity {
   referenceId: string; // e.g., job posting ID, subscription ID
 
   @Column({ nullable: true })
+  subscriptionId: string; 
+
+  @Column({ nullable: true })
   referenceType: string; // e.g., 'job_posting', 'subscription'
+
+   // Relations
+   @ManyToOne(() => UserEntity, (userEntity) => userEntity.payments, { nullable: true })
+   @JoinColumn({ name: 'userId' })
+   user: UserEntity;
+
+   
+  @ManyToOne(() => TenantEntity, (tenantEntity) => tenantEntity.payments, { nullable: true })
+  @JoinColumn({ name: 'tenantId' })
+  tenant: TenantEntity;
 }

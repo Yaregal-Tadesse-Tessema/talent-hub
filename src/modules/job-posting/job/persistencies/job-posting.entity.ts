@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
@@ -13,6 +13,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SaveJobEntity } from './save-job-post.entity';
 import { PreScreeningQuestionEntity } from './pre-screening-question.entity';
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
+import { TenantEntity } from 'src/modules/tenant/persistencies/tenant.entity';
 
 @Entity({ name: 'job_postings' })
 export class JobPostingEntity extends CommonEntity {
@@ -25,18 +26,15 @@ export class JobPostingEntity extends CommonEntity {
   @Column({ nullable: true })
   industry: string;
   @Column({ default: WorkTypeEnums.ON_SITE })
-  type: WorkTypeEnums;
+  workMode: WorkTypeEnums;
   @Column({ default: 'Addis Abeba' })
   city: string;
   @Column({ nullable: true })
   location: string;
-
   @Column({ default: EmploymentTypeEnums.FULL_TIME })
   employmentType: EmploymentTypeEnums;
   @Column({ nullable: true, type: 'jsonb' })
   salaryRange: SalaryRangeEnum;
-  @Column()
-  organizationId: string;
   @Column({
     default: () => `CURRENT_DATE + INTERVAL '1 month'`,
     nullable: false,
@@ -118,4 +116,12 @@ export class JobPostingEntity extends CommonEntity {
 
   )
   favoriteJobs: UserFavoriteJobEntity[];
+
+  @ManyToOne(
+    () => TenantEntity,
+    (tenantEntity) => tenantEntity.jobPostings,
+    { onDelete: 'CASCADE' }
+  )
+  @JoinColumn({ name: 'tenantId' })
+  tenant: TenantEntity;
 }

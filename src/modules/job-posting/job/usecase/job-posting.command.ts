@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
+import { Transform } from 'class-transformer';
 import {
   EmploymentTypeEnums,
-  JobIndustryEnums,
   JobPostingStatusEnums,
   PaymentTypeEnums,
   WorkTypeEnums,
@@ -16,73 +16,114 @@ export class CreateJobPostingCommand {
   @IsNotEmpty()
   title: string;
   @ApiProperty()
-  description: string;
+  @IsOptional()
+  description?: string;
   @ApiProperty()
   @IsNotEmpty()
   position: string;
   @ApiProperty()
   @IsNotEmpty()
   industry: string;
-
-  @ApiProperty()
-  type: WorkTypeEnums;
+  @ApiProperty({ enum: WorkTypeEnums })
+  @IsOptional()
+  @IsEnum(WorkTypeEnums, { message: 'workMode must be a valid WorkTypeEnums value' })
+  workMode?: WorkTypeEnums;
   @ApiProperty({ example: 'Addis Abeba' })
-  city: string;
+  @IsOptional()
+  city?: string;
   @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
-  location: string;
+  @IsOptional()
+  location?: string;
+  @ApiProperty({ enum: EmploymentTypeEnums })
+  @IsOptional()
+  @IsEnum(EmploymentTypeEnums, { message: 'employmentType must be a valid EmploymentTypeEnums value' })
+  employmentType?: EmploymentTypeEnums;
   @ApiProperty()
-  employmentType: EmploymentTypeEnums;
+  @IsOptional()
+  salaryRange?: any;
   @ApiProperty()
-  salaryRange: any;
-  // @ApiProperty()
-  organizationId: string;
+  @IsOptional()
+  tenantId?: string;
   @ApiProperty()
-  deadline: Date;
+  @IsOptional()
+  deadline?: Date;
   @ApiProperty()
-  skill: string[];
+  @IsOptional()
+  skill?: string[];
   @ApiProperty()
-  benefits: string[];
+  @IsOptional()
+  benefits?: string[];
   @ApiProperty()
-  responsibilities: string[];
+  @IsOptional()
+  responsibilities?: string[];
+  @ApiProperty({ enum: JobPostingStatusEnums })
+  @IsOptional()
+  @IsEnum(JobPostingStatusEnums, { message: 'status must be a valid JobPostingStatusEnums value' })
+  status?: JobPostingStatusEnums;
   @ApiProperty()
-  status: JobPostingStatusEnums;
+  @IsOptional()
+  gender?: string;
   @ApiProperty()
-  gender: string;
+  @IsOptional()
+  minimumGPA?: number;
   @ApiProperty()
-  minimumGPA: number;
+  @IsOptional()
+  companyName?: string;
   @ApiProperty()
-  companyName: string;
+  @IsOptional()
+  companyLogo?: FileDto;
   @ApiProperty()
-  companyLogo: FileDto;
+  @IsOptional()
+  postedDate?: Date;
   @ApiProperty()
-  postedDate: Date;
+  @IsOptional()
+  applicationURL?: string;
   @ApiProperty()
-  applicationURL: string;
+  @IsOptional()
+  experienceLevel?: string;
   @ApiProperty()
-  experienceLevel: string;
+  @IsOptional()
+  fieldOfStudy?: string;
   @ApiProperty()
-  fieldOfStudy: string;
+  @IsOptional()
+  educationLevel?: string;
   @ApiProperty()
-  educationLevel: string;
+  @IsOptional()
+  howToApply?: string;
   @ApiProperty()
-  howToApply: string;
+  @IsOptional()
+  onHoldDate?: Date;
   @ApiProperty()
-  onHoldDate: Date;
+  @IsOptional()
+  jobPostRequirement?: string[];
   @ApiProperty()
-  jobPostRequirement: string[];
+  @IsOptional()
+  positionNumbers?: number;
+  @ApiProperty({ enum: PaymentTypeEnums })
+  @IsOptional()
+  @IsEnum(PaymentTypeEnums, { message: 'paymentType must be a valid PaymentTypeEnums value' })
+  paymentType?: PaymentTypeEnums;
   @ApiProperty()
-  positionNumbers: number;
-  @ApiProperty()
-  paymentType: PaymentTypeEnums;
-  @ApiProperty()
+  @IsOptional()
   isFeatured?: boolean;
   @ApiProperty()
+  @IsOptional()
   hasAiFilter?: boolean;
   @ApiProperty()
+  @IsOptional()
   hasNormalFilter?: boolean;
   @ApiProperty()
+  @IsOptional()
   requiredYearOfExperience?: number;
-  tenantId?: string;
+  
+  @ApiProperty({ required: false })
+  @IsOptional()
+  organizationId?: string;
+  
+  @ApiProperty({ required: false })
+  @IsOptional()
+  requirementId?: string;
+  
   currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
@@ -95,12 +136,12 @@ export class CreateJobPostingCommand {
     entity.description = dto.description;
     entity.position = dto?.position;
     entity.industry = dto?.industry;
-    entity.type = dto?.type;
+    entity.workMode = dto?.workMode;
     entity.city = dto?.city;
     entity.location = dto?.location;
     entity.employmentType = dto?.employmentType;
     entity.salaryRange = dto?.salaryRange;
-    entity.organizationId = dto?.organizationId;
+    entity.tenantId = dto.tenantId;
     entity.deadline = dto?.deadline;
     entity.skill = dto?.skill;
     entity.benefits = dto?.benefits;
@@ -120,7 +161,6 @@ export class CreateJobPostingCommand {
     entity.jobPostRequirement = dto?.jobPostRequirement;
     entity.positionNumbers = dto?.positionNumbers;
     entity.paymentType = dto?.paymentType;
-    entity.tenantId = dto?.tenantId;
     entity.isFeatured = dto?.isFeatured;
     entity.hasAiFilter = dto?.hasAiFilter;
     entity.hasNormalFilter = dto?.hasNormalFilter;

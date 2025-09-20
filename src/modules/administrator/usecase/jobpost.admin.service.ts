@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { Repository, DeepPartial, ObjectLiteral, In } from 'typeorm';
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
-import { REQUEST } from '@nestjs/core';
+import { Repository} from 'typeorm';
+import {Injectable,Scope } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TenantEntity } from 'src/modules/tenant/persistencies/tenant.entity';
 import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
@@ -10,7 +9,6 @@ import { JobPostingEntity } from 'src/modules/job-posting/job/persistencies/job-
 import { CreateTenantCommand } from 'src/modules/tenant/usecases/tenant/tenant.command';
 import { CreateLookupCommand } from 'src/modules/tenant/usecases/lookup/lookup.command';
 import { CreateEmployeeTenantCommand } from 'src/modules/tenant/usecases/employee-tenant/employee-tenant.command';
-import { CreateJobPostingCommand } from 'src/modules/job-posting/job/usecase/job-posting.command';
 import { CreateAdminJobPostingCommand } from './command';
 import { Util } from 'src/libs/Common/util';
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
@@ -71,10 +69,9 @@ export class JobPostAdminService {
         if (!jobPost) {
             const jobPostingEntity = new JobPostingEntity();
             jobPostingEntity.tenantId = tenant?.id;
-            jobPostingEntity.organizationId = tenant?.id;
             jobPostingEntity.title = command?.jobTitle;
             jobPostingEntity.employmentType = command?.jobType;
-            jobPostingEntity.type = command?.worktype;
+            jobPostingEntity.workMode = command?.worktype;
             jobPostingEntity.howToApply = command?.howToApply;
             jobPostingEntity.skill = command?.skills;
             jobPostingEntity.jobPostRequirement = command?.jobRequirement;

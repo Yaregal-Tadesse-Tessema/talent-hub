@@ -12,9 +12,25 @@ export enum AccountStatusEnums {
   ACTIVE = 'Active',
   InACTIVE = 'Inactive',
   DISABLED = 'Disabled',
-  DRAFT = 'Draft',
 }
 
+export enum LinkTypeEnums {
+  WEBSITE = 'Website',
+  FACEBOOK = 'Facebook',
+  LINKEDIN = 'Linkedin',
+  TWITTER = 'Twitter',
+  INSTAGRAM = 'Instagram',
+  YOUTUBE = 'Youtube',
+  TIKTOK = 'Tiktok',
+  X = 'X',
+  TELEGRAM = 'Telegram',
+  WHATSAPP = 'Whatsapp',
+  SKYPE = 'Skype',
+  DISCORD = 'Discord',
+  REDDIT = 'Reddit',
+  PINTEREST = 'Pinterest',
+  BLOG = 'Blog',
+}
 export const activeEmployeesStatus = [
   EmployeeStatus.ACTIVE,
   EmployeeStatus.ON_LEAVE,

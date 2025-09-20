@@ -3,11 +3,20 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { CreateTenantCommand } from './tenant.command';
+import { EmployeeTenantResponse } from '../employee-tenant/employee-tenant.response';
+import { UserTenantResponse } from '../user-enant/user-tenant.response';
+import { PaymentResponse } from 'src/modules/payment/dto/payment.response';
 
 export class TenantResponse extends CreateTenantCommand {
   @ApiProperty()
   @IsNotEmpty()
   id: string;
+  @ApiProperty()
+  organizationEmployees:EmployeeTenantResponse[];
+  @ApiProperty()
+  tenantUsers:UserTenantResponse[];
+  @ApiProperty()
+  payments:PaymentResponse[];
   static toResponse(entity: TenantEntity): TenantResponse {
     const response = new TenantResponse();
     response.id = entity?.id;
@@ -36,6 +45,17 @@ export class TenantResponse extends CreateTenantCommand {
     response.organizationType = entity.organizationType;
     response.selectedCalender = entity.selectedCalender;
     response.isProfilePublic = entity.isProfilePublic;
+    response.links = entity.links;
+
+    if (entity?.organizationEmployees?.length > 0) {
+      response.organizationEmployees = entity.organizationEmployees.map(EmployeeTenantResponse.toResponse);
+    }
+    if (entity?.tenantUsers?.length > 0) {
+      response.tenantUsers = entity.tenantUsers.map(UserTenantResponse.toResponse);
+    }
+    if (entity?.payments?.length > 0) {
+      response.payments = entity.payments.map(PaymentResponse.toResponse);
+    }
     return response;
   }
 }

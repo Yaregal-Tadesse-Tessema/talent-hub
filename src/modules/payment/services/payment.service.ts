@@ -17,31 +17,30 @@ export class PaymentService {
     private readonly chapaService: ChapaService,
     private readonly telebirrService: TelebirrService,
     private readonly bankOfAbyssiniaService: BankOfAbyssiniaService,
-  ) {}
+  ) { }
 
   /**
    * Create a new payment
    */
   async createPayment(createPaymentDto: CreatePaymentDto): Promise<PaymentResponseDto & { checkoutUrl?: string }> {
     const transactionId = this.chapaService.generateTransactionRef();
-    
+
     const payment = new PaymentEntity();
     payment.transactionId = transactionId;
     payment.amount = createPaymentDto.amount;
     payment.currency = createPaymentDto.currency || 'ETB';
     payment.paymentMethod = createPaymentDto.paymentMethod;
     payment.paymentType = createPaymentDto.paymentType;
-    payment.description = createPaymentDto.description;
-    payment.customerEmail = createPaymentDto.customerEmail;
-    payment.customerPhone = createPaymentDto.customerPhone;
-    payment.customerName = createPaymentDto.customerName;
-    payment.referenceId = createPaymentDto.referenceId;
-    payment.referenceType = createPaymentDto.referenceType;
-    payment.userId = createPaymentDto.userId;
-    payment.tenantId = createPaymentDto.tenantId;
-    payment.status = PaymentStatus.PENDING;
-    payment.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-
+    payment.description = createPaymentDto?.description;
+    payment.customerEmail = createPaymentDto?.customerEmail;
+    payment.customerPhone = createPaymentDto?.customerPhone;
+    payment.customerName = createPaymentDto?.customerName;
+    payment.referenceId = createPaymentDto?.referenceId;
+    payment.referenceType = createPaymentDto?.referenceType;
+    payment.userId = createPaymentDto?.userId;
+    payment.tenantId = createPaymentDto?.tenantId;
+    payment.status = PaymentStatus.DRAFT;
+    payment.expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
     const savedPayment = await this.paymentRepository.save(payment);
 
     // Initialize payment with Chapa
@@ -54,18 +53,18 @@ export class PaymentService {
         customer_phone: createPaymentDto.customerPhone,
         tx_ref: transactionId,
         description: createPaymentDto.description,
-        callback_url: `${process.env.APP_URL}/api/payment/webhook`,
-        return_url: `${process.env.FRONTEND_URL}/payment/success`,
+        return_url:process.env.CHAPA_RETURN_URL,
+        callback_url: process.env.CHAPA_CALLBACK_URL,
       };
 
       try {
         const chapaResponse = await this.chapaService.initializePayment(chapaRequest);
-        
+
         if (chapaResponse.success) {
           payment.chapaReference = chapaResponse.transaction_ref;
           payment.status = PaymentStatus.PROCESSING;
           await this.paymentRepository.save(payment);
-          
+
           return {
             ...this.toResponseDto(savedPayment),
             checkoutUrl: chapaResponse.checkout_url,
@@ -93,12 +92,12 @@ export class PaymentService {
 
       try {
         const telebirrResponse = await this.telebirrService.initializePayment(telebirrRequest);
-        
+
         if (telebirrResponse.success) {
           payment.chapaReference = telebirrResponse.data.outTradeNo; // Reusing chapaReference field for Telebirr reference
           payment.status = PaymentStatus.PROCESSING;
           await this.paymentRepository.save(payment);
-          
+
           return {
             ...this.toResponseDto(savedPayment),
             checkoutUrl: telebirrResponse.data.toPayUrl,
@@ -126,12 +125,12 @@ export class PaymentService {
 
       try {
         const boaResponse = await this.bankOfAbyssiniaService.initializePayment(boaRequest);
-        
+
         if (boaResponse.success) {
           payment.chapaReference = boaResponse.data.transactionId; // Reusing chapaReference field for BoA reference
           payment.status = PaymentStatus.PROCESSING;
           await this.paymentRepository.save(payment);
-          
+
           return {
             ...this.toResponseDto(savedPayment),
             checkoutUrl: boaResponse.data.paymentUrl,
@@ -146,6 +145,9 @@ export class PaymentService {
     }
 
     return this.toResponseDto(savedPayment);
+  }
+  async callBackUrl(paymentData: any): Promise<any> {
+    return await this.verifyPayment(paymentData.trx_ref);
   }
 
   /**
@@ -197,7 +199,7 @@ export class PaymentService {
     }
 
     Object.assign(payment, updatePaymentDto);
-    
+
     if (updatePaymentDto.status === PaymentStatus.COMPLETED) {
       payment.completedAt = new Date();
     }
@@ -217,7 +219,7 @@ export class PaymentService {
 
     try {
       const verification = await this.chapaService.verifyPayment(transactionId);
-      
+
       if (verification.success) {
         payment.status = PaymentStatus.COMPLETED;
         payment.completedAt = new Date();
@@ -243,7 +245,7 @@ export class PaymentService {
   async processWebhook(webhookData: any): Promise<void> {
     const transactionRef = webhookData.data.tx_ref;
     const payment = await this.paymentRepository.findOne({ where: { transactionId: transactionRef } });
-    
+
     if (!payment) {
       throw new NotFoundException('Payment not found for webhook');
     }
@@ -384,7 +386,7 @@ export class PaymentService {
   async handleTeleBirrWebhook(webhookData: any): Promise<any> {
     try {
       const webhookResponse = await this.telebirrService.handleWebhook(webhookData);
-      
+
       // Update payment status based on webhook
       const payment = await this.paymentRepository.findOne({
         where: { chapaReference: webhookData.outTradeNo } // Reusing chapaReference field
@@ -398,7 +400,7 @@ export class PaymentService {
           payment.status = PaymentStatus.FAILED;
           payment.failureReason = 'Payment failed via Telebirr';
         }
-        
+
         await this.paymentRepository.save(payment);
       }
 
@@ -450,7 +452,7 @@ export class PaymentService {
   async handleBoAWebhook(webhookData: any): Promise<any> {
     try {
       const webhookResponse = await this.bankOfAbyssiniaService.handleWebhook(webhookData);
-      
+
       // Update payment status based on webhook
       const payment = await this.paymentRepository.findOne({
         where: { chapaReference: webhookData.transactionId } // Reusing chapaReference field
@@ -464,7 +466,7 @@ export class PaymentService {
           payment.status = PaymentStatus.FAILED;
           payment.failureReason = 'Payment failed via Bank of Abyssinia';
         }
-        
+
         await this.paymentRepository.save(payment);
       }
 
@@ -483,7 +485,7 @@ export class PaymentService {
     }
 
     const whereClause: any = {};
-    
+
     where.forEach((condition: any) => {
       if (Array.isArray(condition) && condition.length >= 3) {
         const [column, operator, value] = condition;
