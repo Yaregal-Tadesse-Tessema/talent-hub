@@ -200,7 +200,8 @@ export class TenantService {
         };
         const accessToken = Util.GenerateToken(payload, '60m'); //60m
         const refreshToken = Util.GenerateRefreshToken(payload);
-        employeeORganizationEntity.tenant = tenantEntity as TenantEntity;
+        const tenantEntityData=TenantResponse.toEntity(tenantEntity);
+        employeeORganizationEntity.tenant = tenantEntityData;
         return {
           employeeTenant: employeeORganizationEntity,
           accessToken,

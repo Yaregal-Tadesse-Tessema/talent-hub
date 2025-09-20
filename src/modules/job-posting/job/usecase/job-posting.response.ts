@@ -13,6 +13,7 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { SavedJobsResponse } from './saved-jobs.response';
 import { PreScreeningQuestionResponse } from './pre-screening-question/pre-screening-question.response';
 import { UserFavoriteJobEntity } from '../persistencies/user-favorite-job.entity';
+import { TenantResponse } from 'src/modules/tenant/usecases/tenant/tenant.response';
 export class JobPostingResponse {
   @ApiProperty()
   id: string;
@@ -74,14 +75,7 @@ export class JobPostingResponse {
   @ApiProperty()
   jobPostRequirement: string[];
   currentUser?: any;
-  @ApiProperty({ type: () => [ApplicationResponse] })
-  applications: ApplicationResponse[];
-  @ApiProperty()
-  favoriteJobs: UserFavoriteJobEntity[];
-  @ApiProperty({ type: () => [SavedJobsResponse] })
-  savedUsers: SavedJobsResponse[];
-  @ApiProperty({ type: () => [PreScreeningQuestionResponse] })
-  preScreeningQuestions: PreScreeningQuestionResponse[];
+  
   @ApiProperty()
   isSaved: boolean;
   @ApiProperty()
@@ -104,6 +98,17 @@ export class JobPostingResponse {
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
+
+  @ApiProperty({ type: () => TenantResponse })
+  tenant: TenantResponse;
+  @ApiProperty({ type: () => [ApplicationResponse] })
+  applications: ApplicationResponse[];
+  @ApiProperty()
+  favoriteJobs: UserFavoriteJobEntity[];
+  @ApiProperty({ type: () => [SavedJobsResponse] })
+  savedUsers: SavedJobsResponse[];
+  @ApiProperty({ type: () => [PreScreeningQuestionResponse] })
+  preScreeningQuestions: PreScreeningQuestionResponse[];
   static toResponse(entity: JobPostingEntity): JobPostingResponse {
     const response = new JobPostingResponse();
     if (!entity) {
@@ -162,16 +167,14 @@ export class JobPostingResponse {
         (item) => PreScreeningQuestionResponse.toResponse(item),
       );
     }
-    // if (entity?.preScreeningQuestions?.length > 0) {
-    //   response.preScreeningQuestions = entity.preScreeningQuestions.map(
-    //     (item) => PreScreeningQuestionResponse.toResponse(item),
-    //   );
-    // }
-    // if (entity?.favoriteJobs?.length > 0) {
-    //   response.favoriteJobs = entity.favoriteJobs.map((item) =>
-    //     UserFavoriteJobResponse.toResponse(item),
-    //   );
-    // }
+    if (entity?.tenant) {
+      response.tenant = TenantResponse.toResponse(entity.tenant);
+    }
+    if (entity?.preScreeningQuestions?.length > 0) {
+      response.preScreeningQuestions = entity.preScreeningQuestions.map(
+        (item) => PreScreeningQuestionResponse.toResponse(item),
+      );
+    }
     return response;
   }
 }

@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsUUID } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsEnum, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
 import {
   EmploymentTypeEnums,
   JobPostingStatusEnums,
@@ -24,6 +23,7 @@ export class CreateJobPostingCommand {
   @IsNotEmpty()
   industry: string;
   @ApiProperty({ enum: WorkTypeEnums })
+  @IsOptional()
   @IsEnum(WorkTypeEnums, { message: 'workMode must be a valid WorkTypeEnums value' })
   workMode?: WorkTypeEnums;
   @ApiProperty({ example: 'Addis Abeba' })
@@ -31,6 +31,7 @@ export class CreateJobPostingCommand {
   @ApiProperty({ example: 'Bole Road, Addis Ababa, Ethiopia' })
   location: string;
   @ApiProperty({ enum: EmploymentTypeEnums })
+  @IsOptional()
   @IsEnum(EmploymentTypeEnums, { message: 'employmentType must be a valid EmploymentTypeEnums value' })
   employmentType?: EmploymentTypeEnums;
   @ApiProperty()
@@ -46,6 +47,7 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   responsibilities: string[];
   @ApiProperty({ enum: JobPostingStatusEnums })
+  @IsOptional()
   @IsEnum(JobPostingStatusEnums, { message: 'status must be a valid JobPostingStatusEnums value' })
   status?: JobPostingStatusEnums;
   @ApiProperty()
@@ -75,6 +77,7 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   positionNumbers: number;
   @ApiProperty({ enum: PaymentTypeEnums })
+  @IsOptional()
   @IsEnum(PaymentTypeEnums, { message: 'paymentType must be a valid PaymentTypeEnums value' })
   paymentType?: PaymentTypeEnums;
   @ApiProperty()

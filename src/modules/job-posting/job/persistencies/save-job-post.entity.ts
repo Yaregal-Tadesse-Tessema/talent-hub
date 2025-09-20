@@ -5,17 +5,20 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { JobPostingEntity } from '../../job/persistencies/job-posting.entity';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 // import { UserEntity } from 'src/modules/user/persistence/users.entity';
-
 @Entity({ name: 'save_job_post' })
+@Unique(['jobPostId', 'userId', 'tenantId'])
 export class SaveJobEntity extends CommonEntity {
   @Column()
   jobPostId: string;
   @Column({ nullable: true })
   userId: string;
+  @Column({ nullable: true })
+  tenantId: string;
   @ManyToOne(
     () => JobPostingEntity,
     (institutionEntity) => institutionEntity.savedUsers,

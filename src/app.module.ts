@@ -34,7 +34,6 @@ import { MessageEntity } from './modules/notification/persistencies/message.enti
 import { InvitationEntity } from './modules/application/persistences/invitation.entity';
 import { GoogleStrategy } from './modules/auth/google.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { GeminiModule } from './modules/gemini/gemini.module';
 import { SmsModule } from './modules/sms/sms.module';
 import { AdministratorModule } from './modules/administrator/administrator.module';
 import { TelegramModule } from './modules/telegram/telegram.module';
@@ -82,7 +81,6 @@ import { PaymentEntity } from './modules/payment/entities/payment.entity';
         PositionEntity,
         IndustryEntity,
         PaymentEntity,
-        // PaymentSubscriptionEntity,
       ],
       synchronize: true,
     }),

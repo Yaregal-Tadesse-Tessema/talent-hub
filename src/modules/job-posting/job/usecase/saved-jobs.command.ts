@@ -5,10 +5,11 @@ import { SaveJobEntity } from '../persistencies/save-job-post.entity';
 export class CreateSavedJobsCommand {
   id?: string;
   @ApiProperty()
+  @IsNotEmpty()
   jobPostId: string;
   @ApiProperty()
+  @IsNotEmpty()
   userId: string;
-  tenantId: string;
 
   static fromDto(dto: CreateSavedJobsCommand): SaveJobEntity {
     const entity = new SaveJobEntity();
@@ -18,7 +19,6 @@ export class CreateSavedJobsCommand {
     entity.id = dto?.id;
     entity.jobPostId = dto.jobPostId;
     entity.userId = dto.userId;
-    entity.tenantId = dto?.tenantId;
     return entity;
   }
 
@@ -39,8 +39,9 @@ export class UpdateSaveJobCommand extends CreateSavedJobsCommand {
 
 export class UnsaveJobPostCommand {
   @ApiProperty()
+  @IsNotEmpty()
   jobPostId: string;
   @ApiProperty()
+  @IsNotEmpty()
   userId: string;
-  tenantId: string;
 }
