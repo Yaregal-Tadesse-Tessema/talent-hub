@@ -1,14 +1,17 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { EmailService } from '../usecase/email.usecase.command';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { EmailCommand } from '../usecase/email.command';
+import { FileFieldsInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
+import { memoryStorage } from 'multer';
 
 @Controller('email')
 @ApiTags('email')
 export class EmailController {
-  constructor(private readonly emailService: EmailService) {}
+  constructor(private readonly emailService: EmailService) { }
   @AllowAnonymous()
   @Post('send-email')
   async sendEmail() {
@@ -56,6 +59,25 @@ export class EmailController {
       body.to,
       body.subject,
       body.html,
+    );
+  }
+  @Post('send-email-with-attachment')
+  @AllowAnonymous()
+  @UseInterceptors(FilesInterceptor('files'))
+  async sendEmailWithAttachment(
+    @Body() body: EmailCommand,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const attachment = files.map((file) => ({
+      filename: file.originalname,
+      content: file.buffer,
+      contentType: file.mimetype,
+    }));
+    return await this.emailService.sendEmailWithAttachment(
+      body.to,
+      body.subject,
+      body.html,
+      attachment
     );
   }
 }

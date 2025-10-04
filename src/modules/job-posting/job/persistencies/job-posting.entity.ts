@@ -2,6 +2,7 @@
 import { CommonEntity } from 'src/libs/Common/common-entity';
 import { Entity, Column, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import {
+  AppliedThroughEnums,
   EmploymentTypeEnums,
   JobPostingStatusEnums,
   PaymentTypeEnums,
@@ -80,13 +81,18 @@ export class JobPostingEntity extends CommonEntity {
   positionNumbers: number;
   @Column({ nullable: true })
   paymentType: PaymentTypeEnums;
-
+  @Column({ nullable: true })
+  appliedThrough: AppliedThroughEnums;
   @Column({ default: false })
   isFeatured: boolean;
   @Column({ default: false })
   hasAiFilter: boolean;
   @Column({ default: true })
   hasNormalFilter: boolean;
+  @Column({ nullable: true, default: false })
+  isAdminCreated: boolean;
+  @Column({ type: 'text', array: true, nullable: true, default: () => "ARRAY[]::text[]" })
+  requiredattachements: string[];
   @OneToMany(
     () => ApplicationEntity,
     (applicationEntity) => applicationEntity.JobPost,

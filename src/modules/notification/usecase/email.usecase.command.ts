@@ -25,12 +25,10 @@ export class EmailService {
     });
   }
   private formatDate(date: Date): string {
-    // Format YYYYMMDDTHHMMSSZ (UTC)
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
   async basicEmail(data, resolve, reject) {
     console.log('try sending email');
-    // 1. Generate calendar event using `ics`
     const { error, value: icsContent } = createEvent({
       title: data.subject,
       description: data.body,
@@ -60,7 +58,7 @@ export class EmailService {
       'SEQUENCE:0',
       'STATUS:CONFIRMED',
       'TRANSP:OPAQUE',
-      'ORGANIZER;CN=Garri Admin:mailto:yayasoles@gmail.com',
+      'ORGANIZER;CN=TalentHub Admin:mailto:yayasoles@gmail.com',
       'ATTENDEE;CN=Yaya A.;RSVP=TRUE:mailto:yayaatsoles@gmail.com',
       'END:VEVENT',
       'END:VCALENDAR',
@@ -299,6 +297,39 @@ export class EmailService {
     } catch (error: any) {
       this.logger.error('Error sending email:', error?.response?.body || error);
       throw error;
+    }
+  }
+  /**
+   * Sends an email with an attachment using nodemailer.
+   * @param to Recipient email address
+   * @param subject Email subject
+   * @param html Email body (HTML)
+   * @param attachment Object with filename, content (Buffer or string), and contentType
+   */
+  async sendEmailWithAttachment(
+    to: string,
+    subject: string,
+    html: string,
+    attachment: { filename: string; content: Buffer | string; contentType: string }[]
+  ): Promise<boolean> {
+    if(!attachment) {
+      return false;
+    }
+    const mailOptions: nodemailer.SendMailOptions = {
+      from: `"Talent Hub" <htalenthubet@gmail.com>`,
+      to,
+      subject,
+      html,
+      attachments: attachment
+    };
+
+    try {
+      const info = await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email with attachment sent: ${info.response}`);
+      return true;
+    } catch (err) {
+      this.logger.error('Error sending email with attachment', err);
+      throw err;
     }
   }
 

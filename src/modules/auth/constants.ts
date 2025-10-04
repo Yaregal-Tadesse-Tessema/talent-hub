@@ -1,11 +1,30 @@
 /* eslint-disable prettier/prettier */
 
+import { ApiProperty } from '@nestjs/swagger';
 import { EmployeeStatus } from '../user/usecase/user.command';
 
 export enum AccountTypeEnums {
   EMPLOYER = 'employer',
   EMPLOYEE = 'employee',
   ADMIN = 'Admin',
+}
+export class SalesInformation {
+  @ApiProperty()
+  SalesStageInformation: { stage: string, status: SalesContactStatusEnums, remark: string }[];
+  @ApiProperty()
+  contactPersonel: string
+  @ApiProperty()
+  contactPhone: string
+  @ApiProperty()
+  contactEmail: string
+  @ApiProperty()
+  physicalAddress: string
+}
+export enum SalesContactStatusEnums {
+  LEAD = 'Lead',
+  INITIAL_CONTACTED = 'Initial Contacted',
+
+  NOT_CONTACTED = 'Not Contacted',
 }
 export enum AccountStatusEnums {
   PENDING = 'Pending',

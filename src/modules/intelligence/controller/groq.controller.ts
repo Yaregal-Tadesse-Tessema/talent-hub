@@ -2,9 +2,11 @@ import { Controller, Post, UploadedFile, UseInterceptors, BadRequestException } 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GroqService } from '../usecase/groq.service';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('groq')
 @AllowAnonymous()
+@ApiTags('groq')
 export class GroqController {
   constructor(private readonly groqService: GroqService) {}
 

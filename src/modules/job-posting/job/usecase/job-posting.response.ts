@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  AppliedThroughEnums,
   EmploymentTypeEnums,
   JobIndustryEnums,
   JobPostingStatusEnums,
@@ -95,6 +96,12 @@ export class JobPostingResponse {
   @ApiProperty()
   requiredYearOfExperience: number;
   @ApiProperty()
+  isAdminCreated: boolean;
+  @ApiProperty()
+  appliedThrough: AppliedThroughEnums;
+  @ApiProperty()
+  requiredattachements: string[];
+  @ApiProperty()
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
@@ -150,6 +157,9 @@ export class JobPostingResponse {
     response.hasAiFilter = entity.hasAiFilter;
     response.hasNormalFilter = entity.hasNormalFilter;
     response.requiredYearOfExperience = entity.requiredYearOfExperience;
+    response.isAdminCreated = entity.isAdminCreated;
+    response.appliedThrough = entity.appliedThrough;
+    response.requiredattachements = entity.requiredattachements;
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;
     if (entity?.applications && entity?.applications?.length > 0) {

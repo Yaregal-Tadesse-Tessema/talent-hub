@@ -13,6 +13,11 @@ export enum SalaryRangeEnum {
   MINIMUM = 'Minimum',
   MAXIMUM = 'Maximum',
 }
+export enum AppliedThroughEnums {
+  EMAIL = 'Email',
+  PHYSICAL = 'Physical',
+  LINKEDIN = 'Linkedin',
+}
 export enum JobPostingStatusEnums {
   DRAFT = 'Draft',
   PENDING = 'Pending',

@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNotEmpty, IsUUID, IsOptional } from 'class-validator';
 import {
+  AppliedThroughEnums,
   EmploymentTypeEnums,
   JobPostingStatusEnums,
   PaymentTypeEnums,
@@ -87,7 +88,13 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   hasNormalFilter?: boolean;
   @ApiProperty()
-  requiredYearOfExperience?: number;
+  requiredYearOfExperience?: number;    
+  @ApiProperty()
+  isAdminCreated?: boolean;
+  @ApiProperty()
+  appliedThrough?: AppliedThroughEnums;
+  @ApiProperty()
+  requiredattachements?: string[];
   currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
@@ -129,6 +136,9 @@ export class CreateJobPostingCommand {
     entity.hasAiFilter = dto?.hasAiFilter;
     entity.hasNormalFilter = dto?.hasNormalFilter;
     entity.requiredYearOfExperience = dto?.requiredYearOfExperience;
+    entity.isAdminCreated = dto?.isAdminCreated;
+    entity.appliedThrough = dto?.appliedThrough;
+    entity.requiredattachements = dto?.requiredattachements;
     return entity;
   }
   static fromDtos(dto: CreateJobPostingCommand[]): JobPostingEntity[] {

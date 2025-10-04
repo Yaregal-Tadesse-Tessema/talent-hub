@@ -92,6 +92,8 @@ export class TenantResponse extends CreateTenantCommand {
     response.selectedCalender = entity.selectedCalender;
     response.isProfilePublic = entity.isProfilePublic;
     response.links = entity.links;
+    response.salesInformation = entity.salesInformation;
+    response.isAdminCreated = entity.isAdminCreated;
     return response;
   }
 }

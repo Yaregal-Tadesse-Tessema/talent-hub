@@ -1,17 +1,20 @@
 /* eslint-disable prettier/prettier */
 
-import { ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOkResponse, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import {
   Body,
   Controller,
+  Get,
+  Param,
   Post,
-  UploadedFile,
+  Put,
+  UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreateAdminJobPostingCommand } from '../usecase/command';
+import { AdminJobApplicationCommand, CreateAdminJobPostingCommand } from '../usecase/command';
 import { JobPostAdminService } from '../usecase/jobpost.admin.service';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
 @Controller('admin-job-posting')
@@ -26,6 +29,54 @@ export class AdminJobPostingController {
     const result = await this.jobPostAdminService.createJobPost(
       command
     );
+    return result;
+  }
+
+  @Post('apply-to-job')
+  @AllowAnonymous()
+  @UseInterceptors(FilesInterceptor('files'))
+  async applyToJob(
+    @Body() command: AdminJobApplicationCommand,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const result = await this.jobPostAdminService.applyToJobByAdmin(
+      command,
+      (files || []).map((f) => ({
+        originalname: f.originalname,
+        buffer: f.buffer,
+        mimetype: f.mimetype,
+      })),
+    );
+    return result;
+  }
+
+  @Get()
+  @AllowAnonymous()
+  async listAdminJobPosts(@Body('tenantName') tenantName?: string) {
+    const result = await this.jobPostAdminService.getAdminJobPosts(tenantName);
+    return result;
+  }
+
+  @Get('get/:id')
+  @AllowAnonymous()
+  async getAdminJobPost(@Param('id') id: string) {
+    const result = await this.jobPostAdminService.getAdminJobPostById(id);
+    return result;
+  }
+
+  @Put('update-admin-job-posting')
+  @AllowAnonymous()
+  async updateAdminJobPost(
+    @Body() payload: Partial<CreateAdminJobPostingCommand>,
+  ) {
+    const result = await this.jobPostAdminService.updateAdminJobPost(payload);
+    return result;
+  }
+
+  @Post('delete/:id')
+  @AllowAnonymous()
+  async deleteAdminJobPost(@Param('id') id: string) {
+    const result = await this.jobPostAdminService.deleteAdminJobPost(id);
     return result;
   }
 }

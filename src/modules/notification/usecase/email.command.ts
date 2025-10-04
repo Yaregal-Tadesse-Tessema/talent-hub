@@ -35,6 +35,12 @@ export class EmailCommand {
   subject: string;
   @ApiProperty()
   html: string;
+  @ApiProperty({ required: false, type: 'object' })
+  attachment?: {
+    filename: string;
+    content: string;
+    contentType: string;
+  };
 }
 export enum NotificationTypeEnums {
   MESSAGE = 'Message',

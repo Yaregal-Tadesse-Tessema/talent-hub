@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty } from "class-validator";
-import { EmploymentTypeEnums, WorkTypeEnums } from "src/modules/job-posting/constants";
+import { AppliedThroughEnums, EmploymentTypeEnums, WorkTypeEnums } from "src/modules/job-posting/constants";
 
 export class CreateAdminJobPostingCommand {
     id: string;
@@ -45,4 +45,15 @@ export class CreateAdminJobPostingCommand {
     numberOfPosition: number;
     @ApiProperty()
     requiredYearOfExperience: number;
+    @ApiProperty()
+    appliedThrough: AppliedThroughEnums;
+
+}
+
+export class AdminJobApplicationCommand {
+    @ApiProperty()
+    @IsNotEmpty()
+    jobPostId: string;
+    @ApiProperty()
+    html?: string;
 }

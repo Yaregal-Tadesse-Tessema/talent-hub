@@ -2,7 +2,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { AccountStatusEnums, LinkTypeEnums } from 'src/modules/auth/constants';
+import { AccountStatusEnums, LinkTypeEnums, SalesInformation } from 'src/modules/auth/constants';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { TenantSubscriptionTypes } from '../constants';
 import { UserTenantEntity } from './user-tenant.entity';
@@ -63,6 +63,11 @@ export class TenantEntity extends CommonEntity {
   isProfilePublic: boolean;
   @Column({ type: 'text', array: true, nullable: true  })
   links: LinkTypeEnums[];
+
+  @Column({ nullable: true, default: false })
+  isAdminCreated: boolean;
+  @Column({ nullable: true, type: 'jsonb' })
+  salesInformation: SalesInformation;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.tenant, {
     cascade: true,
     onDelete: 'CASCADE',
