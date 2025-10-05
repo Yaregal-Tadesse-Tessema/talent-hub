@@ -6,6 +6,7 @@ import { EmployeeTenantEntity } from '../tenant/persistencies/employee-tenant.en
 import { JobPostingEntity } from '../job-posting/job/persistencies/job-posting.entity';
 import { JobPostAdminService } from './usecase/jobpost.admin.service';
 import { AdminJobPostingController } from './controller/jobpost.admin.controller';
+import { ApplicationModule } from '../application/application.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AdminJobPostingController } from './controller/jobpost.admin.controller
       EmployeeTenantEntity,
       JobPostingEntity,
     ]),
+    ApplicationModule
   ],
   providers: [JobPostAdminService],
   controllers: [AdminJobPostingController],

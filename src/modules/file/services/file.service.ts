@@ -21,6 +21,7 @@ import * as libreConvert from 'libreoffice-convert';
 import { promisify } from 'node:util';
 dotenv.config({ path: '.env' });
 import * as docxConverter from 'docx-pdf';
+import { Readable } from 'node:stream';
 const convert = promisify(docxConverter);
 @Injectable()
 export class FileService {
@@ -244,6 +245,43 @@ export class FileService {
     }
     const pdfBytes = await mergedPdf.save();
     return pdfBytes;
+  }
+
+  async mergeFilesAsMulterFile(
+    files: Express.Multer.File[],
+  ): Promise<Express.Multer.File> {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files provided to merge.');
+    }
+
+    // Convert unsupported document types (doc/docx) to PDF first
+    const normalizedFiles: Express.Multer.File[] = [];
+    for (const file of files) {
+      const ext = path.extname(file.originalname || '').toLowerCase();
+      if (ext === '.doc' || ext === '.docx') {
+        const converted = await this.convertWordToPdf(file);
+        normalizedFiles.push(converted);
+      } else {
+        normalizedFiles.push(file);
+      }
+    }
+
+    const mergedBytes = await this.mergeFiles(normalizedFiles);
+    const buffer = Buffer.from(mergedBytes);
+    const filename = `merged-${Date.now()}.pdf`;
+
+    return {
+      fieldname: 'file',
+      originalname: filename,
+      encoding: '7bit',
+      mimetype: 'application/pdf',
+      size: buffer.length,
+      destination: '',
+      filename,
+      path: '',
+      buffer,
+      stream: Readable.from(buffer),
+    } as Express.Multer.File;
   }
 
   async mergeLocalFiles(files: string[]) {

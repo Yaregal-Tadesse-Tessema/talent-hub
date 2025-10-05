@@ -17,9 +17,11 @@ import {
 import { AdminJobApplicationCommand, CreateAdminJobPostingCommand } from '../usecase/command';
 import { JobPostAdminService } from '../usecase/jobpost.admin.service';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
+import { UserInfo } from 'src/libs/Common/user-information';
+import { userInfo } from 'src/modules/auth/local-auth.guard';
 @Controller('admin-job-posting')
 @ApiTags('admin-job-posting')
-@AllowAnonymous()
+// @AllowAnonymous()
 export class AdminJobPostingController {
   constructor(private readonly jobPostAdminService: JobPostAdminService) {}
   @Post('create-job-posting')
@@ -33,20 +35,17 @@ export class AdminJobPostingController {
   }
 
   @Post('apply-to-job')
-  @AllowAnonymous()
+  // @AllowAnonymous()
   @UseInterceptors(FilesInterceptor('files'))
   async applyToJob(
     @Body() command: AdminJobApplicationCommand,
     @UploadedFiles() files: Express.Multer.File[],
+    @userInfo() user: UserInfo,
   ) {
+    command.userId = user.id;
     const result = await this.jobPostAdminService.applyToJobByAdmin(
       command,
-      (files || []).map((f) => ({
-        originalname: f.originalname,
-        buffer: f.buffer,
-        mimetype: f.mimetype,
-      })),
-    );
+      files)
     return result;
   }
 

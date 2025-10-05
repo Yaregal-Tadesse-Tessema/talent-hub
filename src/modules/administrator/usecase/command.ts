@@ -56,4 +56,7 @@ export class AdminJobApplicationCommand {
     jobPostId: string;
     @ApiProperty()
     html?: string;
+    @ApiProperty()
+    @IsNotEmpty()
+    userId: string;
 }

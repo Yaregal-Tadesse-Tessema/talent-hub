@@ -15,6 +15,10 @@ import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 import { AppliedThroughEnums, JobPostingStatusEnums } from 'src/modules/job-posting/constants';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
+import { ApplicationStatusEnums } from 'src/modules/application/constants';
+import { ApplicationRepository } from 'src/modules/application/persistences/application.repository';
+import { FileService } from 'src/modules/file/services/file.service';
 @Injectable({ scope: Scope.REQUEST })
 export class JobPostAdminService {
     constructor(
@@ -27,6 +31,8 @@ export class JobPostAdminService {
         @InjectRepository(JobPostingEntity)
         private readonly jobPostRepo: Repository<JobPostingEntity>,
         private readonly emailService: EmailService,
+        private readonly applicationRepo: ApplicationRepository,
+        private readonly fileService: FileService,
     ) { }
     async createJobPost(command: CreateAdminJobPostingCommand): Promise<any> {
         // tenant 
@@ -135,8 +141,16 @@ export class JobPostAdminService {
 
     async applyToJobByAdmin(
         command: AdminJobApplicationCommand,
-        files: { originalname: string; buffer: Buffer; mimetype: string }[],
+        files: Express.Multer.File[],
     ): Promise<any> {
+        if (files.length === 0) throw new BadRequestException('Please upload at least one file');
+
+        const filesInformation = files.map((f) => ({
+            originalname: f.originalname,
+            buffer: f.buffer,
+            mimetype: f.mimetype,
+        }));
+
         const jobPost = await this.jobPostRepo.findOne({
             where: { id: command.jobPostId },
             relations: ['tenant'],
@@ -147,7 +161,13 @@ export class JobPostAdminService {
         if (jobPost.appliedThrough !== AppliedThroughEnums.EMAIL) {
             throw new BadRequestException(`This job post is  applied through physical please go to the physical address to apply`);
         }
-        const tenantEmail = jobPost?.tenant?.email??'yayasoles@gmail.com';
+        const alreadyApplied = await this.applicationRepo.getOneByCriteria({
+            JobPostId: jobPost.id,
+            userId: command.userId,
+        });
+        if (alreadyApplied) throw new BadRequestException('You have already applied for this job');
+
+        const tenantEmail = jobPost?.tenant?.email ?? 'yayasoles@gmail.com';
         if (!tenantEmail) {
             return { success: false, message: 'Tenant email not found' };
         }
@@ -162,6 +182,23 @@ export class JobPostAdminService {
             command.html || 'Please find the attached application documents.',
             attachments,
         );
+
+        if (files.length > 0) {
+            const applicationEntity = new ApplicationEntity();
+            applicationEntity.JobPostId = jobPost.id;
+            applicationEntity.userId = command.userId;
+            applicationEntity.status = ApplicationStatusEnums.PENDING;
+            applicationEntity.createdAt = new Date();
+            applicationEntity.updatedAt = new Date();
+            const file = await this.fileService.mergeFilesAsMulterFile(files);
+            const randomNumber = Math.floor(10000000 + Math.random() * 90000000);
+            const fileName = files[0].originalname;
+            const fileId = `${command.userId}/${randomNumber}_${fileName}`;
+            const res = await this.fileService.uploadAttachment(fileId, file);
+            if (!res) throw new BadRequestException('file upload failed');
+            applicationEntity.cv = res;
+            await this.applicationRepo.create(applicationEntity);
+        }
         return { success: true };
     }
 
