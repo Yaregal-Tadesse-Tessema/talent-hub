@@ -47,6 +47,8 @@ export class CreateAdminJobPostingCommand {
     requiredYearOfExperience: number;
     @ApiProperty()
     appliedThrough: AppliedThroughEnums;
+    @ApiProperty()
+    postedDate: Date;
 
 }
 

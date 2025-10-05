@@ -95,6 +95,7 @@ export class JobPostAdminService {
             jobPostingEntity.status = JobPostingStatusEnums.POSTED;
             jobPostingEntity.appliedThrough = AppliedThroughEnums.PHYSICAL;
             jobPostingEntity.isAdminCreated = true
+            jobPostingEntity.postedDate = command?.postedDate;
             jobPost = await this.jobPostRepo.save(jobPostingEntity);
         }
         ;
