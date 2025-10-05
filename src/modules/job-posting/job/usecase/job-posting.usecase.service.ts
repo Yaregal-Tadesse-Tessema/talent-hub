@@ -474,6 +474,20 @@ export class JobPostingService {
       .getRawMany();
     return result;
   }
+  async getJobCategoriesWithCounts(): Promise<{ category: string; jobCount: number }[]> {
+    const result = await this.joPoRepo
+      .createQueryBuilder('job')
+      .select('job.industry', 'category')
+      .addSelect('COUNT(*)', 'jobCount')
+      .where('job.status = :status', { status: JobPostingStatusEnums.POSTED })
+      .andWhere('job.deletedAt IS NULL')
+      .andWhere("job.industry IS NOT NULL AND job.industry <> ''")
+      .groupBy('job.industry')
+      .orderBy('COUNT(*)', 'DESC')
+      .getRawMany();
+
+    return result.map((row: any) => ({ category: row.category, jobCount: Number(row.jobCount) }));
+  }
   async makeJobPostFeatured(
     command: JobPostFeaturingCOmmand,
   ): Promise<JobPostingResponse> {
