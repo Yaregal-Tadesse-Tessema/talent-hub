@@ -49,8 +49,6 @@ export class JobPostingService {
       throw new BadRequestException(
         `job post with id ${command.id} doesn't exist`,
       );
-    // if (jobPost.status == JobPostingStatusEnums.POSTED)
-    // throw new BadRequestException(`Can't edit  approved jobPosts`);
     const jobPostingEntity = UpdateJobPostingCommand.fromDto(command);
     const response = await this.jobPostingRepository.create(jobPostingEntity);
     await this.notifyUsersOnTelegramBootForNewJobPost(response);
@@ -370,7 +368,6 @@ export class JobPostingService {
   
   🔹 *[Apply Here](${command.applicationLink})*`;
   }
-
   async getOne(
     id: any,
     relations = [],
