@@ -2,7 +2,7 @@
 
 const db_config = {
   type: 'postgres',
-  host: '196.188.249.24',
+  host: '157.230.227.83',
   port: 5432,
   username: 'postgres',
   password: 'timewize@2024',
