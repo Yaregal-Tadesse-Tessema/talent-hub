@@ -388,11 +388,9 @@ export class JobPostingService {
       withDeleted,
     );
     if (!result) return null;
-
     let isApplied = false;
     let isFavorite = false;
     let isSaved = false;
-
     if (userId) {
       if (result.savedUsers?.length > 0) {
         const userExists = result.savedUsers.some(
