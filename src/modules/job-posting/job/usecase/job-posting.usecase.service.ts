@@ -214,7 +214,6 @@ export class JobPostingService {
         position: jobPostDomain.position,
         industry: jobPostDomain.industry,
         city: jobPostDomain.city,
-        // salaryRange: jobPostDomain.salaryRange
       }
 
       const filteredPayload = Object.fromEntries(
@@ -228,7 +227,6 @@ export class JobPostingService {
         )
       );
       const users: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
-      // to be replaced by the job link
       const link = process.env.LOGIN_PAGE ?? 'http://138.197.105.31:3000/login'
       await this.notifayUsers(users, link)
     }
