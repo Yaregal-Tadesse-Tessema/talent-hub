@@ -175,13 +175,13 @@ export class LookupService {
         token,
         lookUpId,
       );
-      return res.redirect('http://138.197.105.31:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
+      return res.redirect('http://157.230.227.83:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
     }
     if (!payload?.id) throw new NotFoundException(`user Id not Found`);
     const lookup = await this.lookupRepository.findOne(payload.id);
     if (lookup.status == AccountStatusEnums.ACTIVE) {
       return res.redirect(
-        'http://138.197.105.31:3000/login?status=alreadyActivated',
+        'http://157.230.227.83:3000/login?status=alreadyActivated',
       );
     }
     const success = await this.lookupRepository.update(payload.id, {
@@ -189,10 +189,10 @@ export class LookupService {
     });
     if (success) {
       return res.redirect(
-        'http://138.197.105.31:3000/login?status=successfullyActivated',
+        'http://157.230.227.83:3000/login?status=successfullyActivated',
       ); // frontend success page
     } else {
-      return res.redirect('http://138.197.105.31:3000/status=failedToActivate'); // frontend error page
+      return res.redirect('http://157.230.227.83:3000/status=failedToActivate'); // frontend error page
     }
   }
   async sendActivationMessage(
@@ -201,7 +201,7 @@ export class LookupService {
     token: string,
     lookUpId: string,
   ): Promise<boolean> {
-    const activationLink = `http://138.197.105.31:3010/api/lookups/activate-account/${lookUpId}?token=${token}`;
+    const activationLink = `http://157.230.227.83:3010/api/lookups/activate-account/${lookUpId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `

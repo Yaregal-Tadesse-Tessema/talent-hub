@@ -271,7 +271,7 @@ export class UserService {
     token: string,
     userId: string,
   ): Promise<boolean> {
-    const activationLink = `http://138.197.105.31:3010/api/users/activate-account/${userId}?token=${token}`;
+    const activationLink = `http://157.230.227.83:3010/api/users/activate-account/${userId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `
@@ -324,13 +324,13 @@ export class UserService {
         token,
         userId,
       );
-      return res.redirect('http://138.197.105.31:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
+      return res.redirect('http://157.230.227.83:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
     }
     if (!payload?.id) throw new NotFoundException(`user Id not Found`);
     const user = await this.userRepository.findOne(payload.id);
     if (user.status == UserStatusEnums.ACTIVE) {
       return res.redirect(
-        'http://138.197.105.31:3000/login?status=alreadyActivated',
+        'http://157.230.227.83:3000/login?status=alreadyActivated',
       );
     }
     const success = await this.userRepository.update(payload.id, {
@@ -338,10 +338,10 @@ export class UserService {
     });
     if (success) {
       return res.redirect(
-        'http://138.197.105.31:3000/login?status=successfullyActivated',
+        'http://157.230.227.83:3000/login?status=successfullyActivated',
       ); // frontend success page
     } else {
-      return res.redirect('http://138.197.105.31:3000/status=failedToActivate'); // frontend error page
+      return res.redirect('http://157.230.227.83:3000/status=failedToActivate'); // frontend error page
     }
   }
   private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
@@ -370,10 +370,10 @@ export class UserService {
       [],
     );
     if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE) {
-      return res.redirect('http://138.197.105.31:3000/login?status=alreadyExists');
+      return res.redirect('http://157.230.227.83:3000/login?status=alreadyExists');
     }
     if (userAlreadyCreatedByGoogle) {
-      return res.redirect('http://138.197.105.31:3000/login?status=alreadyExists');
+      return res.redirect('http://157.230.227.83:3000/login?status=alreadyExists');
     }
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
       const uerInfo: UserInfo = {
