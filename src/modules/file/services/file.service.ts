@@ -35,8 +35,8 @@ export class FileService {
       endPoint: process.env.MINIO_HOST,
       port: +process.env.MINIO_PORT,
       useSSL: false,
-      accessKey: process.env.MINIO_ACCESS_KEY,
-      secretKey: process.env.MINIO_SECRET_KEY,
+      accessKey: "60NS61LHYBJ3QJSVMHO3",
+      secretKey: "EZfCujI4hZunjEA5pQjgYAd2XYworwkG0ypIAuw4",
     });
   }
   async uploadAttachment(
