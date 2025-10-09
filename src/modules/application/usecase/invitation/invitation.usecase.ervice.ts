@@ -35,7 +35,7 @@ export class InvitationService {
         const html = `Dear ${user.firstName} ${user.middleName},
                       You have received an invitation to apply for a new job opportunity through our application system.
                       Kindly log in to your profile to view the details and submit your application if you're interested click the 
-                      <a href='http://157.230.227.83:3000/login'>link</a>.
+                      <a href='http://talent-hub.org/login'>link</a>.
                       If you have any questions, feel free to contact us.
                       Best regards,`;
         const result = await this.emailService.sendGridEmail(

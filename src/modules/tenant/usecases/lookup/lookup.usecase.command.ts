@@ -175,13 +175,13 @@ export class LookupService {
         token,
         lookUpId,
       );
-      return res.redirect('http://157.230.227.83:3000/?status=activationSent'); // frontend error page indicating a new activation is sent
+      return res.redirect('http://talent-hub.org/?status=activationSent'); // frontend error page indicating a new activation is sent
     }
     if (!payload?.id) throw new NotFoundException(`user Id not Found`);
     const lookup = await this.lookupRepository.findOne(payload.id);
     if (lookup.status == AccountStatusEnums.ACTIVE) {
       return res.redirect(
-        'http://157.230.227.83:3000/login?status=alreadyActivated',
+        'http://talent-hub.org/login?status=alreadyActivated',
       );
     }
     const success = await this.lookupRepository.update(payload.id, {
@@ -189,10 +189,10 @@ export class LookupService {
     });
     if (success) {
       return res.redirect(
-        'http://157.230.227.83:3000/login?status=successfullyActivated',
+        'http://talent-hub.org/login?status=successfullyActivated',
       ); // frontend success page
     } else {
-      return res.redirect('http://157.230.227.83:3000/status=failedToActivate'); // frontend error page
+      return res.redirect('http://talent-hub.org/status=failedToActivate'); // frontend error page
     }
   }
   async sendActivationMessage(
