@@ -227,7 +227,7 @@ export class JobPostingService {
         )
       );
       const users: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
-      const link = process.env.LOGIN_PAGE ?? 'http://talent-hub.org/login'
+      const link = process.env.LOGIN_PAGE ?? 'https://talent-hub.org/login'
       await this.notifayUsers(users, link)
     }
     return JobPostingResponse.toResponse(response);

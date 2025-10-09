@@ -29,7 +29,7 @@ export class GoogleAuthService {
     // command.password = 'C0mplex';
     const result = await this.userService.create(command, res);
     // redirect to login page
-   res.redirect('http://talent-hub.org/login?status=alreadyExists');
+   res.redirect('https://talent-hub.org/login?status=alreadyExists');
     // const token = await this.jwtService.sign(payload);
     // return {
     //   message: 'User info from Google',

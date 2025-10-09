@@ -25,7 +25,7 @@ export class GoogleAuthController {
     // req.user is set by GoogleStrategy.validate
     await this.googleAuthService.googUserSignUp(req.user, res);
     return res.redirect(
-      'http://talent-hub.org/login?status=alreadyActivated',
+      'https://talent-hub.org/login?status=alreadyActivated',
     );
   }
 }
