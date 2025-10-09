@@ -271,7 +271,7 @@ export class UserService {
     token: string,
     userId: string,
   ): Promise<boolean> {
-    const activationLink = `http://157.230.227.83:3010/api/users/activate-account/${userId}?token=${token}`;
+    const activationLink = `http://talent-hub.org/api/users/activate-account/${userId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `

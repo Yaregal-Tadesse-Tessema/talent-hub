@@ -201,7 +201,7 @@ export class LookupService {
     token: string,
     lookUpId: string,
   ): Promise<boolean> {
-    const activationLink = `http://157.230.227.83:3010/api/lookups/activate-account/${lookUpId}?token=${token}`;
+    const activationLink = `http://talent-hub.org/api/lookups/activate-account/${lookUpId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `
