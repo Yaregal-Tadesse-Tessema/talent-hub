@@ -201,7 +201,7 @@ export class LookupService {
     token: string,
     lookUpId: string,
   ): Promise<boolean> {
-    const activationLink = `https://talent-hub.org/api/lookups/activate-account/${lookUpId}?token=${token}`;
+    const activationLink = `https://app.talent-hub.org/api/lookups/activate-account/${lookUpId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `

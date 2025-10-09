@@ -269,21 +269,11 @@ export class AuthService {
           phoneNumber: loginCommand.userName,
           status: In(activeEmployeesStatus),
           userType:UserType.EMPLOYER,
-          employeeTenant: {
-            tenant: {
-              status: AccountStatusEnums.ACTIVE,
-            },
-          },
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
           userType:UserType.EMPLOYER,
-          employeeTenant: {
-            tenant: {
-              status: AccountStatusEnums.ACTIVE,
-            },
-          },
         },
       ],
       relations: { employeeTenant: { tenant: true } },
