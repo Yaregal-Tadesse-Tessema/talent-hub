@@ -268,12 +268,12 @@ export class AuthService {
         {
           phoneNumber: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:UserType.EMPLOYER,
+          userType:In([UserType.EMPLOYER,UserType.ADMIN]),
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:UserType.EMPLOYER,
+          userType:In([UserType.EMPLOYER,UserType.ADMIN]),
         },
       ],
       relations: { employeeTenant: { tenant: true } },
