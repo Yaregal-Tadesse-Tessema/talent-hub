@@ -369,11 +369,36 @@ export class UserService {
       command,
       [],
     );
-    if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE) {
-      return res.redirect('https://talent-hub.org/login?status=alreadyExists');
-    }
-    if (userAlreadyCreatedByGoogle) {
-      return res.redirect('https://talent-hub.org/login?status=alreadyExists');
+    if (userAlreadyCreated?.status == UserStatusEnums.ACTIVE || userAlreadyCreatedByGoogle) {
+      const payload: UserInfo = {
+        id: userAlreadyCreated.id,
+        email: userAlreadyCreated?.email,
+        firstName: userAlreadyCreated?.firstName,
+        middleName: userAlreadyCreated?.middleName,
+        lastName: userAlreadyCreated?.lastName,
+        phoneNumber: userAlreadyCreated?.phone,
+        profileImage: userAlreadyCreated?.profile,
+        address: userAlreadyCreated?.address,
+        skills: userAlreadyCreated?.technicalSkills,
+        industry: userAlreadyCreated?.industry,
+      };
+      const accessToken = Util.GenerateToken(payload, '60m'); //60m
+      const refreshToken = Util.GenerateRefreshToken(payload);
+      await this.sessionCommand.createSession(
+        {
+          accountId: payload.id,
+          token: accessToken,
+          refreshToken,
+        },
+      );
+      await this.userRepository.update(userAlreadyCreated.id, { lastLoginDate: new Date() });
+      const data = {
+        accessToken,
+        refreshToken,
+        profile: userAlreadyCreated,
+
+      }
+      return data
     }
     if (userAlreadyCreated?.status == UserStatusEnums.PENDING) {
       const uerInfo: UserInfo = {
@@ -418,8 +443,9 @@ export class UserService {
       lastName: item?.lastName,
       lookupId: lookup.id,
     };
+    const refreshToken = Util.GenerateRefreshToken(uerInfo);
+    const token = Util.GenerateToken(uerInfo);
     if (item?.email) {
-      const token = Util.GenerateToken(uerInfo);
       await this.sendActivationMessage(
         item.email,
         `${item.firstName} ${item.middleName} ${item.lastName}`,
@@ -429,7 +455,11 @@ export class UserService {
     } else {
       // Send Message
     }
-    return item;
+    return {
+      accessToken: token,
+      refreshToken: refreshToken,
+      profile: item,
+    };
   }
   async save(itemData: UpdateUserCommand): Promise<UserResponse> {
     const item = this.userRepository.create(itemData);
@@ -641,7 +671,7 @@ export class UserService {
         };
       }
       const token = Util.GenerateToken(payload, '1d');
-      const resetLinkWithToken = `${command.link}?token=${token}`;
+      const resetLinkWithToken = `${resetLink}?token=${token}`;
       const html = `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
                   <h2>Hello ${firstName} ${middleName} ${lastName},</h2>
@@ -665,7 +695,7 @@ export class UserService {
                     Reset My Password
                   </a>
                   <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
-                  <p><a href="${resetLink}">${resetLink}</a></p>
+                  <p><a href="${resetLinkWithToken}">${resetLinkWithToken}</a></p>
                   <p>This link will expire in 24 hours for your security. If you did not request a password reset, please ignore this email.</p>
                   <p>Stay safe!<br/>— The YourCompany Team</p>
          </div>
@@ -691,9 +721,9 @@ export class UserService {
     } else if (command.phoneNumber) {
       const response = await this.afroMessageService.sendOtp(command.phoneNumber, null);
       if (response) {
-        createPasswordResetCommand.employeerId=lookup.userType==UserType.EMPLOYER?lookup.id:null
-        createPasswordResetCommand.userId=lookup.userType==UserType.EMPLOYEE?lookup?.userId:null
-        createPasswordResetCommand.userId=lookup?.userId
+        createPasswordResetCommand.employeerId = lookup.userType == UserType.EMPLOYER ? lookup.id : null
+        createPasswordResetCommand.userId = lookup.userType == UserType.EMPLOYEE ? lookup?.userId : null
+        createPasswordResetCommand.userId = lookup?.userId
         const result = await this.passwordResetCommand.createPasswordReset(createPasswordResetCommand);
         return {
           message: 'Otp sent successfully',
@@ -765,7 +795,7 @@ export class UserService {
       address: user?.address,
       skills: user?.technicalSkills,
       industry: user?.industry,
-      userType: user?UserType.EMPLOYEE:UserType.EMPLOYER
+      userType: user ? UserType.EMPLOYEE : UserType.EMPLOYER
     };
     lookup.password = encryptedPassword;
     await this.lookupRepository.create(lookup);

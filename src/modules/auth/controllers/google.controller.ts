@@ -9,7 +9,7 @@ import { AllowAnonymous } from '../allow-anonymous.decorator';
 @ApiTags('google-Auth')
 @AllowAnonymous()
 export class GoogleAuthController {
-  constructor(private readonly googleAuthService: GoogleAuthService) {}
+  constructor(private readonly googleAuthService: GoogleAuthService) { }
 
   // Redirect user to Google login
   @Get('google')
@@ -23,9 +23,12 @@ export class GoogleAuthController {
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req, @Res() res) {
     // req.user is set by GoogleStrategy.validate
-    await this.googleAuthService.googUserSignUp(req.user, res);
-    return res.redirect(
-      'https://talent-hub.org/login?status=alreadyActivated',
-    );
+    const result = await this.googleAuthService.googUserSignUp(req.user, res);
+    if (result) {
+      res.setHeader('access-token', result.accessToken);
+      res.setHeader('refresh-token', result.refreshToken);
+      return res.redirect('https://talent-hub.org/find-job?profile=' + result.profile);
+    }
+    return res.redirect('https://talent-hub.org/login?status=alreadyExists');
   }
 }

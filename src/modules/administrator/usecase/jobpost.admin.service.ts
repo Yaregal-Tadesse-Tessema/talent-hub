@@ -168,7 +168,7 @@ export class JobPostAdminService {
         });
         if (alreadyApplied) throw new BadRequestException('You have already applied for this job');
 
-        const tenantEmail = jobPost?.tenant?.email ?? 'yayasoles@gmail.com';
+        const tenantEmail = jobPost?.tenant?.email;
         if (!tenantEmail) {
             return { success: false, message: 'Tenant email not found' };
         }

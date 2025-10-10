@@ -17,9 +17,9 @@ export class EmailController {
   async sendEmail() {
     const result = await this.emailService.basicEmail(
       {
-        email: 'yayasoles@gmail.com',
-        subject: 'New Leave Request',
-        to: 'yayaatsoles@gmail.com',
+        email: 'talenthubinformation@gmail.com',
+        subject: 'Emailing From Talenthub Information',
+        to: 'talenthubinformation@gmail.com',
         body: '2025-10-20',
         attachments: [
           {

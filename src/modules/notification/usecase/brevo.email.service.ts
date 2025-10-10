@@ -1,25 +1,34 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
+import * as SendGrid from '@sendgrid/mail';
 import { createEvent } from 'ics';
+import type { MailDataRequired } from '@sendgrid/mail';
 import * as nodemailer from 'nodemailer';
-import * as Brevo from '@getbrevo/brevo';
+import * as sgMail from '@sendgrid/mail';
 import * as process from 'node:process';
 import ical, { ICalCalendarMethod } from 'ical-generator';
 import { ICalenderCommand } from 'src/modules/application/usecase/application.command';
+import * as Brevo from '@getbrevo/brevo';
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private transporter: nodemailer.Transporter;
-  private  client = new Brevo.TransactionalEmailsApi();
 
   constructor() {
-    const api_Key = process.env.BREVO_API_KEY;
-    this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'talenthubinformation@gmail.com',
+        pass: 'nakz vvvl goxz pxfu',
+      },
+    });
   }
   private formatDate(date: Date): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
-  async basicEmail(data, resolve, reject) {
+  async basicEmailOld(data, resolve, reject) {
     console.log('try sending email');
     const { error, value: icsContent } = createEvent({
       title: data.subject,
@@ -28,19 +37,19 @@ export class EmailService {
       start: [2025, 5, 4, 10, 0], // [YYYY, M, D, H, M]
       end: [2025, 5, 4, 11, 0],
       status: 'CONFIRMED',
-      organizer: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
-      // attendees: [
-      //   { name: 'Yaya A.', email: 'yayaatsoles@gmail.com', rsvp: true },
-      // ],
+      organizer: { name: 'TalentHub', email: 'talenthubinformation@gmail.com' },
+      attendees: [
+        { name: 'Yaya A.', email: 'talenthubinformation@gmail.com', rsvp: true },
+      ],
     });
     const calendarContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'CALSCALE:GREGORIAN',
-      'PRODID:-//Talent Hub//EN',
+      'PRODID:-//Talent  Hub//EN',
       'METHOD:REQUEST',
       'BEGIN:VEVENT',
-      `UID:${Date.now()}@talenthubinformation.com`,
+      `UID:${Date.now()}talenthubinformation@gmail.com`,
       `DTSTAMP:${this.formatDate(new Date())}`,
       'DTSTART:20250504T100000Z',
       'DTEND:20250504T110000Z',
@@ -62,13 +71,13 @@ export class EmailService {
     }
 
     // 2. Create SendGrid message with ICS attached
-    const msg: Brevo.SendSmtpEmail = {
-      sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
-      to: [{ email: data.email, name: data?.name }],
+    const msg: MailDataRequired = {
+      from: 'talenthubinformation@gmail.com',
+      to: 'yayasoles@gmail.com',
       subject: data.subject,
-      htmlContent: `<p>${data.body}</p>`,
-      textContent: data.body,
-      attachment: [
+      html: `<p>${data.body}</p>`,
+      text: data.body,
+      attachments: [
         {
           content: Buffer.from(calendarContent).toString('base64'),
           filename: 'invite.ics',
@@ -79,7 +88,7 @@ export class EmailService {
       ],
     };
     try {
-      await this.client.sendTransacEmail(msg);
+      await SendGrid.send(msg);
       this.logger.log('Calendar invite sent');
       resolve(true);
     } catch (sendErr) {
@@ -87,31 +96,70 @@ export class EmailService {
       reject(sendErr);
     }
   }
+  async basicEmail(data, resolve, reject) {
+    const api_Key = process.env.BREVO_API_KEY;
+    const client = new Brevo.TransactionalEmailsApi();
+    client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
+    console.log("try sending email");
+    console.log(data);
+    var msg: Brevo.SendSmtpEmail = {
+        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
+        to: [{ email: data.email, name: data?.name }],
+        subject: data.subject, // email subject
+        htmlContent: data.body, // email content in HTML
+    };
+
+    if (data.attachments) {
+        msg = {
+            sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
+            to: [{ email: data.email, name: data?.name }],
+            subject: data.subject, // email subject
+            htmlContent: data.body, // email content in HTML
+            attachment: data.attachments.map((itemat, idxat) => {
+              return {
+                content: itemat.content,
+                filename: itemat.filename,
+                type: itemat.type,
+                disposition: "attachment",
+              };
+            }),
+        };
+        console.log("message send with attachments");
+    }
+    client
+        .sendTransacEmail(msg)
+        .then((data) => {
+            console.log('✅ Email sent:', data);
+        })
+        .catch((error) => {
+            console.error('❌ Email failed:', error.response?.data || error);
+        });
+}
   async sendEmail(
     to: string,
     subject: string,
     html: string,
     icsContent?: string,
   ) {
-    const mailOptions: Brevo.SendSmtpEmail = {
-      sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
-      to: [{ email: to }],
+    const mailOptions: nodemailer.SendMailOptions = {
+      from: `"Talent Hub" <talenthubinformation@gmail.com>`,
+      to,
       subject,
-      htmlContent: html,
+      html,
     };
 
     if (icsContent) {
-      mailOptions.attachment = [
+      mailOptions.attachments = [
         {
-          name: 'invite.ics',
+          filename: 'invite.ics',
           content: icsContent,
-          // contentType: 'text/calendar',
+          contentType: 'text/calendar',
         },
       ];
     }
 
     try {
-      const info = await this.client.sendTransacEmail(mailOptions);
+      const info = await this.transporter.sendMail(mailOptions);
       this.logger.log(`Email sent: ${info.response}`);
       return true;
     } catch (err) {
@@ -129,13 +177,20 @@ export class EmailService {
       if (!to) {
         return null;
       }
+      // Initialize Brevo API client
+      const api_Key = process.env.BREVO_API_KEY;
+      const client = new Brevo.TransactionalEmailsApi();
+      client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
+
+      // Prepare email message
       const msg: Brevo.SendSmtpEmail = {
+        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
         to: [{ email: to }],
-        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' }, // Must be a verified sender
-        subject,
+        subject: subject,
         htmlContent: html,
       };
 
+      // Add ICS attachment if provided
       if (icsContent) {
         msg.attachment = [
           {
@@ -144,14 +199,16 @@ export class EmailService {
           },
         ];
       }
-      const res = await this.client.sendTransacEmail(msg);
+
+      // Send email using Brevo
+     const res = await client.sendTransacEmail(msg);
+      this.logger.log(`Email sent to ${to} via Brevo`);
       return true;
     } catch (error) {
-      this.logger.error('Error sending email:', error.response?.body || error);
+      this.logger.error('Error sending email via Brevo:', error.response?.data || error);
       throw error;
     }
   }
-
   async sendGridEmailCalenders(
     to: string,
     subject: string,
@@ -223,7 +280,7 @@ export class EmailService {
         organizerName: 'TalentHub',
         summary: 'Job Interview Appointment',
         uid: '57bf0aca-9e83-4e0e-9736-b37ac66f5810',
-        location: 'Bole Addis Abeba',
+        location: 'Jemo  Medhanyalem Lebu Musica sefer',
       }),
     );
     await this.sendGridEmailCalender(to, subject, html, icsContents);
@@ -238,39 +295,42 @@ export class EmailService {
     try {
       const plain = html.replace(/<[^>]*>/g, '');
       /** ---------- 1. Build the core message ---------- */
-      const msg: Brevo.SendSmtpEmail = {
-        to: [{ email: to }],
-        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' }, // verified sender
+      const msg: sgMail.MailDataRequired = {
+        to,
+        from: 'talenthubinformation@gmail.com', // verified sender
         subject,
-        htmlContent: html,
-        textContent: plain,
+        content: [
+          // 👈 satisfies MailDataRequired
+          { type: 'text/plain', value: plain },
+          { type: 'text/html', value: html },
+        ],
       };
 
       if (icsContent) {
         // 1️⃣ inline calendar part
-        msg.attachment.push({
-          name: 'invite.ics', // ⚠️ no semicolons here
-          content: icsContent[0],
+        msg.content.push({
+          type: 'text/calendar', // ⚠️ no semicolons here
+          value: icsContent[0],
         });
-        msg.attachment.push({
-          name: 'invite.ics', // ⚠️ no semicolons here
-          content: icsContent[1],
+        msg.content.push({
+          type: 'text/calendar', // ⚠️ no semicolons here
+          value: icsContent[1],
         });
         // 2️⃣ attachment (fallback for older clients)
-        msg.attachment = [
+        msg.attachments = [
           {
             content: Buffer.from(icsContent[0]).toString('base64'),
-            name: 'invite.ics',
-            // type: 'text/calendar', // ⚠️ no semicolons here
-            // disposition: 'attachment',
+            filename: 'invite.ics',
+            type: 'text/calendar', // ⚠️ no semicolons here
+            disposition: 'attachment',
           },
         ];
-        msg.attachment = [
+        msg.attachments = [
           {
             content: Buffer.from(icsContent[1]).toString('base64'),
-            name: 'invite.ics',
-            // type: 'text/calendar', // ⚠️ no semicolons here
-            // disposition: 'attachment',
+            filename: 'invite.ics',
+            type: 'text/calendar', // ⚠️ no semicolons here
+            disposition: 'attachment',
           },
         ];
         // 3️⃣ optional Outlook hint
@@ -280,7 +340,7 @@ export class EmailService {
       }
 
       /** ---------- 4. Fire away ---------- */
-      await this.client.sendTransacEmail(msg);
+      await sgMail.send(msg);
       return true;
     } catch (error: any) {
       this.logger.error('Error sending email:', error?.response?.body || error);
@@ -300,11 +360,11 @@ export class EmailService {
     html: string,
     attachment: { filename: string; content: Buffer | string; contentType: string }[]
   ): Promise<boolean> {
-    if (!attachment) {
+    if(!attachment) {
       return false;
     }
     const mailOptions: nodemailer.SendMailOptions = {
-      from: `"Talent Hub" <htalenthubet@gmail.com>`,
+      from: `"Talent Hub" <talenthubinformation@gmail.com>`,
       to,
       subject,
       html,

@@ -1,15 +1,16 @@
 /* eslint-disable prettier/prettier */
-
 import { Injectable, Logger } from '@nestjs/common';
-import * as SendGrid from '@sendgrid/mail';
 import { createEvent } from 'ics';
+import * as Brevo from '@getbrevo/brevo';
+
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-
+  private  client = new Brevo.TransactionalEmailsApi();
   constructor() {
-    // SendGrid.setApiKey(process.env.SENDGRID_API_KEY);
+    const api_Key = process.env.BREVO_API_KEY;
+    this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
   }
 
   async basicEmail(data, resolve, reject) {
@@ -22,7 +23,7 @@ export class EmailService {
         end: [2025, 5, 3, 11, 0],
         location: 'Addis Ababa',
         status: 'CONFIRMED',
-        organizer: { name: 'Garri Logistics', email: 'admin@garrilogistics.com' },
+        organizer: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
         attendees: [
           { name: 'User', email: data.email, rsvp: true }
         ],
@@ -34,21 +35,21 @@ export class EmailService {
       }
 
       // Step 2: Create the message with icalEvent
-      const msg: any = {
-        from: 'Garri <admin@garrilogistics.com>',
+      const msg: Brevo.SendSmtpEmail = {
+        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
         to: data.email,
         subject: data.subject || 'Meeting Invite',
-        text: 'You have been invited to an event. Please find the invitation attached.',
-        html: '<p>You have been invited to an event. Please find the invitation attached.</p>',
-        icalEvent: {
-          filename: 'invitation.ics',
-          method: 'REQUEST',
-          content: value,
-        },
+        textContent: 'You have been invited to an event. Please find the invitation attached.',
+        htmlContent: '<p>You have been invited to an event. Please find the invitation attached.</p>',
+        // attachment: {
+        //   name: 'invitation.ics',
+        //   contentType: 'text/calendar',
+        //   content: value,
+        // },
       };
 
       // Step 3: Send via SendGrid
-      await SendGrid.send(msg);
+      await this.client.sendTransacEmail(msg);
       this.logger.log('Calendar invite sent');
       resolve(true);
     } catch (err) {

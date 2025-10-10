@@ -26,16 +26,9 @@ export class GoogleAuthService {
       path: user.picture,
     };
     command.isFirstTime = true;
-    // command.password = 'C0mplex';
     const result = await this.userService.create(command, res);
-    // redirect to login page
-   res.redirect('https://talent-hub.org/login?status=alreadyExists');
-    // const token = await this.jwtService.sign(payload);
-    // return {
-    //   message: 'User info from Google',
-    //   user,
-    //   accessToken: token,
-    // };
+    return result
+   
   }
   async googleLogin(user: any) {
     if (!user) {
