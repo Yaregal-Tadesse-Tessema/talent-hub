@@ -45,6 +45,10 @@ export class JobPostAdminService {
             tenantEntity.email = command?.email;
             tenantEntity.phoneNumber = command?.tenantPhone;
             tenantEntity.isAdminCreated = true;
+            tenantEntity.isProfilePublic=false;
+            tenantEntity.hasAiActivated=false;
+            tenantEntity.isVerified=false;
+            tenantEntity.status=AccountStatusEnums.PENDING;
             tenant = await this.tenantRepo.save(tenantEntity);
         }
         let lookup = await this.lookupRepo.findOne({ where: [{ tenantId: tenant?.id }] });

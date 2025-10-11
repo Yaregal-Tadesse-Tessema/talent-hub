@@ -24,7 +24,7 @@ export class TenantEntity extends CommonEntity {
   @Column({ nullable: true, unique: true })
   email: string;
   @Column({ default: false })
-  haAiActivated: boolean;
+  hasAiActivated: boolean;
   @Column({ nullable: true })
   code: string;
   @Column({ unique: true, nullable: true })

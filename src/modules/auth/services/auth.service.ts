@@ -324,7 +324,6 @@ export class AuthService {
     const tenant = lookup.employeeTenant[0]?.tenant;
     if (!lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
-    
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
     if ((lookup.employeeTenant.length === 0)) return null;
     const payload: UserInfo = {
