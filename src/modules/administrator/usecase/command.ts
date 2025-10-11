@@ -49,6 +49,8 @@ export class CreateAdminJobPostingCommand {
     appliedThrough: AppliedThroughEnums;
     @ApiProperty()
     postedDate: Date;
+    @ApiProperty()
+    salary: string;
 
 }
 

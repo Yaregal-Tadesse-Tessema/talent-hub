@@ -92,7 +92,7 @@ export class JobPostAdminService {
             jobPostingEntity.deadline = command?.deadline;
             jobPostingEntity.gender = command?.gender;
             jobPostingEntity.positionNumbers = command?.numberOfPosition;
-            jobPostingEntity.status = JobPostingStatusEnums.POSTED;
+            jobPostingEntity.status = JobPostingStatusEnums.DRAFT;
             jobPostingEntity.appliedThrough = AppliedThroughEnums.PHYSICAL;
             jobPostingEntity.isAdminCreated = true
             jobPostingEntity.postedDate = command?.postedDate;
