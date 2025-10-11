@@ -14,7 +14,7 @@ import { Util } from 'src/libs/Common/util';
 import { EmployeeStatus } from 'src/modules/user/usecase/user.command';
 import { AppliedThroughEnums, JobPostingStatusEnums } from 'src/modules/job-posting/constants';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
-import { AccountStatusEnums } from 'src/modules/auth/constants';
+import { AccountStatusEnums, OrganizationTypeEnums } from 'src/modules/auth/constants';
 import { ApplicationEntity } from 'src/modules/application/persistences/application.entity';
 import { ApplicationStatusEnums } from 'src/modules/application/constants';
 import { ApplicationRepository } from 'src/modules/application/persistences/application.repository';
@@ -49,6 +49,7 @@ export class JobPostAdminService {
             tenantEntity.hasAiActivated=false;
             tenantEntity.isVerified=false;
             tenantEntity.status=AccountStatusEnums.PENDING;
+            tenantEntity.organizationType=OrganizationTypeEnums.PRIVATE;
             tenant = await this.tenantRepo.save(tenantEntity);
         }
         let lookup = await this.lookupRepo.findOne({ where: [{ tenantId: tenant?.id }] });
@@ -85,14 +86,14 @@ export class JobPostAdminService {
             jobPostingEntity.title = command?.jobTitle;
             jobPostingEntity.employmentType = command?.jobType;
             jobPostingEntity.workMode = command?.worktype;
-            jobPostingEntity.howToApply = command?.howToApply;
-            jobPostingEntity.skill = command?.skills;
+            jobPostingEntity.howToApply = command?.howToApply?.trim();
+            jobPostingEntity.skill = command?.skills?.map((skill) => skill.trim());
             jobPostingEntity.jobPostRequirement = command?.jobRequirement;
             jobPostingEntity.responsibilities = command?.responsibilities;
-            jobPostingEntity.description = command?.description;
-            jobPostingEntity.position = command?.position;
+            jobPostingEntity.description = command?.description?.trim();
+            jobPostingEntity.position = command?.position?.trim();
             jobPostingEntity.industry = command?.industry;
-            jobPostingEntity.location = command?.tenantAddress;
+            jobPostingEntity.location = command?.tenantAddress?.trim();
             jobPostingEntity.deadline = command?.deadline;
             jobPostingEntity.gender = command?.gender;
             jobPostingEntity.positionNumbers = command?.numberOfPosition;
@@ -100,6 +101,7 @@ export class JobPostAdminService {
             jobPostingEntity.appliedThrough = AppliedThroughEnums.PHYSICAL;
             jobPostingEntity.isAdminCreated = true
             jobPostingEntity.postedDate = command?.postedDate;
+            jobPostingEntity.companyName = command?.tenantName?.trim();
             jobPost = await this.jobPostRepo.save(jobPostingEntity);
         }
         ;

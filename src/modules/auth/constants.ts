@@ -32,7 +32,17 @@ export enum AccountStatusEnums {
   InACTIVE = 'Inactive',
   DISABLED = 'Disabled',
 }
-
+export enum OrganizationTypeEnums {
+  PRIVATE = 'Private Company',
+  PUBLIC = 'Public Company',
+  GOVERNMENT = 'Government Company',
+  NON_PROFIT = 'Non Profit',
+  EDUCATION = 'Education',
+  RESEARCH = 'Research',
+  OTHER = 'Other',
+  NGO = 'International Agency',
+  SEMI_GOVERMENT = 'Semi Government',
+}
 export enum LinkTypeEnums {
   WEBSITE = 'Website',
   FACEBOOK = 'Facebook',

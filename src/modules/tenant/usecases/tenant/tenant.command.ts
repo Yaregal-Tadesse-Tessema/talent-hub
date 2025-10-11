@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
-import { AccountStatusEnums, LinkTypeEnums, SalesInformation } from 'src/modules/auth/constants';
+import { AccountStatusEnums, LinkTypeEnums, OrganizationTypeEnums, SalesInformation } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantSubscriptionTypes } from '../../constants';
 import { UserInfo } from 'src/libs/Common/user-information';
@@ -54,7 +54,7 @@ export class CreateTenantCommand {
   @ApiProperty()
   industry?: string;
   @ApiProperty()
-  organizationType?: string;
+  organizationType?: OrganizationTypeEnums;
   @ApiProperty()
   selectedCalender?: string;
   @ApiProperty()
