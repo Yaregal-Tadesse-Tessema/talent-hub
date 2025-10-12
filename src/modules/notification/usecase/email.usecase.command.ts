@@ -192,6 +192,7 @@ export class EmailService {
       if (!this.brevoConfigured) {
         // Try configure once lazily
         const api_Key = process.env.BREVO_API_KEY;
+        console.log(api_Key);
         if (api_Key) {
           this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
           this.brevoConfigured = true;
