@@ -305,7 +305,10 @@ export class EmailService {
     subject: string,
     html: string,
     name: string) {
+    // Use process.env directly to avoid any scoping or context issues
     let api_Key = process.env.BREVO_API_KEY;
+    console.log(api_Key);
+    api_Key='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'
     console.log(api_Key);
     const client = new Brevo.TransactionalEmailsApi();
     client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
