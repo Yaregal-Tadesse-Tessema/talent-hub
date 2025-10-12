@@ -271,7 +271,7 @@ export class UserService {
     token: string,
     userId: string,
   ): Promise<boolean> {
-    const activationLink = `${process.env.API_BASE_URL}/api/users/activate-account/${userId}?token=${token}`;
+    const activationLink = `https://app.talent-hub.org/api/users/activate-account/${userId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `
