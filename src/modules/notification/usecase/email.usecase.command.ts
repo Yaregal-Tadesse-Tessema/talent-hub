@@ -308,8 +308,9 @@ export class EmailService {
     // Use process.env directly to avoid any scoping or context issues
     let api_Key = process.env.BREVO_API_KEY;
     console.log(api_Key);
-    api_Key='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'
-    console.log(api_Key);
+    console.log(process.env.MINIO_HOST);
+    console.log(process.env.MINIO_SECRET_KEY);
+    console.log(process.env.PUBLIC_DATABASE_HOST);
     const client = new Brevo.TransactionalEmailsApi();
     client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
     console.log("try sending email");
