@@ -133,8 +133,9 @@ export class UserController {
   @Post()
   @AllowAnonymous()
   @UsePipes(new ValidationPipe({ transform: true }))
-  async create(@Body() itemData: CreateUserCommand, @Res() res: Response): Promise<UserResponse> {
-    return await this.userService.create(itemData, res);
+  async create(@Body() itemData: CreateUserCommand): Promise<UserResponse> {
+    const response= await this.userService.create(itemData);
+    return response;
   }
   @Get()
   @ApiQuery({

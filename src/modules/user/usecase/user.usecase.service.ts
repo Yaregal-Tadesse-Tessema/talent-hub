@@ -356,7 +356,7 @@ export class UserService {
       });
     });
   }
-  async create(itemData: CreateUserCommand, @Res() res: Response): Promise<any> {
+  async create(itemData: CreateUserCommand): Promise<any> {
     const command: any = {
       phone: itemData.phone,
       email: itemData.email,

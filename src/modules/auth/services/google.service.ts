@@ -26,7 +26,7 @@ export class GoogleAuthService {
       path: user.picture,
     };
     command.isFirstTime = true;
-    const result = await this.userService.create(command, res);
+    const result = await this.userService.create(command);
     return result
    
   }
