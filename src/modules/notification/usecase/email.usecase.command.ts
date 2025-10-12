@@ -136,14 +136,14 @@ export class EmailService {
         htmlContent: html,
       };
 
-      if (icsContent) {
-        msg.attachment = [
-          {
-            content: Buffer.from(icsContent).toString('base64'),
-            name: 'invite.ics',
-          },
-        ];
-      }
+      // if (icsContent) {
+      //   msg.attachment = [
+      //     {
+      //       content: Buffer.from(icsContent).toString('base64'),
+      //       name: 'invite.ics',
+      //     },
+      //   ];
+      // }
       const res = await this.client.sendTransacEmail(msg);
       return true;
     } catch (error) {

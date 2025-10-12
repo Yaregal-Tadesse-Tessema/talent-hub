@@ -38,7 +38,6 @@ import { UserEntity } from '../persistence/users.entity';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { HttpStatusCode } from 'axios';
 import { SessionCommand } from 'src/modules/auth/services/session/session.usecase.command';
 import { PasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.usecase.service';
 import { PasswordResetQuery } from 'src/modules/auth/services/password-reset/password-reset.usecase.query';
@@ -779,8 +778,7 @@ export class UserService {
       );
     }
     const user = lookup?.user;
-    const salt = process.env.BCRYPT_SALT;
-    const encryptedPassword = await bcrypt.hash(command.newPassword, salt);
+    const encryptedPassword = Util.hashPassword(command.newPassword);
     user.password = encryptedPassword;
     const response = await this.userRepository.create(user);
     const payload: UserInfo = {

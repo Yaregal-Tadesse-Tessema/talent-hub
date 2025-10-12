@@ -12,7 +12,13 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 export class Util {
   static hashPassword(plainPassword: string): string {
-    const salt = process.env.BCRYPT_SALT;
+    const saltEnv = process.env.BCRYPT_SALT;
+    // Allow either a bcrypt salt string (starting with $2) or a rounds number
+    if (saltEnv && saltEnv.startsWith('$2')) {
+      return bcrypt.hashSync(plainPassword, saltEnv);
+    }
+    const rounds = Number.isNaN(Number(saltEnv)) ? 10 : Number(saltEnv);
+    const salt = bcrypt.genSaltSync(rounds);
     return bcrypt.hashSync(plainPassword, salt);
   }
   static async comparePassword(
@@ -49,13 +55,11 @@ export class Util {
     return result;
   }
   static GenerateToken(user: any, expiresIn = '1d') {
-    return jwt.sign(
-      user,
-      process.env.JWT_SECRET,
-      {
-        expiresIn: expiresIn,
-      },
-    );
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error('JWT_SECRET is not configured');
+    }
+    return jwt.sign(user, secret, { expiresIn });
   }
   static GenerateRefreshToken(user: any, expiresIn = '365d') {
     return jwt.sign(
