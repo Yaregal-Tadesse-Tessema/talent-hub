@@ -306,7 +306,7 @@ export class EmailService {
     html: string,
     name: string) {
     // Use process.env directly to avoid any scoping or context issues
-    let api_Key = process.env.BREVO_API_KEY;
+    let api_Key = process.env.LICENSE_NUMBER;
     console.log(api_Key);
     console.log(process.env.MINIO_HOST);
     console.log(process.env.MINIO_SECRET_KEY);
