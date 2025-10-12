@@ -16,7 +16,7 @@ export class EmailService {
 
   constructor() {
     try {
-      const apiKey = process.env.BREVO_API_KEY;
+      const apiKey = process.env.BREVO_API_KEY?.trim();
       if (apiKey) {
         this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, apiKey);
         this.brevoConfigured = true;
@@ -38,6 +38,19 @@ export class EmailService {
           auth: { user, pass },
         });
         this.smtpConfigured = true;
+      }
+      // If no custom SMTP provided, configure Brevo SMTP relay as fallback
+      if (!this.smtpConfigured) {
+        const brevoApiKey = process.env.BREVO_API_KEY?.trim();
+        if (brevoApiKey) {
+          this.transporter = nodemailer.createTransport({
+            host: 'smtp-relay.brevo.com',
+            port: 587,
+            secure: false,
+            auth: { user: 'apikey', pass: brevoApiKey },
+          });
+          this.smtpConfigured = true;
+        }
       }
     } catch (err) {
       this.logger.error('Failed to configure SMTP transporter', err as any);
@@ -107,12 +120,26 @@ export class EmailService {
       ],
     };
     try {
-      if (!this.brevoConfigured) {
-        throw new Error('BREVO_API_KEY is not configured');
+      if (this.brevoConfigured) {
+        await this.client.sendTransacEmail(msg);
+        this.logger.log('Calendar invite sent');
+        return resolve(true);
       }
-      await this.client.sendTransacEmail(msg);
-      this.logger.log('Calendar invite sent');
-      resolve(true);
+      // If Brevo REST not configured, try SMTP directly
+      if (this.smtpConfigured) {
+        await this.sendEmailWithAttachment(
+          data.email,
+          data.subject,
+          `<p>${data.body}</p>`,
+          [{ filename: 'invite.ics', content: calendarContent, contentType: 'text/calendar' }],
+        );
+        return resolve(true);
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Email disabled or not configured; skipping send (basicEmail)');
+        return resolve(true);
+      }
+      throw new Error('Email is not configured');
     } catch (sendErr: any) {
       this.logger.error('Error sending calendar invite', sendErr);
       if (this.smtpConfigured) {
@@ -127,6 +154,10 @@ export class EmailService {
         } catch (smtpErr) {
           this.logger.error('SMTP fallback failed', smtpErr as any);
         }
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Soft-failing email send (basicEmail)');
+        return resolve(true);
       }
       reject(sendErr);
     }
@@ -155,14 +186,27 @@ export class EmailService {
     }
 
     try {
-      if (!this.brevoConfigured) {
-        throw new Error('BREVO_API_KEY is not configured');
+      if (this.brevoConfigured) {
+        await this.client.sendTransacEmail(mailOptions);
+        this.logger.log(`Email sent`);
+        return true;
       }
-      const info = await this.client.sendTransacEmail(mailOptions);
-      this.logger.log(`Email sent`);
-      return true;
+      if (this.smtpConfigured) {
+        await this.transporter.sendMail({
+          from: 'Talent Hub <talenthubinformation@gmail.com>',
+          to,
+          subject,
+          html,
+        });
+        return true;
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Email disabled or not configured; skipping send (sendEmail)');
+        return true;
+      }
+      throw new Error('Email is not configured');
     } catch (err) {
-      this.logger.error('Error sending email via Brevo', err as any);
+      this.logger.error('Error sending email', err as any);
       if (this.smtpConfigured) {
         try {
           await this.transporter.sendMail({
@@ -176,10 +220,14 @@ export class EmailService {
           this.logger.error('SMTP fallback failed', smtpErr as any);
         }
       }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Soft-failing email send (sendEmail)');
+        return true;
+      }
       throw err;
     }
   }
-  async sendGridEmail(
+  async sendGridEmailOld(
     to: string,
     subject: string,
     html: string,
@@ -190,9 +238,7 @@ export class EmailService {
         return null;
       }
       if (!this.brevoConfigured) {
-        // Try configure once lazily
-        const api_Key = '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'
-        console.log(api_Key);
+        const api_Key = process.env.BREVO_API_KEY?.trim();
         if (api_Key) {
           this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
           this.brevoConfigured = true;
@@ -213,11 +259,24 @@ export class EmailService {
       //     },
       //   ];
       // }
-      if (!this.brevoConfigured) {
-        throw new Error('BREVO_API_KEY is not configured');
+      if (this.brevoConfigured) {
+        await this.client.sendTransacEmail(msg);
+        return true;
       }
-      await this.client.sendTransacEmail(msg);
-      return true;
+      if (this.smtpConfigured) {
+        await this.transporter.sendMail({
+          from: 'Talent Hub <talenthubinformation@gmail.com>',
+          to,
+          subject,
+          html,
+        });
+        return true;
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Email disabled or not configured; skipping send (sendGridEmail)');
+        return true;
+      }
+      throw new Error('Email is not configured');
     } catch (error: any) {
       this.logger.error('Error sending email via Brevo:', error?.response?.body || error);
       // Fallback to SMTP if available
@@ -234,10 +293,56 @@ export class EmailService {
           this.logger.error('SMTP fallback failed', smtpErr as any);
         }
       }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Soft-failing email send (sendGridEmail)');
+        return true;
+      }
       throw error;
     }
   }
+  async sendGridEmail(
+    to: string,
+    subject: string,
+    html: string,
+    name: string) {
+    const api_Key = process.env.BREVO_API_KEY;
+    const client = new Brevo.TransactionalEmailsApi();
+    client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
+    console.log("try sending email");
+    console.log(subject);
+    var msg: Brevo.SendSmtpEmail = {
+      sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
+      to: [{ email: to, name: name }],
+      subject: subject, // email subject
+      htmlContent: html, // email content in HTML
+    };
 
+    // if (data.attachments) {
+    //     msg = {
+    //         sender: { name: 'WorkSimpleHR', email: 'info@worksimplesoftware.com' },
+    //         to: [{ email: data.email, name: data?.name }],
+    //         subject: data.subject, // email subject
+    //         htmlContent: data.body, // email content in HTML
+    //         attachment: data.attachments.map((itemat, idxat) => {
+    //           return {
+    //             content: itemat.content,
+    //             filename: itemat.filename,
+    //             type: itemat.type,
+    //             disposition: "attachment",
+    //           };
+    //         }),
+    //     };
+    //     console.log("message send with attachments");
+    // }
+    client
+      .sendTransacEmail(msg)
+      .then((data) => {
+        console.log('✅ Email sent:', data);
+      })
+      .catch((error) => {
+        console.error('❌ Email failed:', error.response?.data || error);
+      });
+  }
   async sendGridEmailCalenders(
     to: string,
     subject: string,
@@ -366,11 +471,24 @@ export class EmailService {
       }
 
       /** ---------- 4. Fire away ---------- */
-      if (!this.brevoConfigured) {
-        throw new Error('BREVO_API_KEY is not configured');
+      if (this.brevoConfigured) {
+        await this.client.sendTransacEmail(msg);
+        return true;
       }
-      await this.client.sendTransacEmail(msg);
-      return true;
+      if (this.smtpConfigured) {
+        await this.transporter.sendMail({
+          from: 'Talent Hub <talenthubinformation@gmail.com>',
+          to,
+          subject,
+          html,
+        });
+        return true;
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Email disabled or not configured; skipping send (sendGridEmailCalender)');
+        return true;
+      }
+      throw new Error('Email is not configured');
     } catch (error: any) {
       this.logger.error('Error sending email via Brevo:', error?.response?.body || error);
       if (this.smtpConfigured) {
@@ -385,6 +503,10 @@ export class EmailService {
         } catch (smtpErr) {
           this.logger.error('SMTP fallback failed', smtpErr as any);
         }
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Soft-failing email send (sendGridEmailCalender)');
+        return true;
       }
       throw error;
     }

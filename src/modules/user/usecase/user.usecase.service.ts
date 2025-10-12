@@ -298,7 +298,7 @@ export class UserService {
     </div>
      `;
 
-    await this.emailService.sendGridEmail(to, subject, html);
+    await this.emailService.sendGridEmail(to, subject, html, userFullName);
     return true;
   }
   async activateAccount(token: string, @Res() res: Response, userId: string) {
@@ -699,9 +699,10 @@ export class UserService {
          </div>
       `;
       const response = this.emailService.sendGridEmail(
-        userName,
+        command.email,
         `Regarding you'r password reset`,
         html,
+        `${firstName} ${middleName} ${lastName}`
       );
       if (response) {
         createPasswordResetCommand.token = token;

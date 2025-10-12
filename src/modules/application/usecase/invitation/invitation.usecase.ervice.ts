@@ -41,7 +41,8 @@ export class InvitationService {
         const result = await this.emailService.sendGridEmail(
           user.email,
           subject,
-          html
+          html,
+          `${user.firstName} ${user.middleName}`
         );
       }
     }

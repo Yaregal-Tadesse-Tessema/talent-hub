@@ -229,7 +229,7 @@ export class LookupService {
     </div>
      `;
     if (!to) throw new BadRequestException(`Reciver email is Mandatory`);
-    await this.emailService.sendGridEmail(to, subject, html);
+    await this.emailService.sendGridEmail(to, subject, html, `${fullName}`);
     return true;
   }
 }

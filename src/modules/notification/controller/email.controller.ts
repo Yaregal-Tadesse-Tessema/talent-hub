@@ -50,6 +50,7 @@ export class EmailController {
       body.to,
       body.subject,
       body.html,
+      "Test"
     );
   }
   @Post('send-grid-calendor')
