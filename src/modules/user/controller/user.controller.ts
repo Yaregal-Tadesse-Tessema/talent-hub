@@ -127,6 +127,7 @@ export class UserController {
     @Res() res: Response,
     @Param('userId') userId: string,
   ) {
+    console.log(token, userId);
     return await this.userService.activateAccount(token, res, userId);
   }
   @Post()

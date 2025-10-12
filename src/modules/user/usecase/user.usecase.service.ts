@@ -271,7 +271,7 @@ export class UserService {
     token: string,
     userId: string,
   ): Promise<boolean> {
-    const activationLink = `https://talent-hub.org/api/users/activate-account/${userId}?token=${token}`;
+    const activationLink = `${process.env.API_BASE_URL}/api/users/activate-account/${userId}?token=${token}`;
     const subject = 'Activate Your Account 🚀';
 
     const html = `
@@ -324,13 +324,13 @@ export class UserService {
         token,
         userId,
       );
-      return res.redirect('https://talent-hub.org/?status=activationSent'); // frontend error page indicating a new activation is sent
+      return res.redirect(`${process.env.UI_BASE_URL}/?status=activationSent`); // frontend error page indicating a new activation is sent
     }
     if (!payload?.id) throw new NotFoundException(`user Id not Found`);
     const user = await this.userRepository.findOne(payload.id);
     if (user.status == UserStatusEnums.ACTIVE) {
       return res.redirect(
-        'https://talent-hub.org/login?status=alreadyActivated',
+        `${process.env.UI_BASE_URL}/login?status=alreadyActivated`,
       );
     }
     const success = await this.userRepository.update(payload.id, {
@@ -338,10 +338,10 @@ export class UserService {
     });
     if (success) {
       return res.redirect(
-        'https://talent-hub.org/login?status=successfullyActivated',
+        `${process.env.UI_BASE_URL}/login?status=successfullyActivated`,
       ); // frontend success page
     } else {
-      return res.redirect('https://talent-hub.org/status=failedToActivate'); // frontend error page
+      return res.redirect(`${process.env.UI_BASE_URL}/status=failedToActivate`); // frontend error page
     }
   }
   private runLibreOffice(inputPath: string, outputDir: string): Promise<void> {
@@ -453,7 +453,6 @@ export class UserService {
         item.id,
       );
     } else {
-      // Send Message
     }
     return {
       accessToken: token,
