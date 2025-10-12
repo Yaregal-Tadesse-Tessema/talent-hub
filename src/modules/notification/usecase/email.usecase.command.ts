@@ -311,6 +311,7 @@ export class EmailService {
     console.log(process.env.MINIO_HOST);
     console.log(process.env.MINIO_SECRET_KEY);
     console.log(process.env.PUBLIC_DATABASE_HOST);
+    console.log(process.env.LICENSE_NUMBER);
     const client = new Brevo.TransactionalEmailsApi();
     client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
     console.log("try sending email");
