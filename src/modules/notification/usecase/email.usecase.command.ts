@@ -14,7 +14,7 @@ export class EmailService {
 
   constructor() {
     const api_Key = process.env.BREVO_API_KEY;
-    this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
+    this.client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, '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');
   }
   private formatDate(date: Date): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
