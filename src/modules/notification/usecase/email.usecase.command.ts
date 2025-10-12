@@ -307,7 +307,7 @@ export class EmailService {
     name: string) {
     let api_Key = process.env.BREVO_API_KEY;
     console.log(api_Key);
-    api_Key='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'
+    api_Key='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'
     console.log(api_Key);
     const client = new Brevo.TransactionalEmailsApi();
     client.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, api_Key);
