@@ -29,7 +29,7 @@ export class AuthService {
     private readonly lookupRepository: Repository<LookupEntity>,
     @InjectRepository(SessionEntity)
     private readonly sessionRepository: Repository<SessionEntity>,
-  ) {}
+  ) { }
   async generateTokenForEmployee(account: any) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
@@ -184,12 +184,14 @@ export class AuthService {
     ) {
       throw new BadRequestException('Provide your credentials to login');
     }
+    let tenantId = null;
     if (loginCommand.orgId) {
+      tenantId = loginCommand.orgId;
       const lookupData = await this.lookupRepository.findOne({
         where: [
           {
             phoneNumber: loginCommand.userName,
-            userType:In([UserType.EMPLOYER,UserType.ADMIN]),
+            userType: In([UserType.EMPLOYER, UserType.ADMIN]),
             employeeTenant: {
               status: In(activeEmployeesStatus),
               tenant: {
@@ -200,7 +202,7 @@ export class AuthService {
           },
           {
             email: loginCommand.userName,
-            userType:In([UserType.EMPLOYER,UserType.ADMIN]),
+            userType: In([UserType.EMPLOYER, UserType.ADMIN]),
             employeeTenant: {
               status: In(activeEmployeesStatus),
               tenant: {
@@ -268,12 +270,12 @@ export class AuthService {
         {
           phoneNumber: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:In([UserType.EMPLOYER,UserType.ADMIN]),
+          userType: In([UserType.EMPLOYER, UserType.ADMIN]),
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          userType:In([UserType.EMPLOYER,UserType.ADMIN]),
+          userType: In([UserType.EMPLOYER, UserType.ADMIN]),
         },
       ],
       relations: { employeeTenant: { tenant: true } },
@@ -286,18 +288,18 @@ export class AuthService {
       throw new BadRequestException(
         `Your account is not Activated please check your email do not forget you Spam folder too`,
       );
-      if (
-        !(await Util.comparePassword(
-          loginCommand.password.trim(),
-          lookup.password,
-        ))
-      ) {
-        throw new BadRequestException(`Incorrect credentials`);
-      }
+    if (
+      !(await Util.comparePassword(
+        loginCommand.password.trim(),
+        lookup.password,
+      ))
+    ) {
+      throw new BadRequestException(`Incorrect credentials`);
+    }
     if (!lookup?.employeeTenant || lookup?.employeeTenant.length === 0) {
       const payload: UserInfo = {
         id: lookup.id,
-        tenantId: lookup.employeeTenant[0]?.tenantId,
+        tenantId: tenantId,
         email: lookup?.email,
         firstName: lookup?.firstName,
         middleName: lookup?.middleName,
@@ -326,9 +328,10 @@ export class AuthService {
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
     if ((lookup.employeeTenant.length === 0)) return null;
+      tenantId = tenant.id;
     const payload: UserInfo = {
       id: lookup.id,
-      tenantId: lookup.employeeTenant[0]?.tenantId,
+      tenantId: tenantId,
       email: lookup?.email,
       firstName: lookup?.firstName,
       middleName: lookup?.middleName,
@@ -373,18 +376,18 @@ export class AuthService {
         {
           phone: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          lookup:{userType:UserType.EMPLOYEE}
+          lookup: { userType: UserType.EMPLOYEE }
         },
         {
           email: loginCommand.userName,
           status: In(activeEmployeesStatus),
-          lookup:{userType:UserType.EMPLOYEE}
+          lookup: { userType: UserType.EMPLOYEE }
         },
       ],
       relations: { lookup: true }
     });
 
-    if (!user||!user.lookup)
+    if (!user || !user.lookup)
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (
       !(await Util.comparePassword(loginCommand.password.trim(), user.lookup.password))

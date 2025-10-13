@@ -68,17 +68,17 @@ export class TenantService {
     if (!command.phoneNumber && !command.email) {
       throw new BadRequestException(`Phone or email is mandatory`);
     }
-    const alreadyExist = await this.tenantRepository.getOneByCriteria([
-      {
-        email: command.email,
-      },
-      {
-        phoneNumber: command.phoneNumber,
-      },
-      {
-        tin: command.tin,
-      },
-    ]);
+    const criteria = [];
+    if (command?.email||command?.email!==''||command?.email!==undefined||command?.email!==null) {
+      criteria.push({ email: command.email });
+    }
+    if (command?.phoneNumber||command?.phoneNumber!==''||command?.phoneNumber!==undefined||command?.phoneNumber!==null) {
+      criteria.push({ phoneNumber: command.phoneNumber });
+    }
+    if (command?.tin||command?.tin!==''||command?.tin!==undefined||command?.tin!==null) {
+      criteria.push({ tin: command.tin });
+    }
+    const alreadyExist = await this.tenantRepository.getOneByCriteria(criteria);
     command.id = alreadyExist?.id
     const tenantEntity: TenantResponse = await this.createTenant(command);
     const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
