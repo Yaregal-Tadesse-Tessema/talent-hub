@@ -324,7 +324,7 @@ export class TenantService {
       {
         column: 'status',
         operator: '=',
-        value: 'ACTIVE',
+        value: 'Active',
       }
     ]);
     const result = await this.tenantRepository.findAllPublic(query);
