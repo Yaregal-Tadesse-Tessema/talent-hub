@@ -334,6 +334,7 @@ export class UserService {
     }
     const success = await this.userRepository.update(payload.id, {
       status: UserStatusEnums.ACTIVE,
+      tenantId: payload?.tenantId,
     });
     if (success) {
       return res.redirect(

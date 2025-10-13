@@ -2,6 +2,7 @@
 import {
   BadGatewayException,
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -26,6 +27,7 @@ import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
+import { REQUEST } from '@nestjs/core';
 @Injectable()
 export class JobPostingService {
   constructor(
@@ -37,6 +39,7 @@ export class JobPostingService {
     private readonly userRepo: Repository<UserEntity>,
     private readonly emailService: EmailService,
     private readonly afroMessageService: AfroMessageService,
+    @Inject(REQUEST) private request: Request,
   ) { }
   async createJobPosting(command: CreateJobPostingCommand) {
     const jobPostingEntity = CreateJobPostingCommand.fromDto(command);

@@ -30,7 +30,7 @@ import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 import { UserType } from '../../constants';
 import { UserInfo } from 'src/libs/Common/user-information';
 import { Util } from 'src/libs/Common/util';
-import { TenantEntity } from '../../persistencies/tenant.entity';
+import { UserRepository } from 'src/modules/user/persistence/user.repository';
 dotenv.config({ path: '.env' });
 @Injectable()
 export class TenantService {
@@ -56,6 +56,7 @@ export class TenantService {
   }
   async createTenant(command: CreateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = CreateTenantCommand.fromCommand(command);
+    tenantEntity.id = command?.id;
     const result = await this.tenantRepository.create(tenantEntity);
     return TenantResponse.toResponse(result);
   }
@@ -78,10 +79,7 @@ export class TenantService {
         tin: command.tin,
       },
     ]);
-    if (alreadyExist)
-      throw new ConflictException(
-        `Organization already registered with thi email and password`,
-      );
+    command.id = alreadyExist?.id
     const tenantEntity: TenantResponse = await this.createTenant(command);
     const employeeOrganizationCommand: CreateEmployeeTenantCommand = {
       tenant_Id: tenantEntity.id,
@@ -92,6 +90,9 @@ export class TenantService {
       jobTitle: 'Administrator',
     };
     await this.employeeTenantRepository.create(employeeOrganizationCommand);
+    const userEntity = await this.lookupRepository.findOne(command.currentUser.id);
+    userEntity.tenantId = tenantEntity.id;
+    const res = await this.lookupRepository.create(userEntity);
     return tenantEntity;
   }
   async registerOrganizationWithETrade(
@@ -200,7 +201,7 @@ export class TenantService {
         };
         const accessToken = Util.GenerateToken(payload, '60m'); //60m
         const refreshToken = Util.GenerateRefreshToken(payload);
-        const tenantEntityData=TenantResponse.toEntity(tenantEntity);
+        const tenantEntityData = TenantResponse.toEntity(tenantEntity);
         employeeORganizationEntity.tenant = tenantEntityData;
         return {
           employeeTenant: employeeORganizationEntity,

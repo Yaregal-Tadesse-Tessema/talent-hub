@@ -27,7 +27,7 @@ import { UserCronJobService } from './usecase/user-cron-service';
     forwardRef(() => ApplicationModule),
     forwardRef(() => TelegramModule),
     forwardRef(() => AuthModule),
-     TenantModule
+     forwardRef(() => TenantModule)
   ],
   providers: [UserService, UserRepository, PdfService,UserCronJobService],
   controllers: [UserController],

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TenantEntity } from './persistencies/tenant.entity';
 import { LookupEntity } from './persistencies/lookup.entity';
@@ -25,6 +25,9 @@ import { TestimonialsEntity } from './persistencies/testimonials.entity';
 import { TestimonialsRepository } from './persistencies/testimonials.repository';
 import { TestimonialsService } from './usecases/testimonial/testimonial.usecase.command';
 import { TestimonialsController } from './controllers/testimonials.controller';
+import { UserRepository } from '../user/persistence/user.repository';
+import { userInfo } from 'os';
+import { UserModule } from '../user/user.module';
 @Global()
 @Module({
   imports: [
@@ -36,6 +39,7 @@ import { TestimonialsController } from './controllers/testimonials.controller';
       UserTenantEntity,
       TestimonialsEntity,
     ]),
+    forwardRef(() => UserModule)
   ],
   providers: [
     TenantService,
