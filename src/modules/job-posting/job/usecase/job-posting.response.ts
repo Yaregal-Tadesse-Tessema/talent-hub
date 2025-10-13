@@ -102,6 +102,8 @@ export class JobPostingResponse {
   @ApiProperty()
   requiredattachements: string[];
   @ApiProperty()
+  creatorTenantId: string;
+  @ApiProperty()
   createdAt: Date;
   @ApiProperty()
   updatedAt: Date;
@@ -162,6 +164,7 @@ export class JobPostingResponse {
     response.requiredattachements = entity.requiredattachements;
     response.createdAt = entity.createdAt;
     response.updatedAt = entity.updatedAt;
+    response.creatorTenantId = entity.creatorTenantId;
     if (entity?.applications && entity?.applications?.length > 0) {
       response.applications = entity.applications.map((item) =>
         ApplicationResponse.toResponse(item),

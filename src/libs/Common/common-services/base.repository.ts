@@ -48,6 +48,11 @@ export class BaseRepository<T extends ObjectLiteral> {
           operator: '=',
           value: tenantId,
         },
+        {
+          column: 'creatorTenantId',
+          operator: '=',
+          value: tenantId,
+        }
       ]);
       dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
     }

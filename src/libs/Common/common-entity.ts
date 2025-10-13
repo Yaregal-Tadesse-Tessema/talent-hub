@@ -12,6 +12,9 @@ export class CommonEntity {
 
   @Column({ nullable: true })
   tenantId?: string;
+  
+  @Column({ nullable: true })
+  creatorTenantId: string;
 
   @Column({ nullable: true })
   createdBy?: string;
