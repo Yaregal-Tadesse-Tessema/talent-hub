@@ -318,6 +318,15 @@ export class TenantService {
   async getTenantAndCandidatesCount(
     query: CollectionQuery,
   ): Promise<{ tenants: number; candidates: number }> {
+    // push a query to filter only those active tenants
+    if (!query.where) query.where = [];
+    query.where.push([
+      {
+        column: 'status',
+        operator: '=',
+        value: 'ACTIVE',
+      }
+    ]);
     const result = await this.tenantRepository.findAllPublic(query);
     const candidates = await this.lookupRepository.findAllPublic(query);
     return { tenants: result.total, candidates: candidates.total };

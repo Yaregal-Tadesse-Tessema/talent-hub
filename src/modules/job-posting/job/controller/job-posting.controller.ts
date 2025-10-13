@@ -222,5 +222,13 @@ export class JobPostingController {
   ): Promise<{phoneNumber:string,fullName:string}[]> {
     return await this.jobPostingService.getUsersByPartialJobMatch(jobData);
   }
+  @Post('archive-job-posting')
+  async archiveJobPosting(@Body() id: string) {
+    return await this.jobPostingService.archiveJobPosting(id);
+  }
+  @Post('delete-job-posting')
+  async deleteJobPosting(@Body() id: string) {
+    return await this.jobPostingService.deleteJobPosting(id);
+  }
 
 }

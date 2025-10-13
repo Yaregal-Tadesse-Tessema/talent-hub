@@ -375,7 +375,7 @@ export class JobPostingService {
     withDeleted = false,
     userId?: any,
   ): Promise<JobPostingResponse> {
-    if(userId){
+    if (userId) {
       relations.push('savedUsers');
       relations.push('applications');
       relations.push('favoriteJobs');
@@ -799,5 +799,18 @@ export class JobPostingService {
       throw error;
     }
   }
-
+  async archiveJobPosting(id: string) {
+    const jobPosting = await this.jobPostingRepository.findOne(id);
+    if (!jobPosting) {
+      throw new NotFoundException(`Job posting with id ${id} not found`);
+    }
+    return await this.jobPostingRepository.softDelete(id);
+  }
+  async deleteJobPosting(id: string) {
+    const jobPosting = await this.jobPostingRepository.findOne(id);
+    if (!jobPosting) {
+      throw new NotFoundException(`Job posting with id ${id} not found`);
+    }
+    return await this.jobPostingRepository.delete(id);
+  }
 }
