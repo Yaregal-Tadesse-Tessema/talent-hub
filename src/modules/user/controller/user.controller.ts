@@ -71,6 +71,9 @@ export class UserController {
     @Param('userId') userId: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if(!file) {
+      throw new BadRequestException('File is required');
+    }
     const result = await this.userService.uploadResumeByUserId(file, userId);
     return result;
   }

@@ -34,9 +34,10 @@ export class FileService {
     this.minioClient = new Minio.Client({
       endPoint: process.env.MINIO_HOST,
       port: +process.env.MINIO_PORT,
-      useSSL: false,
+      useSSL: true,
       accessKey: "60NS61LHYBJ3QJSVMHO3",
       secretKey: "EZfCujI4hZunjEA5pQjgYAd2XYworwkG0ypIAuw4",
+       region: 'us-east-1',
     });
   }
   async uploadAttachment(
@@ -62,7 +63,6 @@ export class FileService {
         this.bucketName,
         JSON.stringify(policy),
       );
-
       // Upload the file to Minio
       const resultData = await this.minioClient.putObject(
         this.bucketName,
