@@ -25,12 +25,17 @@ import { userInfo } from 'src/modules/auth/local-auth.guard';
 export class AdminJobPostingController {
   constructor(private readonly jobPostAdminService: JobPostAdminService) {}
   @Post('create-job-posting')
+  @ApiBody({ 
+    description: 'Array of job posting commands to create multiple job posts at once',
+    type: [CreateAdminJobPostingCommand]
+  })
   async createJobPosting(
-    @Body() command: CreateAdminJobPostingCommand,
+    @Body() commands: CreateAdminJobPostingCommand[],
+    @userInfo() user: UserInfo,
   ) {
-    const result = await this.jobPostAdminService.createJobPost(
-      command
-    );
+    // Ensure input is always an array
+    // const commandsArray = Array.isArray(commands) ? commands : [commands];
+    const result = await this.jobPostAdminService.createJobPosts(commands,user);
     return result;
   }
 

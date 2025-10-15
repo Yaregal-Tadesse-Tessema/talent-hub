@@ -16,7 +16,7 @@ export enum SalaryRangeEnum {
 export enum AppliedThroughEnums {
   EMAIL = 'Email',
   PHYSICAL = 'Physical',
-  LINKEDIN = 'Linkedin',
+  Link = 'Link',
 }
 export enum JobPostingStatusEnums {
   DRAFT = 'Draft',

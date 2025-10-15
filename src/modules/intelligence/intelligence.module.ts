@@ -5,7 +5,6 @@ import { GroqController } from './controller/groq.controller';
 @Module({
   controllers: [GroqController],
   providers: [GroqService],
+  exports: [GroqService],
 })
-
-@Module({})
 export class IntelligenceModule {}

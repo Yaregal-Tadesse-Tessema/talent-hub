@@ -1,8 +1,8 @@
-import { Controller, Post, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Post, Get, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GroqService } from '../usecase/groq.service';
 import { AllowAnonymous } from 'src/modules/auth/allow-anonymous.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @Controller('groq')
 @AllowAnonymous()
@@ -39,6 +39,64 @@ export class GroqController {
     }
     
     return await this.groqService.extractCvInfoFromPdf(file.buffer);
+  }
+
+  /**
+   * Endpoint to scrape job postings from Ethiopian Reporter Jobs
+   * Returns an array of job postings in a structured format
+   */
+  @Get('scrape-ethiopian-reporter-jobs')
+  @ApiOperation({ summary: 'Scrape job postings from Ethiopian Reporter Jobs website' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Successfully scraped job postings',
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          tenantName: { type: 'string' },
+          tenantAddress: { type: 'string' },
+          tenantPhone: { type: 'string', nullable: true },
+          jobType: { type: 'string' },
+          worktype: { type: 'string' },
+          jobTitle: { type: 'string' },
+          experienceLevel: { type: 'string' },
+          jobRequirement: { type: 'array', items: { type: 'string' } },
+          responsibilities: { type: 'array', items: { type: 'string' } },
+          howToApply: { type: 'string' },
+          email: { type: 'string', nullable: true },
+          skills: { type: 'array', items: { type: 'string' } },
+          description: { type: 'string' },
+          position: { type: 'string' },
+          industry: { type: 'string' },
+          deadline: { type: 'string' },
+          gender: { type: 'string' },
+          numberOfPosition: { type: 'number' },
+          requiredYearOfExperience: { type: 'number' },
+          isAdminCreated: { type: 'boolean' },
+          jobLink: { type: 'string' }
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: 400, description: 'Failed to scrape job postings' })
+  async scrapeEthiopianReporterJobs() {
+    return await this.groqService.scrapeEthiopianReporterJobs();
+  }
+
+  /**
+   * Debug endpoint to analyze the Ethiopian Reporter Jobs page structure
+   * Use this to understand why scraping might fail
+   */
+  @Get('debug-ethiopian-reporter-page')
+  @ApiOperation({ summary: 'Debug endpoint to analyze page structure' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Returns detailed page structure information for debugging'
+  })
+  async debugEthiopianReporterPage() {
+    return await this.groqService.debugEthiopianReporterPage();
   }
   
 }

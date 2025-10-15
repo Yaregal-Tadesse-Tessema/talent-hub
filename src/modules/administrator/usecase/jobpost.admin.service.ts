@@ -19,6 +19,7 @@ import { ApplicationEntity } from 'src/modules/application/persistences/applicat
 import { ApplicationStatusEnums } from 'src/modules/application/constants';
 import { ApplicationRepository } from 'src/modules/application/persistences/application.repository';
 import { FileService } from 'src/modules/file/services/file.service';
+import { UserInfo } from 'src/libs/Common/user-information';
 @Injectable({ scope: Scope.REQUEST })
 export class JobPostAdminService {
     constructor(
@@ -34,7 +35,112 @@ export class JobPostAdminService {
         private readonly applicationRepo: ApplicationRepository,
         private readonly fileService: FileService,
     ) { }
-    async createJobPost(command: CreateAdminJobPostingCommand): Promise<any> {
+    async createJobPosts(commands: CreateAdminJobPostingCommand[],currentUser:UserInfo): Promise<any> {
+        const results = [];
+        const errors = [];
+
+        for (let i = 0; i < commands.length; i++) {
+            const command = commands[i];
+            try {
+                // tenant 
+                let tenant = await this.tenantRepo.findOne({ where: { name: command?.tenantName } });
+                if (!tenant) {
+                    const tenantEntity = new TenantEntity();
+                    tenantEntity.name = command?.tenantName;
+                    tenantEntity.tradeName = command?.tenantName;
+                    tenantEntity.code = Util.makeId('Tenant');
+                    tenantEntity.email = command?.email;
+                    tenantEntity.phoneNumber = command?.tenantPhone;
+                    tenantEntity.isAdminCreated = true;
+                    tenantEntity.isProfilePublic = false;
+                    tenantEntity.hasAiActivated = false;
+                    tenantEntity.isVerified = false;
+                    tenantEntity.status = AccountStatusEnums.PENDING;
+                    tenantEntity.organizationType = OrganizationTypeEnums.PRIVATE;
+                    tenant = await this.tenantRepo.save(tenantEntity);
+                }
+                let lookup = await this.lookupRepo.findOne({ where: [{ tenantId: tenant?.id }] });
+                if (!lookup) {
+                    const lookupEntity = new LookupEntity();
+                    lookupEntity.email = command?.email;
+                    lookupEntity.phoneNumber = command?.tenantPhone;
+                    lookupEntity.password = Util.hashPassword('C0mplex!');
+                    lookupEntity.status = AccountStatusEnums.ACTIVE;
+                    lookupEntity.firstName = null;
+                    lookupEntity.lastName = null;
+                    lookupEntity.tenantId = tenant?.id;
+                    lookup = await this.lookupRepo.save(lookupEntity);
+                }
+
+                let employeeTenant = await this.employeeTenantRepo.findOne({ where: { tenant_Id: tenant?.id, lookupId: lookup?.id } });
+                if (!employeeTenant) {
+                    const employeeTenantEntity = new EmployeeTenantEntity();
+                    employeeTenantEntity.lookupId = lookup?.id;
+                    employeeTenantEntity.tenantId = tenant?.id;
+                    employeeTenantEntity.tenantName = tenant?.name;
+                    employeeTenantEntity.startDate = new Date();
+                    employeeTenantEntity.jobTitle = 'Representative';
+                    employeeTenantEntity.status = EmployeeStatus.ACTIVE;
+                    employeeTenantEntity.tenant_Id = tenant?.id;
+                    employeeTenantEntity.createdAt = new Date();
+                    employeeTenantEntity.updatedAt = new Date();
+                    employeeTenant = await this.employeeTenantRepo.save(employeeTenantEntity);
+                }
+                let jobPost = await this.jobPostRepo.findOne({ where: { title: command?.jobTitle, tenantId: tenant?.id } });
+                if (!jobPost) {
+                    const jobPostingEntity = new JobPostingEntity();
+                    jobPostingEntity.tenantId = tenant?.id;
+                    jobPostingEntity.title = command?.jobTitle;
+                    jobPostingEntity.employmentType = command?.jobType;
+                    jobPostingEntity.workMode = command?.worktype;
+                    jobPostingEntity.howToApply = command?.howToApply?.trim();
+                    jobPostingEntity.skill = command?.skills?.map((skill) => skill.trim());
+                    jobPostingEntity.jobPostRequirement = command?.jobRequirement;
+                    jobPostingEntity.responsibilities = command?.responsibilities;
+                    jobPostingEntity.description = command?.description?.trim();
+                    jobPostingEntity.position = command?.position?.trim() ?? command?.jobTitle;
+                    jobPostingEntity.industry = command?.industry;
+                    jobPostingEntity.location = command?.tenantAddress?.trim();
+                    jobPostingEntity.deadline = command?.deadline;
+                    jobPostingEntity.gender = command?.gender;
+                    jobPostingEntity.positionNumbers = command?.numberOfPosition;
+                    jobPostingEntity.status = JobPostingStatusEnums.DRAFT;
+                    jobPostingEntity.appliedThrough = AppliedThroughEnums.PHYSICAL;
+                    jobPostingEntity.isAdminCreated = true
+                    jobPostingEntity.postedDate = command?.postedDate;
+                    jobPostingEntity.companyName = command?.tenantName?.trim();
+                    jobPostingEntity.creatorTenantId = currentUser?.tenantId;
+                    jobPost = await this.jobPostRepo.save(jobPostingEntity);
+                }
+
+                results.push({
+                    success: true,
+                    index: i,
+                    tenant,
+                    lookup,
+                    employeeTenant,
+                    jobPost
+                });
+            } catch (error) {
+                errors.push({
+                    success: false,
+                    index: i,
+                    tenantName: command?.tenantName,
+                    jobTitle: command?.jobTitle,
+                    error: error.message
+                });
+            }
+        }
+
+        return {
+            total: commands.length,
+            successful: results.length,
+            failed: errors.length,
+            results,
+            errors
+        };
+    }
+    async createJobPostForOne(command: CreateAdminJobPostingCommand): Promise<any> {
         // tenant 
         let tenant = await this.tenantRepo.findOne({ where: { name: command?.tenantName } });
         if (!tenant) {
@@ -45,11 +151,11 @@ export class JobPostAdminService {
             tenantEntity.email = command?.email;
             tenantEntity.phoneNumber = command?.tenantPhone;
             tenantEntity.isAdminCreated = true;
-            tenantEntity.isProfilePublic=false;
-            tenantEntity.hasAiActivated=false;
-            tenantEntity.isVerified=false;
-            tenantEntity.status=AccountStatusEnums.PENDING;
-            tenantEntity.organizationType=OrganizationTypeEnums.PRIVATE;
+            tenantEntity.isProfilePublic = false;
+            tenantEntity.hasAiActivated = false;
+            tenantEntity.isVerified = false;
+            tenantEntity.status = AccountStatusEnums.PENDING;
+            tenantEntity.organizationType = OrganizationTypeEnums.PRIVATE;
             tenant = await this.tenantRepo.save(tenantEntity);
         }
         let lookup = await this.lookupRepo.findOne({ where: [{ tenantId: tenant?.id }] });
