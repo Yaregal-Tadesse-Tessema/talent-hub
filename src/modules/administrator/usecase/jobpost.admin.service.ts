@@ -48,6 +48,38 @@ export class JobPostAdminService {
             .filter((v) => v.length > 0);
         return parts.length > 0 ? parts : [];
     }
+    private normalizeInteger(value: any): number | undefined {
+        if (value === null || value === undefined) return undefined;
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed === '') return undefined;
+            const num = Number(trimmed);
+            return Number.isFinite(num) ? Math.trunc(num) : undefined;
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return Math.trunc(value);
+        }
+        return undefined;
+    }
+    private normalizeDecimal(value: any): number | undefined {
+        if (value === null || value === undefined) return undefined;
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed === '') return undefined;
+            const num = Number(trimmed);
+            return Number.isFinite(num) ? num : undefined;
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+        return undefined;
+    }
+    private normalizeDate(value: any): Date | undefined {
+        if (!value) return undefined;
+        if (value instanceof Date) return isNaN(value.getTime()) ? undefined : value;
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? undefined : d;
+    }
     async createJobPosts(commands: CreateAdminJobPostingCommand[], currentUser: UserInfo): Promise<any> {
         const results = [];
         const errors = [];
@@ -56,6 +88,7 @@ export class JobPostAdminService {
             const command = commands[i];
             try {
                 // tenant 
+                const tenantPhone = command?.tenantPhone==''?undefined:command?.phone;
                 let tenant = await this.tenantRepo.findOne({ where: { name: command?.companyName } });
                 const tenantEntity = new TenantEntity();
                 tenantEntity.id = tenant ? tenant.id : undefined;
@@ -63,7 +96,7 @@ export class JobPostAdminService {
                 tenantEntity.tradeName = command?.tenantName;
                 tenantEntity.code = Util.makeId('Tenant');
                 tenantEntity.email = command?.email;
-                tenantEntity.phoneNumber = command?.tenantPhone;
+                tenantEntity.phoneNumber = command?.tenantPhone?command?.tenantPhone:tenantPhone==''?undefined:tenantPhone;
                 tenantEntity.isAdminCreated = true;
                 tenantEntity.isProfilePublic = false;
                 tenantEntity.hasAiActivated = false;
@@ -85,7 +118,6 @@ export class JobPostAdminService {
                 lookupEntity.isAdminCreated = true;
                 lookupEntity.creatorTenantId = currentUser?.tenantId;
                 lookup = await this.lookupRepo.save(lookupEntity);
-
                 let employeeTenant = await this.employeeTenantRepo.findOne({ where: { tenant_Id: tenant?.id, lookupId: lookup?.id } });
                 const employeeTenantEntity = new EmployeeTenantEntity();
                 employeeTenantEntity.id = employeeTenant ? employeeTenant.id : undefined;
@@ -114,23 +146,23 @@ export class JobPostAdminService {
                     jobPostingEntity.location = command?.tenantAddress?.trim() ?? command?.city;
                     jobPostingEntity.employmentType = command?.jobType;
                     jobPostingEntity.salaryRange = null;
-                    jobPostingEntity.deadline = command?.deadline;
+                    jobPostingEntity.deadline = this.normalizeDate(command?.deadline);
                     jobPostingEntity.skill = this.normalizeToStringArray(command?.skills as any);
                     jobPostingEntity.benefits = this.normalizeToStringArray(command?.benefits as any);
                     jobPostingEntity.responsibilities = this.normalizeToStringArray(command?.responsibilities as any);
                     jobPostingEntity.status = JobPostingStatusEnums.DRAFT;
                     jobPostingEntity.gender = command?.gender;
-                    jobPostingEntity.requiredYearOfExperience = command?.requiredYearOfExperience;
-                    jobPostingEntity.minimumGPA = +command?.minimumGPA;
+                    jobPostingEntity.requiredYearOfExperience = this.normalizeInteger(command?.requiredYearOfExperience);
+                    jobPostingEntity.minimumGPA = this.normalizeDecimal(command?.minimumGPA);
                     jobPostingEntity.companyName = command?.tenantName?.trim();
-                    jobPostingEntity.postedDate = command?.postedDate;
+                    jobPostingEntity.postedDate = this.normalizeDate(command?.postedDate);
                     jobPostingEntity.applicationURL = command?.applicationURL;
                     jobPostingEntity.experienceLevel = command?.experienceLevel;
                     jobPostingEntity.fieldOfStudy = command?.fieldOfStudy;
                     jobPostingEntity.educationLevel = command?.educationLevel;
                     jobPostingEntity.howToApply = command?.howToApply?.trim();
                     jobPostingEntity.jobPostRequirement = this.normalizeToStringArray(command?.jobPostRequirement as any);
-                    jobPostingEntity.positionNumbers = command?.positionNumbers ? +command?.positionNumbers : 1;
+                    jobPostingEntity.positionNumbers = this.normalizeInteger(command?.positionNumbers) ?? 1;
                     jobPostingEntity.paymentType = command?.paymentType;
                     jobPostingEntity.appliedThrough = command.appliedThrough;
                     jobPostingEntity.isAdminCreated = true

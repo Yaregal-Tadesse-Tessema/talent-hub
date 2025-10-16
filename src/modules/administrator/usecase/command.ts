@@ -14,6 +14,7 @@ export class CreateAdminJobPostingCommand {
     tenantAddress: string;
     @ApiProperty()
     tenantPhone: string;
+    phone: string;
     @ApiProperty()
     jobType: EmploymentTypeEnums;
     @ApiProperty()
