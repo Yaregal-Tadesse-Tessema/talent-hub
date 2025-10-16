@@ -57,6 +57,83 @@ export class EmailService {
       this.smtpConfigured = false;
     }
   }
+  async sendGridEmailWithAttachments(
+    to: string,
+    subject: string,
+    html: string,
+    attachments: { filename: string; content: Buffer | string; contentType?: string }[]
+  ): Promise<boolean> {
+    try {
+      if (!to) {
+        return null;
+      }
+      const msg: Brevo.SendSmtpEmail = {
+        sender: { name: 'Talent Hub', email: 'talenthubinformation@gmail.com' },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        attachment: (attachments || []).map((a) => ({
+          content: (Buffer.isBuffer(a.content)
+            ? a.content
+            : Buffer.from(a.content as string)
+          ).toString('base64'),
+          name: a.filename,
+          type: a.contentType,
+        })),
+      };
+
+      if (this.brevoConfigured) {
+        await this.client.sendTransacEmail(msg);
+        this.logger.log(`Email with attachments sent`);
+        return true;
+      }
+      if (this.smtpConfigured) {
+        await this.transporter.sendMail({
+          from: 'Talent Hub <talenthubinformation@gmail.com>',
+          to,
+          subject,
+          html,
+          attachments: (attachments || []).map((a) => ({
+            filename: a.filename,
+            content: a.content,
+            contentType: a.contentType || 'application/octet-stream',
+          })),
+        });
+        return true;
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Email disabled or not configured; skipping send (sendGridEmailWithAttachments)');
+        return true;
+      }
+      throw new Error('Email is not configured');
+    } catch (err) {
+      this.logger.error('Error sending email with attachments', err as any);
+      // Try SMTP fallback if Brevo fails mid-flight
+      if (this.smtpConfigured) {
+        try {
+          await this.transporter.sendMail({
+            from: 'Talent Hub <talenthubinformation@gmail.com>',
+            to,
+            subject,
+            html,
+            attachments: (attachments || []).map((a) => ({
+              filename: a.filename,
+              content: a.content,
+              contentType: a.contentType || 'application/octet-stream',
+            })),
+          });
+          return true;
+        } catch (smtpErr) {
+          this.logger.error('SMTP fallback failed', smtpErr as any);
+        }
+      }
+      if (process.env.EMAIL_FAIL_SOFT === 'true') {
+        this.logger.warn('Soft-failing email send (sendGridEmailWithAttachments)');
+        return true;
+      }
+      throw err;
+    }
+  }
   private formatDate(date: Date): string {
     return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }

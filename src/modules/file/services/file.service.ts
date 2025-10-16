@@ -256,6 +256,11 @@ export class FileService {
 
     // Convert unsupported document types (doc/docx) to PDF first
     const normalizedFiles: Express.Multer.File[] = [];
+    if(files.length ==1) {
+      return files[0];
+    }else if(files.length ==0) {
+     return null;
+    }
     for (const file of files) {
       const ext = path.extname(file.originalname || '').toLowerCase();
       if (ext === '.doc' || ext === '.docx') {

@@ -20,6 +20,8 @@ export class CreateEmployeeTenantCommand {
   jobTitle: string;
   @ApiProperty()
   tenantName: string;
+  @ApiProperty()
+  isAdminCreated?: boolean;
   currentUser?: any;
 
   @ApiProperty()
@@ -37,7 +39,7 @@ export class CreateEmployeeTenantCommand {
     entity.status = command.status;
     entity.jobTitle = command.jobTitle;
     entity.tenantName = command.tenantName;
-    
+    entity.isAdminCreated = command.isAdminCreated;
     entity.createdBy = command.createdBy;
     entity.updatedBy = command.updatedBy;
     return entity;

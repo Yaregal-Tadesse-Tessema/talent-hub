@@ -47,10 +47,11 @@ export class AdminJobPostingController {
     @UploadedFiles() files: Express.Multer.File[],
     @userInfo() user: UserInfo,
   ) {
-    command.userId = user.id;
     const result = await this.jobPostAdminService.applyToJobByAdmin(
       command,
-      files)
+      files,
+      user,
+    )
     return result;
   }
 

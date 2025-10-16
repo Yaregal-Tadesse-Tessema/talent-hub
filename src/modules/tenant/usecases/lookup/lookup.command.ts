@@ -40,7 +40,8 @@ export class CreateLookupCommand {
   tenantId?: string;
   @ApiProperty()
   tenantName?: string;
-
+  @ApiProperty()
+  isAdminCreated?: boolean;
   @ApiProperty()
   createdBy?: string;
   @ApiProperty()
@@ -61,6 +62,7 @@ export class CreateLookupCommand {
     lookUp.userType = command?.userType;
     lookUp.createdBy = command?.currentUser?.id;
     lookUp.updatedBy = command?.currentUser?.id;
+    lookUp.isAdminCreated = command?.isAdminCreated;
     return lookUp;
   }
 }

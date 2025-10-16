@@ -34,6 +34,8 @@ export class LookupEntity extends CommonEntity {
   status: AccountStatusEnums;
   @Column({ nullable: true, type: 'jsonb' })
   profileImage: FileDto;
+  @Column({ default: false, nullable: true })
+  isAdminCreated: boolean;
   @Column({ nullable: true, type: 'jsonb' })
   address: any;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.lookup, {

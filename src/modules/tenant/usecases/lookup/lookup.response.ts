@@ -45,7 +45,8 @@ export class LookupResponse extends CommonResponses {
   tenantId?: string;
   @ApiProperty()
   tenantName?: string;
-
+  @ApiProperty()
+  isAdminCreated?: boolean;
   static toResponse(entity: LookupEntity): LookupResponse {
     const response = new LookupResponse();
     response.id = entity?.id;
@@ -59,7 +60,7 @@ export class LookupResponse extends CommonResponses {
     response.userType = entity?.userType;
     response.profileImage = entity?.profileImage;
     response.address = entity?.address;
-
+    response.isAdminCreated = entity?.isAdminCreated;
     response.createdBy = entity.createdBy;
     response.updatedBy = entity.updatedBy;
     response.deletedBy = entity.deletedBy;

@@ -17,6 +17,7 @@ export class EmployeeTenantResponse extends CreateEmployeeTenantCommand {
     response.status = entity.status;
     response.jobTitle = entity.jobTitle;
     response.tenantName = entity.tenantName;
+    response.isAdminCreated = entity.isAdminCreated;
     return response;
   }
 }
