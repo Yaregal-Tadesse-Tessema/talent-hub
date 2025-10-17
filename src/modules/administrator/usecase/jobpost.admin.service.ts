@@ -116,6 +116,7 @@ export class JobPostAdminService {
                 lookupEntity.lastName = null;
                 lookupEntity.tenantId = tenant?.id;
                 lookupEntity.isAdminCreated = true;
+                lookupEntity.isActive = false;
                 lookupEntity.creatorTenantId = currentUser?.tenantId;
                 lookup = await this.lookupRepo.save(lookupEntity);
                 let employeeTenant = await this.employeeTenantRepo.findOne({ where: { tenant_Id: tenant?.id, lookupId: lookup?.id } });
@@ -131,6 +132,7 @@ export class JobPostAdminService {
                 employeeTenantEntity.createdAt = new Date();
                 employeeTenantEntity.updatedAt = new Date();
                 employeeTenantEntity.isAdminCreated = true;
+                employeeTenantEntity.isActive = false;
                 employeeTenantEntity.creatorTenantId = currentUser?.tenantId;
                 employeeTenant = await this.employeeTenantRepo.save(employeeTenantEntity);
                 let jobPost = await this.jobPostRepo.findOne({ where: { title: command?.title, tenantId: tenant?.id } });

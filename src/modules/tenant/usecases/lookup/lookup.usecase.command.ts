@@ -5,7 +5,7 @@ import {
   NotFoundException,
   Res,
 } from '@nestjs/common';
-import { CreateLookupCommand, UpdateLookupCommand } from './lookup.command';
+import { ChangePasswordCommand, CreateLookupCommand, UpdateLookupCommand } from './lookup.command';
 import { CreateEmployeeTenantCommand } from '../employee-tenant/employee-tenant.command';
 import { LookupRepository } from '../../persistencies/lookup.repository';
 import { CollectionQuery } from 'src/libs/Common/collection-query/query';
@@ -31,7 +31,7 @@ export class LookupService {
     private readonly fileService: FileService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
   async getAll(query: CollectionQuery) {
     return await this.lookupRepository.findAll(query);
   }
@@ -107,14 +107,32 @@ export class LookupService {
   async updateLookup(command: UpdateLookupCommand) {
     const lookup = await this.lookupRepository.findOne(command.id);
     if (!lookup) throw new NotFoundException('employee does not exist');
-    return await this.lookupRepository.update(command.id, command);
+    command.password = lookup.password
+    command.id = lookup.id
+    return await this.lookupRepository.create(command);
   }
   async archiveLookup(id: string) {
     const lookup = await this.lookupRepository.findOne(id);
     if (!lookup) throw new NotFoundException('employee does not exist');
     const result = await this.lookupRepository.softDelete(id);
-    return result.affected > 0 ? true : false;
+    return result;
   }
+  async delete(id: string) {
+    const lookup = await this.lookupRepository.findOne(id);
+    if (!lookup) throw new NotFoundException('employee does not exist');
+    const result = await this.lookupRepository.delete(id);
+    return result;
+  }
+  async changePassword(command: ChangePasswordCommand) {
+    const lookup = await this.lookupRepository.findOne(command?.currentUser?.id,['employeeTenant','employeeTenant.tenant']);
+    if (!lookup) throw new NotFoundException('employee does not exist');
+    if (command.password != command.confirmPassword) throw new BadRequestException('The password and confirm password does not match');
+    const hashedPassword = Util.hashPassword(command.password);
+    lookup.password=hashedPassword
+    const result = await this.lookupRepository.update(lookup.id,{password:hashedPassword});
+    return result;
+  }
+
   async getTenantsByLookupId(lookupId: string) {
     const lookup = await this.employeeORganizationRepository.getManyByCriteria(
       {

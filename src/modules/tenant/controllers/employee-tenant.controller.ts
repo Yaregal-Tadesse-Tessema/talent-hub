@@ -58,7 +58,7 @@ export class EmployeeTenantController {
   async update(@Body() command: UpdateEmployeeTenantCommand) {
     return await this.employeeTenantService.updateLookup(command);
   }
-  @Delete('/:id')
+  @Delete('delete/:id')
   @ApiOkResponse({ type: Boolean })
   async delete(@Param('id') id: string) {
     return await this.employeeTenantService.archive(id);

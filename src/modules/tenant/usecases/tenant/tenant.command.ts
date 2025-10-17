@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
-import { AccountStatusEnums, LinkTypeEnums, OrganizationTypeEnums, SalesInformation } from 'src/modules/auth/constants';
+import { AccountStatusEnums, ContactInformation, LinkTypeEnums, OrganizationTypeEnums, SalesInformation } from 'src/modules/auth/constants';
 import { TenantEntity } from '../../persistencies/tenant.entity';
 import { TenantSubscriptionTypes } from '../../constants';
 import { UserInfo } from 'src/libs/Common/user-information';
@@ -67,6 +67,8 @@ export class CreateTenantCommand {
   salesInformation?: SalesInformation;
   @ApiProperty()
   isAdminCreated?: boolean;
+  @ApiProperty()
+  contactInformation?: ContactInformation;
   currentUser?: UserInfo;
 
   static fromCommand(command: CreateTenantCommand): TenantEntity {
@@ -99,6 +101,7 @@ export class CreateTenantCommand {
     tenant.links = command?.links;
     tenant.salesInformation = command?.salesInformation;
     tenant.isAdminCreated = command?.isAdminCreated;
+    tenant.contactInformation = command?.contactInformation;
     tenant.updatedAt = new Date();
     tenant.updatedBy = command?.currentUser?.id;
     return tenant;

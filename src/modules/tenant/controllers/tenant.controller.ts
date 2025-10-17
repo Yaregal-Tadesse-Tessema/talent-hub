@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
   Param,
@@ -161,5 +162,10 @@ export class TenantController {
   async getProfileCompleteness(@Param('tenantId') tenantId: string) {
     const result = await this.tenantService.getProfileCompleteness(tenantId);
     return result;
+  }
+  @Delete('delete/:id')
+  @ApiOkResponse({ type: Boolean })
+  async delete(@Param('id') id: string) {
+    return await this.tenantService.delete(id);
   }
 }

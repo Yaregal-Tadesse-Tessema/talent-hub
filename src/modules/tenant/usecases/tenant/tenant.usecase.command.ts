@@ -51,8 +51,8 @@ export class TenantService {
   async updateTenant(command: UpdateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = UpdateTenantCommand.fromCommand(command);
     tenantEntity.code = tenantEntity.schemaName;
-    await this.tenantRepository.update(tenantEntity.id, tenantEntity);
-    return TenantResponse.toResponse(tenantEntity);
+    const result = await this.tenantRepository.create(command);
+    return TenantResponse.toResponse(result);
   }
   async createTenant(command: CreateTenantCommand): Promise<TenantResponse> {
     const tenantEntity = CreateTenantCommand.fromCommand(command);
@@ -69,13 +69,13 @@ export class TenantService {
       throw new BadRequestException(`Phone or email is mandatory`);
     }
     const criteria = [];
-    if (command?.email||command?.email!==''||command?.email!==undefined||command?.email!==null) {
+    if (command?.email || command?.email !== '' || command?.email !== undefined || command?.email !== null) {
       criteria.push({ email: command.email });
     }
-    if (command?.phoneNumber||command?.phoneNumber!==''||command?.phoneNumber!==undefined||command?.phoneNumber!==null) {
+    if (command?.phoneNumber || command?.phoneNumber !== '' || command?.phoneNumber !== undefined || command?.phoneNumber !== null) {
       criteria.push({ phoneNumber: command.phoneNumber });
     }
-    if (command?.tin||command?.tin!==''||command?.tin!==undefined||command?.tin!==null) {
+    if (command?.tin || command?.tin !== '' || command?.tin !== undefined || command?.tin !== null) {
       criteria.push({ tin: command.tin });
     }
     const alreadyExist = await this.tenantRepository.getOneByCriteria(criteria);
@@ -442,5 +442,13 @@ export class TenantService {
     const percentage = Math.round((filledScore / totalWeight) * 100);
 
     return { percentage };
+  }
+
+  async delete(id: string) {
+    const tenant = await this.tenantRepository.findOne(id, ['jobPostings']);
+    if (tenant.jobPostings.length > 0) throw new BadRequestException('Tenant has job postings cannot be deleted');
+    if (!tenant) throw new NotFoundException('tenant does not exist');
+    const result = await this.tenantRepository.delete(id);
+    return result;
   }
 }

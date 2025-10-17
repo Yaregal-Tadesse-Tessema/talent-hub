@@ -49,7 +49,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.selectedCalender = entity.selectedCalender;
     response.isProfilePublic = entity.isProfilePublic;
     response.links = entity.links;
-
+    response.contactInformation = entity.contactInformation;
     if (entity?.organizationEmployees?.length > 0) {
       response.organizationEmployees = entity.organizationEmployees.map(EmployeeTenantResponse.toResponse);
     }
@@ -94,6 +94,7 @@ export class TenantResponse extends CreateTenantCommand {
     response.links = entity.links;
     response.salesInformation = entity.salesInformation;
     response.isAdminCreated = entity.isAdminCreated;
+    response.contactInformation = entity.contactInformation;
     return response;
   }
 }

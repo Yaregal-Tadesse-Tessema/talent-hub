@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Repository, DeepPartial, ObjectLiteral, In } from 'typeorm';
-import { Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException, Scope } from '@nestjs/common';
 
 import { DataResponseFormat } from 'src/libs/response-format/data-response-format';
 import { CollectionQuery } from '../collection-query/query';
@@ -20,9 +20,14 @@ export class BaseRepository<T extends ObjectLiteral> {
     if (req?.user?.organization) {
       itemData.organizationId = req.user.organization.id;
     }
-    const res = (await this.repository.save(itemData)) as any;
-    console.log(res);
-    return res;
+    try {
+      const res = (await this.repository.save(itemData)) as any;
+      console.log(res);
+      return res;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException(error.message);
+    }
   }
   async createMany(itemData: DeepPartial<any>[], req?: any): Promise<any> {
     const tenantId = await this.request['TENANT_ID'];
@@ -80,7 +85,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     //     nulls: 'NULLS LAST',
     //   });
     // }
-   
+
     let dataQuery: any = null;
     dataQuery = QueryConstructor.constructQuery<T>(this.repository, query);
     const response = new DataResponseFormat<T>();
@@ -320,7 +325,7 @@ export class BaseRepository<T extends ObjectLiteral> {
     withDeleted = false,
   ): Promise<T | undefined> {
     const tenantId = await this.request['TENANT_ID'];
-    
+
     const whereCondition: any = {};
     if (tenantId) {
       whereCondition.tenantId = tenantId;

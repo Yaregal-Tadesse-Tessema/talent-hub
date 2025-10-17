@@ -38,6 +38,8 @@ export class LookupEntity extends CommonEntity {
   isAdminCreated: boolean;
   @Column({ nullable: true, type: 'jsonb' })
   address: any;
+  @Column({ nullable: true, default: true })
+  isActive: boolean;
   @OneToMany(() => EmployeeTenantEntity, (lookUp) => lookUp.lookup, {
     cascade: true,
     onDelete: 'CASCADE',

@@ -5,6 +5,7 @@ import { AccountStatusEnums } from 'src/modules/auth/constants';
 import { LookupEntity } from '../../persistencies/lookup.entity';
 import { UserType } from '../../constants';
 import { Util } from 'src/libs/Common/util';
+import { UserInfo } from 'src/libs/Common/user-information';
 
 export class CreateLookupCommand {
   @ApiProperty()
@@ -66,7 +67,16 @@ export class CreateLookupCommand {
     return lookUp;
   }
 }
-
+export class ChangePasswordCommand {
+  @ApiProperty()
+  @IsNotEmpty()
+  password: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  confirmPassword: string;
+  @ApiProperty()
+  currentUser: UserInfo;
+}
 export class UpdateLookupCommand extends CreateLookupCommand {
   @ApiProperty({
     example: 'uuid',

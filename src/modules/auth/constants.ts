@@ -67,3 +67,14 @@ export const activeEmployeesStatus = [
   EmployeeStatus.IS_ON_WORK_FROM_HOME,
   EmployeeStatus.PENDING,
 ];
+
+export class ContactInformation{
+  @ApiProperty()
+  name: string;
+  @ApiProperty()
+  phone: string;
+  @ApiProperty()
+  email: string;
+  @ApiProperty()
+  address: string;
+}

@@ -2,7 +2,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { FileDto } from 'src/libs/Common/dtos/file.dto';
 import { CommonEntity } from 'src/libs/Common/common-entity';
-import { AccountStatusEnums, LinkTypeEnums, OrganizationTypeEnums, SalesInformation } from 'src/modules/auth/constants';
+import { AccountStatusEnums, ContactInformation, LinkTypeEnums, OrganizationTypeEnums, SalesInformation } from 'src/modules/auth/constants';
 import { EmployeeTenantEntity } from './employee-tenant.entity';
 import { TenantSubscriptionTypes } from '../constants';
 import { UserTenantEntity } from './user-tenant.entity';
@@ -57,6 +57,8 @@ export class TenantEntity extends CommonEntity {
   industry: string;
   @Column({ nullable: true, default: OrganizationTypeEnums.PRIVATE })
   organizationType: OrganizationTypeEnums;
+  @Column({ nullable: true, type: 'jsonb' })
+  contactInformation: ContactInformation;
   @Column({ nullable: true })
   selectedCalender: string;
   @Column({ default: true })

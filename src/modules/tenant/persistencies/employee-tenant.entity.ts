@@ -22,6 +22,8 @@ export class EmployeeTenantEntity extends CommonEntity {
   tenantName: string;
   @Column({ default: false, nullable: true })
   isAdminCreated: boolean;
+  @Column({ nullable: true, default: true })
+  isActive: boolean;
   @ManyToOne(() => TenantEntity, (tenant) => tenant.organizationEmployees, {
     orphanedRowAction: 'delete',
     onUpdate: 'CASCADE',
