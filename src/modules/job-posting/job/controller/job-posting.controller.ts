@@ -22,7 +22,6 @@ import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { SalaryRangeEnum } from '../../constants';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
 import { UserInfo } from 'src/libs/Common/user-information';
-
 @Controller('jobs')
 @ApiTags('jobs')
 @ApiExtraModels(DataResponseFormat)
@@ -154,8 +153,8 @@ export class JobPostingController {
   @AllowAnonymous()
   async getUserByJobPostProperty(): Promise<any> {
     const command: UserAlertConfiguration={
-      salary: SalaryRangeEnum.MINIMUM,
-      Position:"string",
+      minimumSalary: SalaryRangeEnum.MINIMUM,
+      seniorityLevel:"string",
       industry:'Banking & Insurance',
       jobTitle:"Software Engineer",
       address:"Software Engineer",
@@ -221,6 +220,16 @@ export class JobPostingController {
     }
   ): Promise<{phoneNumber:string,fullName:string}[]> {
     return await this.jobPostingService.getUsersByPartialJobMatch(jobData);
+  }
+  @Get('user/get-users-by-skill-industry-or-experience/:jobId')
+  @AllowAnonymous()
+  @ApiOkResponse({
+    description: 'Get users matching by ANY of skills, industry, or min experience (OR logic)',
+  })
+  async getUsersBySkillIndustryOrExperience(
+    @Param('jobId') jobId: string,
+  ): Promise<{ phoneNumber: string; email: string; fullName: string }[]> {
+    return await this.jobPostingService.getUsersBySkillIndustryOrExperienceByJobId(jobId);
   }
   @Post('archive-job-posting')
   async archiveJobPosting(@Body() id: string) {

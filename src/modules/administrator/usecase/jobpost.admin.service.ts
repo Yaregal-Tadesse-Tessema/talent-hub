@@ -35,51 +35,7 @@ export class JobPostAdminService {
         private readonly applicationRepo: ApplicationRepository,
         private readonly fileService: FileService,
     ) { }
-    private normalizeToStringArray(value: string | string[] | null | undefined): string[] {
-        if (!value) return [];
-        if (Array.isArray(value)) {
-            return value
-                .filter((v) => typeof v === 'string' && v.trim().length > 0)
-                .map((v) => v.trim());
-        }
-        const parts = String(value)
-            .split(/[\n,;]+/)
-            .map((v) => v.trim())
-            .filter((v) => v.length > 0);
-        return parts.length > 0 ? parts : [];
-    }
-    private normalizeInteger(value: any): number | undefined {
-        if (value === null || value === undefined) return undefined;
-        if (typeof value === 'string') {
-            const trimmed = value.trim();
-            if (trimmed === '') return undefined;
-            const num = Number(trimmed);
-            return Number.isFinite(num) ? Math.trunc(num) : undefined;
-        }
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            return Math.trunc(value);
-        }
-        return undefined;
-    }
-    private normalizeDecimal(value: any): number | undefined {
-        if (value === null || value === undefined) return undefined;
-        if (typeof value === 'string') {
-            const trimmed = value.trim();
-            if (trimmed === '') return undefined;
-            const num = Number(trimmed);
-            return Number.isFinite(num) ? num : undefined;
-        }
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            return value;
-        }
-        return undefined;
-    }
-    private normalizeDate(value: any): Date | undefined {
-        if (!value) return undefined;
-        if (value instanceof Date) return isNaN(value.getTime()) ? undefined : value;
-        const d = new Date(value);
-        return isNaN(d.getTime()) ? undefined : d;
-    }
+    
     async createJobPosts(commands: CreateAdminJobPostingCommand[], currentUser: UserInfo): Promise<any> {
         const results = [];
         const errors = [];
@@ -423,5 +379,51 @@ export class JobPostAdminService {
     async deleteAdminJobPost(id: string): Promise<{ success: boolean }> {
         await this.jobPostRepo.delete(id);
         return { success: true };
+    }
+
+    private normalizeToStringArray(value: string | string[] | null | undefined): string[] {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+            return value
+                .filter((v) => typeof v === 'string' && v.trim().length > 0)
+                .map((v) => v.trim());
+        }
+        const parts = String(value)
+            .split(/[\n,;]+/)
+            .map((v) => v.trim())
+            .filter((v) => v.length > 0);
+        return parts.length > 0 ? parts : [];
+    }
+    private normalizeInteger(value: any): number | undefined {
+        if (value === null || value === undefined) return undefined;
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed === '') return undefined;
+            const num = Number(trimmed);
+            return Number.isFinite(num) ? Math.trunc(num) : undefined;
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return Math.trunc(value);
+        }
+        return undefined;
+    }
+    private normalizeDecimal(value: any): number | undefined {
+        if (value === null || value === undefined) return undefined;
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            if (trimmed === '') return undefined;
+            const num = Number(trimmed);
+            return Number.isFinite(num) ? num : undefined;
+        }
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return value;
+        }
+        return undefined;
+    }
+    private normalizeDate(value: any): Date | undefined {
+        if (!value) return undefined;
+        if (value instanceof Date) return isNaN(value.getTime()) ? undefined : value;
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? undefined : d;
     }
 }

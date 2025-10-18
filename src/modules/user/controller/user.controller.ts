@@ -108,7 +108,7 @@ export class UserController {
   }
   @AllowAnonymous()
   @Post('generate-cv-in-pdf/:template')
-  async generatePayrollRunPdf(
+  async generateCv(
     @Param('template') template: CvTemplateEnums,
     @Res() res: Response,
     @Body() command: any,
@@ -182,13 +182,28 @@ export class UserController {
     itemData.userId = user.id;
     return await this.userService.addAlertConfiguration(itemData);
   }
-  @Put('remove-alert-configuration')
-  async removeAlertCOnfiguration(
+  @Put('alert/update-alert-configuration')
+  async updateAlertConfiguration(
     @Body() itemData: UserAlertConfiguration,
     @userInfo() user: UserInfo,
   ): Promise<UserResponse> {
     itemData.userId = user.id;
-    return await this.userService.deleteAlertCOnfiguration(itemData);
+    return await this.userService.updateAlertConfiguration(itemData);
+  }
+  @Get('alert/get-alert-configuration')
+  async getAlertConfiguration(@userInfo() user: UserInfo): Promise<UserAlertConfiguration[]> {
+    return await this.userService.getAlertConfiguration(user.id);
+  }
+  @Put('alert/delete-alert-configuration/:alertName')
+  async removeAlertCOnfiguration(
+   @Param('alertName') alertName: string,
+   @userInfo() user: UserInfo,
+  ): Promise<UserResponse> {
+    const alertConfiguration: UserAlertConfiguration = {
+      alertName: alertName,
+      userId: user.id,
+    }
+    return await this.userService.deleteAlertCOnfiguration(alertName, user.id);
   }
   @Delete(':id')
   async softDelete(@Param('id') id: string): Promise<void> {
@@ -235,5 +250,10 @@ export class UserController {
     @Body() command: UserAlertConfiguration[],
   ): Promise<UserResponse> {
     return await this.userService.configureUserSmsAlert(command);
+  }
+  @Get('inactive/older-than-two-months')
+  @AllowAnonymous()
+  async getUsersInactiveForTwoMonths(): Promise<UserResponse[]> {
+    return await this.userService.getUsersInactiveForTwoMonths();
   }
 }

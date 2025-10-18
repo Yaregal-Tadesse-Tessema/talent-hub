@@ -23,15 +23,15 @@ export class NotificationSetting{
   hasMoreThanFiveJobs?: boolean;
 }
 export class UserAlertConfiguration {
+  alertName?: string;
   userId?: string;
   @ApiProperty()
-  salary?: SalaryRangeEnum;
+  minimumSalary?: SalaryRangeEnum;
   @ApiProperty()
   jobTitle?: string;
   @ApiProperty()
-  Position?: string;
+  seniorityLevel?: string;
   @ApiProperty()
-  // consider the address as city
   address?: string;
   @ApiProperty()
   industry?: string;

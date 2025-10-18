@@ -24,6 +24,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JobPostingEntity } from '../persistencies/job-posting.entity';
 import { Brackets, Repository } from 'typeorm';
 import { UserEntity } from 'src/modules/user/persistence/users.entity';
+import { UserStatusEnums } from 'src/modules/user/constants';
 import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
@@ -229,11 +230,32 @@ export class JobPostingService {
           value !== 'undefined'
         )
       );
-      const users: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
+      const usersByAlert: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersByPartialJobMatch(filteredPayload)
+      const usersByOrMatch: { phoneNumber: string, email: string, fullName: string }[] = await this.getUsersBySkillIndustryOrExperience({
+        skills: jobPostDomain.skill,
+        industry: jobPostDomain.industry,
+        minExperience: jobPostDomain.requiredYearOfExperience,
+      });
+      const recipients = this.mergeUniqueContacts([usersByAlert, usersByOrMatch]);
       const link = process.env.LOGIN_PAGE ?? 'https://talent-hub.org/login'
-      await this.notifayUsers(users, link)
+      await this.notifayUsers(recipients, link)
     }
     return JobPostingResponse.toResponse(response);
+  }
+  private mergeUniqueContacts(
+    lists: { phoneNumber: string, email: string, fullName: string }[][],
+  ): { phoneNumber: string, email: string, fullName: string }[] {
+    const map = new Map<string, { phoneNumber: string, email: string, fullName: string }>();
+    for (const list of lists) {
+      if (!list) continue;
+      for (const u of list) {
+        const key = (u?.email || '').toLowerCase() || (u?.phoneNumber || '');
+        if (key && !map.has(key)) {
+          map.set(key, u);
+        }
+      }
+    }
+    return Array.from(map.values());
   }
   async notifayUsers(payload: { phoneNumber: string, email: string, fullName: string }[], link: string) {
     const response: any[] = []
@@ -280,6 +302,61 @@ export class JobPostingService {
   }
   async getEligibleUsersForTheJobPost(skills: string[]) {
     return await this.userRepository.getEligibleUsersForTheJobPost(skills);
+  }
+  async getUsersBySkillIndustryOrExperience(jobData: {
+    skills?: string[];
+    industry?: string;
+    minExperience?: number;
+  }): Promise<{ phoneNumber: string, email: string, fullName: string }[]> {
+    try {
+      const query = this.userRepo
+        .createQueryBuilder('user')
+        .where('user.deletedAt IS NULL')
+        .andWhere('user.status = :status', { status: UserStatusEnums.ACTIVE });
+
+      const conditions: string[] = [];
+      const parameters: any = {};
+
+      if (jobData?.skills && jobData.skills.length > 0) {
+        conditions.push('"user"."technicalSkills" && :skills');
+        parameters.skills = jobData.skills;
+      }
+      if (jobData?.industry) {
+        conditions.push(':industry = ANY("user"."industry")');
+        parameters.industry = jobData.industry;
+      }
+      if (jobData?.minExperience !== undefined && jobData.minExperience !== null) {
+        conditions.push('"user"."yearOfExperience" >= :minExp');
+        parameters.minExp = jobData.minExperience;
+      }
+
+      if (conditions.length === 0) {
+        return [];
+      }
+
+      query.andWhere(`(${conditions.join(' OR ')})`, parameters);
+
+      const users = await query.getMany();
+      return users.map(u => ({
+        phoneNumber: u.phone,
+        email: u.email,
+        fullName: `${u.firstName} ${u.middleName ?? ''} ${u.lastName ?? ''}`.replace(/\s+/g, ' ').trim(),
+      }));
+    } catch (error) {
+      console.error('Error getting users by skill/industry/experience OR match:', error);
+      throw error;
+    }
+  }
+  async getUsersBySkillIndustryOrExperienceByJobId(
+    jobId: string,
+  ): Promise<{ phoneNumber: string, email: string, fullName: string }[]> {
+    const job = await this.jobPostingRepository.findOne(jobId);
+    if (!job) return [];
+    return await this.getUsersBySkillIndustryOrExperience({
+      skills: job.skill,
+      industry: job.industry,
+      minExperience: job.requiredYearOfExperience,
+    });
   }
   async getActiveJobsCount(query: CollectionQuery) {
     query.where = query.where || [];
@@ -498,10 +575,10 @@ export class JobPostingService {
       .where(new Brackets(qb => {
         const filters: [string, string, any][] = [
           ['address', 'address', command.address],
-          ['Position', 'Position', command.Position],
+          ['seniorityLevel', 'seniorityLevel', command.seniorityLevel],
           ['jobTitle', 'jobTitle', command.jobTitle],
           ['industry', 'industry', command.industry],
-          ['salary', 'salary', command.salary],
+          ['minimumSalary', 'minimumSalary', command.minimumSalary],
         ];
 
         let hasAtLeastOneFilter = false;
@@ -529,10 +606,10 @@ export class JobPostingService {
       .createQueryBuilder('user')
       .where(new Brackets(qb => {
         qb.where(`"user"."smsAlertConfiguration"->>'address' = :address`, { address: command.address ?? '' })
-          .orWhere(`"user"."smsAlertConfiguration"->>'Position' = :Position`, { Position: command.Position ?? '' })
+          .orWhere(`"user"."smsAlertConfiguration"->>'seniorityLevel' = :seniorityLevel`, { seniorityLevel: command.seniorityLevel ?? '' })
           .orWhere(`"user"."smsAlertConfiguration"->>'jobTitle' = :jobTitle`, { jobTitle: command.jobTitle ?? '' })
           .orWhere(`"user"."smsAlertConfiguration"->>'industry' = :industry`, { industry: command.industry ?? '' })
-          .orWhere(`"user"."smsAlertConfiguration"->>'salary' = :salary`, { salary: command.salary ?? '' });
+          .orWhere(`"user"."smsAlertConfiguration"->>'minimumSalary' = :minimumSalary`, { minimumSalary: command.minimumSalary ?? '' });
       }))
       .andWhere(`"user"."deletedAt" IS NULL`)
       .getMany();
@@ -555,8 +632,8 @@ export class JobPostingService {
         query.andWhere('job.title ILIKE :jobTitle', { jobTitle: `%${alertConfiguration.jobTitle}%` });
       }
 
-      if (alertConfiguration.Position) {
-        query.andWhere('job.position ILIKE :position', { position: `%${alertConfiguration.Position}%` });
+      if (alertConfiguration.seniorityLevel) {
+        query.andWhere('job.position ILIKE :position', { position: `%${alertConfiguration.seniorityLevel}%` });
       }
 
       if (alertConfiguration.industry) {
@@ -567,11 +644,11 @@ export class JobPostingService {
         query.andWhere('job.city ILIKE :location', { location: `%${alertConfiguration.address}%` });
       }
 
-      if (alertConfiguration.salary) {
+      if (alertConfiguration.minimumSalary) {
         // Match salary expectations based on SalaryRangeEnum structure
         // Check if the job has a salary range that matches the user's salary preference
         query.andWhere('job."salaryRange" IS NOT NULL')
-          .andWhere('job."salaryRange"->>\'MINIMUM\' = :salaryMin', { salaryMin: alertConfiguration.salary });
+          .andWhere('job."salaryRange"->>\'MINIMUM\' = :salaryMin', { salaryMin: alertConfiguration.minimumSalary });
       }
 
       // Only return active jobs (not expired)
@@ -619,9 +696,9 @@ export class JobPostingService {
         parameters.jobTitle = `%${alertConfiguration.jobTitle}%`;
       }
 
-      if (alertConfiguration.Position) {
+      if (alertConfiguration.seniorityLevel) {
         conditions.push('job.position ILIKE :position');
-        parameters.position = `%${alertConfiguration.Position}%`;
+        parameters.position = `%${alertConfiguration.seniorityLevel}%`;
       }
 
       if (alertConfiguration.industry) {
@@ -634,10 +711,10 @@ export class JobPostingService {
         parameters.city = `%${alertConfiguration.address}%`;
       }
 
-      if (alertConfiguration.salary) {
+      if (alertConfiguration.minimumSalary) {
         // Match salary expectations based on SalaryRangeEnum structure
         conditions.push('(job."salaryRange" IS NOT NULL AND job."salaryRange"->>\'MINIMUM\' = :salaryMin)');
-        parameters.salaryMin = alertConfiguration.salary;
+        parameters.salaryMin = alertConfiguration.minimumSalary;
       }
 
       // If we have conditions, apply OR logic

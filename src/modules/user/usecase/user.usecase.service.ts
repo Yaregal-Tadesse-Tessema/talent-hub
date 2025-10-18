@@ -496,18 +496,56 @@ export class UserService {
     const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
     user.alertConfiguration = user.alertConfiguration ? user.alertConfiguration : []
-    user.alertConfiguration.push(alertConfiguration);
+
+    // Check if alert with same alertName already exists
+    const existingIndex = user.alertConfiguration.findIndex(
+      (item) => item.alertName === alertConfiguration.alertName,
+    );
+
+    if (existingIndex !== -1) {
+      // Update existing alert configuration
+      user.alertConfiguration[existingIndex] = alertConfiguration;
+    } else {
+      // Add new alert configuration
+      user.alertConfiguration.push(alertConfiguration);
+    }
+
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
     return res;
   }
-  async deleteAlertCOnfiguration(
-    alertConfiguration: UserAlertConfiguration,
-  ): Promise<UserResponse> {
+  async updateAlertConfiguration(alertConfiguration: UserAlertConfiguration): Promise<UserResponse> {
     const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
+    const index = user.alertConfiguration.findIndex(
+      (item) => item.alertName === alertConfiguration.alertName,
+    );
+    if (index !== -1) {
+      user.alertConfiguration[index] = alertConfiguration;
+    }
+    await this.userRepository.update(user.id, user);
+    const res = await this.findOne(user.id);
+    return res;
+  }
+  async getAlertConfiguration(userId: string): Promise<UserAlertConfiguration[]> {
+    const user = await this.userRepository.findOne(userId);
+    if (!user) throw new BadRequestException(`User doesn't exist`);
+    return user.alertConfiguration as UserAlertConfiguration[];
+  }
+  async deleteAlertCOnfiguration(
+    alertName: string,
+    userId: string,
+  ): Promise<UserResponse> {
+    const user = await this.userRepository.findOne(userId);
+    if (!user) throw new BadRequestException(`User doesn't exist`);
+    const index = user.alertConfiguration.findIndex(
+      (item) => item.alertName === alertName || item.industry === alertName,
+    );
+    if (index !== -1) {
+      user.alertConfiguration.splice(index, 1);
+    }
     const newConfig = user.alertConfiguration.filter(
-      (item) => item != alertConfiguration,
+      (item) => item.alertName != alertName,
     );
     user.alertConfiguration = newConfig;
     await this.userRepository.update(user.id, user);
@@ -827,5 +865,17 @@ export class UserService {
     user.smsAlertConfiguration = command;
     await this.userRepository.create(user);
     return true;
+  }
+  async getUsersInactiveForTwoMonths(): Promise<UserResponse[]> {
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+
+    const users = await this.userRepo
+      .createQueryBuilder('user')
+      .where('"user"."deletedAt" IS NULL')
+      .andWhere('"user"."lastLoginDate" < :cutoff', { cutoff: twoMonthsAgo })
+      .getMany();
+
+    return users.map(u => UserResponse.toResponse(u as any));
   }
 }
