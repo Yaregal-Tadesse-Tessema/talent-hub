@@ -620,7 +620,6 @@ export class UserService {
     });
     return response;
   }
-
   async sendPasswordResetEmail(command: SendPasswordResetLinkCommand): Promise<{
     message: string,
     data: any,
@@ -655,14 +654,18 @@ export class UserService {
     if (command.email) {
       const alreadySent = await this.passwordResetQuery.getPasswordResetByEmailOrPhone(userName);
       if (alreadySent) {
-        const isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
-          secret:
-            '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
-        });
+        let isTokenValid = null;
+        try {
+          isTokenValid = await this.jwtService.verifyAsync(alreadySent.token, {
+            secret:
+              '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
+          });
+        } catch (error) {
+          isTokenValid = false;
+        }
         if (isTokenValid) {
           throw new BadRequestException('Password reset link is already sent please check your inbox or spam folder');
         } else {
-          const userName = command.email ? command.email : command.phoneNumber;
           await this.passwordResetCommand.deletePasswordResetByEmailOrPhone(userName);
         }
       }
@@ -707,7 +710,7 @@ export class UserService {
           userType: UserType.EMPLOYER
         };
       }
-      const token = Util.GenerateToken(payload, '1d');
+      const token = Util.GenerateToken(payload, '1h');
       const resetLinkWithToken = `${resetLink}?token=${token}`;
       const html = `
                 <div style="font-family: Arial, sans-serif; line-height: 1.6;">
@@ -733,7 +736,7 @@ export class UserService {
                   </a>
                   <p>If the button doesn’t work, copy and paste the following link into your browser:</p>
                   <p><a href="${resetLinkWithToken}">${resetLinkWithToken}</a></p>
-                  <p>This link will expire in 24 hours for your security. If you did not request a password reset, please ignore this email.</p>
+                  <p>This link will expire in 1 hour for your security. If you did not request a password reset, please ignore this email.</p>
                   <p>Stay safe!<br/>— The YourCompany Team</p>
          </div>
       `;

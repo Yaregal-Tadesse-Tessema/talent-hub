@@ -224,7 +224,7 @@ export class UserController {
     return await this.userService.findAllArchived(query);
   }
   @AllowAnonymous()
-  @Post('send-password-reset-email')
+  @Post('send-password-reset-otp')
   async sendPasswordResetEmail(
     @Body() command: SendPasswordResetLinkCommand,
   ): Promise<{
