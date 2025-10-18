@@ -194,15 +194,11 @@ export class UserController {
   async getAlertConfiguration(@userInfo() user: UserInfo): Promise<UserAlertConfiguration[]> {
     return await this.userService.getAlertConfiguration(user.id);
   }
-  @Put('alert/delete-alert-configuration/:alertName')
+  @Delete('alert/delete-alert-configuration/:alertName')
   async removeAlertCOnfiguration(
    @Param('alertName') alertName: string,
    @userInfo() user: UserInfo,
   ): Promise<UserResponse> {
-    const alertConfiguration: UserAlertConfiguration = {
-      alertName: alertName,
-      userId: user.id,
-    }
     return await this.userService.deleteAlertCOnfiguration(alertName, user.id);
   }
   @Delete(':id')
