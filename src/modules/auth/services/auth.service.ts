@@ -328,7 +328,7 @@ export class AuthService {
       throw new BadRequestException("user Doesn't exist contact administrator");
     if (lookup.employeeTenant.length > 1) return lookup.employeeTenant;
     if ((lookup.employeeTenant.length === 0)) return null;
-      tenantId = tenant.id;
+    tenantId = tenant.id;
     const payload: UserInfo = {
       id: lookup.id,
       tenantId: tenantId,
@@ -428,5 +428,17 @@ export class AuthService {
         ...UserResponse.toResponse(user),
       },
     };
+  }
+  async verifyPasswordResetToken(token: string) {
+    let isTokenValid = null;
+    try {
+      isTokenValid = await this.jwtService.verifyAsync(token, {
+        secret:
+          '669e081f0821d394b54b7dbad62a6e429df0fee54f905e9d1c7de1dab373a57cd4e4c871245b58ceb2a788451c9b95a3ffbbb803fb0818e566041fe10482b281',
+      });
+    } catch (error) {
+      isTokenValid = false;
+    }
+    return isTokenValid;
   }
 }

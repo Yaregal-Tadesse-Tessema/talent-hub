@@ -23,7 +23,7 @@ export class AuthController {
   constructor(
     private authService: AuthService,
     private sessionQuery: SessionQuery,
-  ) {}
+  ) { }
   @Post('refresh')
   @AllowAnonymous()
   async getRefreshToken(@Headers() headers: object) {
@@ -90,5 +90,11 @@ export class AuthController {
     const authorization: string = headers['authorization'];
     const token = jwt.decode(authorization.split(' ')[1]);
     return await this.authService.regenerateToken(token, command);
+  }
+
+  @Post('verify-reset-token')
+  @AllowAnonymous()
+  async verifyPasswordResetToken(@Body() command: { token: string }) {
+    return await this.authService.verifyPasswordResetToken(command.token);
   }
 }
