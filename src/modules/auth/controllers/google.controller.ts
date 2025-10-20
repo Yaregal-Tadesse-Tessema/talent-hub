@@ -27,7 +27,7 @@ export class GoogleAuthController {
     if (result) {
       res.setHeader('access-token', result.accessToken);
       res.setHeader('refresh-token', result.refreshToken);
-      return res.redirect('https://talent-hub.org/find-job?profile=' + result.profile);
+      return res.redirect(`https://talent-hub.org/find-job?profile= ${encodeURIComponent(JSON.stringify(result.profile))}`);
     }
     return res.redirect('https://talent-hub.org/login?status=alreadyExists');
   }
