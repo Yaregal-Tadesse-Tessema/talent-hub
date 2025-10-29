@@ -32,8 +32,8 @@ export class UserEntity extends CommonEntity {
   gender: string;
   @Column({ default: UserStatusEnums.PENDING })
   status: UserStatusEnums;
-  @Column({ nullable: true })
-  password: string;
+  // @Column({ nullable: true })
+  // password: string;
   @Column({ nullable: true, type: 'decimal' })
   gpa: number;
   @Column({ nullable: true, type: 'jsonb' })

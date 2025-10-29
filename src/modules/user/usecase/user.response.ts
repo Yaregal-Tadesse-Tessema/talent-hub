@@ -12,8 +12,8 @@ export class UserResponse {
   phone: string;
   @ApiProperty()
   email: string;
-  @ApiProperty()
-  password: string;
+  // @ApiProperty()
+  // password: string;
   @ApiProperty()
   firstName: string;
   @ApiProperty()

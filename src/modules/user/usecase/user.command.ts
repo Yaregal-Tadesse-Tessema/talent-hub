@@ -23,6 +23,9 @@ export class NotificationSetting{
   hasMoreThanFiveJobs?: boolean;
 }
 export class UserAlertConfiguration {
+  @ApiProperty()
+  id?: string;
+  @ApiProperty()
   alertName?: string;
   userId?: string;
   @ApiProperty()

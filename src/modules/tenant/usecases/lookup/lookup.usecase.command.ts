@@ -124,7 +124,7 @@ export class LookupService {
     return result;
   }
   async changePassword(command: ChangePasswordCommand) {
-    const lookup = await this.lookupRepository.findOne(command?.currentUser?.id,['employeeTenant','employeeTenant.tenant']);
+    const lookup = await this.lookupRepository.findOne(command?.currentUser?.lookupId,['employeeTenant','employeeTenant.tenant']);
     if (!lookup) throw new NotFoundException('employee does not exist');
     if (command.password != command.confirmPassword) throw new BadRequestException('The password and confirm password does not match');
     const hashedPassword = Util.hashPassword(command.password);

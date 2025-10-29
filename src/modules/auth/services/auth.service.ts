@@ -400,6 +400,7 @@ export class AuthService {
       );
     const payload: UserInfo = {
       id: user.id,
+      lookupId: user?.lookup?.id,
       email: user?.email,
       firstName: user?.firstName,
       middleName: user?.middleName,

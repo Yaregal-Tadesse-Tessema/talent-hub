@@ -48,6 +48,8 @@ import { UserType } from 'src/modules/tenant/constants';
 import { CreatePasswordResetCommand } from 'src/modules/auth/services/password-reset/password-reset.command';
 import { LookupEntity } from 'src/modules/tenant/persistencies/lookup.entity';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
+import { Command } from 'nestjs-telegraf';
+import { randomUUID } from 'crypto';
 @Injectable()
 export class UserService {
   constructor(
@@ -253,15 +255,20 @@ export class UserService {
     }
   }
   async changePassword(command: AccountPasswordChange) {
-    const user = await this.userRepository.findOne(command.id);
+    const user = await this.userRepository.findOne(command.id, ['lookup']);
     if (!user)
       throw new NotFoundException(
         `Account with id ${command.id} doesn't exist`,
       );
-    if (user.password != command.oldPassword)
+    const lookup = user.lookup;
+    if (!lookup)
+      throw new NotFoundException(
+        `Lookup with id ${command.id} doesn't exist`,
+      );
+    if (lookup.password != command.oldPassword)
       throw new BadRequestException(`Incorrect Old Password`);
-    user.password = command.newPassword;
-    await this.userRepository.create(user);
+    lookup.password = command.newPassword;
+    await this.lookupRepository.create(lookup);
     return true;
   }
   async sendActivationMessage(
@@ -497,18 +504,49 @@ export class UserService {
     if (!user) throw new BadRequestException(`User doesn't exist`);
     user.alertConfiguration = user.alertConfiguration ? user.alertConfiguration : []
 
-    // Check if alert with same alertName already exists
-    const existingIndex = user.alertConfiguration.findIndex(
-      (item) => item.alertName === alertConfiguration.alertName,
-    );
-
-    if (existingIndex !== -1) {
-      // Update existing alert configuration
-      user.alertConfiguration[existingIndex] = alertConfiguration;
+    const isNameProvided = !!(alertConfiguration.alertName && alertConfiguration.alertName.trim().length > 0);
+    if (isNameProvided) {
+      const exists = user.alertConfiguration.some(
+        (item) => ((item.alertName || '').trim() === alertConfiguration.alertName.trim()),
+      );
+      if (exists) {
+        throw new BadRequestException('Alert with the same alertName already exists');
+      }
     } else {
-      // Add new alert configuration
-      user.alertConfiguration.push(alertConfiguration);
+      // Auto-assign a numeric alertName (1,2,3,...) if none provided
+      const numericNames = (user.alertConfiguration || [])
+        .map((i) => {
+          const name = (i.alertName || '').trim();
+          const n = parseInt(name, 10);
+          return !isNaN(n) && name === String(n) ? n : null;
+        })
+        .filter((n) => n !== null) as number[];
+      let nextIndex = numericNames.length > 0
+        ? Math.max(...numericNames) + 1
+        : (user.alertConfiguration?.length || 0) + 1;
+      // Ensure no collision even if non-numeric names match the number as string
+      while (user.alertConfiguration.some((i) => (i.alertName || '').trim() === String(nextIndex))) {
+        nextIndex += 1;
+      }
+      alertConfiguration.alertName = String(nextIndex);
     }
+
+    // Add new alert configuration
+    // Ensure a unique UUID id for the new alert
+    const existingIds = new Set(
+      (user.alertConfiguration || [])
+        .map((i) => (i.id || '').trim())
+        .filter((v) => v),
+    );
+    if (!alertConfiguration.id || existingIds.has(alertConfiguration.id.trim())) {
+      let newId = randomUUID();
+      while (existingIds.has(newId)) {
+        newId = randomUUID();
+      }
+      alertConfiguration.id = newId;
+    }
+
+    user.alertConfiguration.push(alertConfiguration);
 
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
@@ -517,12 +555,24 @@ export class UserService {
   async updateAlertConfiguration(alertConfiguration: UserAlertConfiguration): Promise<UserResponse> {
     const user = await this.userRepository.findOne(alertConfiguration.userId);
     if (!user) throw new BadRequestException(`User doesn't exist`);
-    const index = user.alertConfiguration.findIndex(
-      (item) => item.alertName === alertConfiguration.alertName,
-    );
-    if (index !== -1) {
-      user.alertConfiguration[index] = alertConfiguration;
+    const hasName = !!(alertConfiguration.alertName && alertConfiguration.alertName.trim().length > 0);
+    if (!hasName) {
+      throw new BadRequestException('alertName is required');
     }
+    const index = user.alertConfiguration.findIndex(
+      (item) => ((item.id || '').trim() === alertConfiguration.id),
+    );
+    if (index === -1) {
+      throw new NotFoundException('Alert configuration not found');
+    }
+    const conflict = user.alertConfiguration.some((item, i) =>
+      i !== index && ((item.id || '').trim() === alertConfiguration.id),
+    );
+    if (conflict) {
+      throw new BadRequestException('Alert with the same alertName already exists');
+    }
+
+    user.alertConfiguration[index] = alertConfiguration;
     await this.userRepository.update(user.id, user);
     const res = await this.findOne(user.id);
     return res;
@@ -821,9 +871,6 @@ export class UserService {
       );
     }
     const user = lookup?.user;
-    const encryptedPassword = Util.hashPassword(command.newPassword);
-    user.password = encryptedPassword;
-    const response = await this.userRepository.create(user);
     const payload: UserInfo = {
       id: user.id,
       email: user?.email,
@@ -837,6 +884,7 @@ export class UserService {
       industry: user?.industry,
       userType: user ? UserType.EMPLOYEE : UserType.EMPLOYER
     };
+    const encryptedPassword = Util.hashPassword(command.newPassword);
     lookup.password = encryptedPassword;
     await this.lookupRepository.create(lookup);
     resetPasswordData.status = 'Completed';
