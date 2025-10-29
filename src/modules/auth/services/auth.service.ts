@@ -299,6 +299,7 @@ export class AuthService {
     if (!lookup?.employeeTenant || lookup?.employeeTenant.length === 0) {
       const payload: UserInfo = {
         id: lookup.id,
+        lookupId: lookup.id,
         tenantId: tenantId,
         email: lookup?.email,
         firstName: lookup?.firstName,
@@ -331,6 +332,7 @@ export class AuthService {
     tenantId = tenant.id;
     const payload: UserInfo = {
       id: lookup.id,
+      lookupId: lookup.id,
       tenantId: tenantId,
       email: lookup?.email,
       firstName: lookup?.firstName,
