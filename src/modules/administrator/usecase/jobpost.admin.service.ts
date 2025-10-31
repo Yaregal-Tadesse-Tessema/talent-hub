@@ -91,7 +91,7 @@ export class JobPostAdminService {
                 employeeTenantEntity.isActive = false;
                 employeeTenantEntity.creatorTenantId = currentUser?.tenantId;
                 employeeTenant = await this.employeeTenantRepo.save(employeeTenantEntity);
-                let jobPost = await this.jobPostRepo.findOne({ where: { title: command?.title, tenantId: tenant?.id } });
+                let jobPost = null
                 if (!jobPost) {
                     const jobPostingEntity = new JobPostingEntity();
                     jobPostingEntity.tenantId = tenant?.id;
@@ -123,11 +123,15 @@ export class JobPostAdminService {
                     jobPostingEntity.positionNumbers = this.normalizeInteger(command?.positionNumbers) ?? 1;
                     jobPostingEntity.paymentType = command?.paymentType;
                     jobPostingEntity.appliedThrough = command.appliedThrough;
+                    jobPostingEntity.email = command?.email;
+                    jobPostingEntity.phone = command?.phone;
                     jobPostingEntity.isAdminCreated = true
                     jobPostingEntity.requiredattachements = this.normalizeToStringArray(command?.requiredattachements as any);
                     jobPostingEntity.creatorTenantId = currentUser?.tenantId;
                     jobPost = await this.jobPostRepo.save(jobPostingEntity);
                 }
+                jobPost.status = JobPostingStatusEnums.POSTED;
+                jobPost = await this.jobPostRepo.save(jobPost);
 
                 results.push({
                     success: true,

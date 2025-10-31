@@ -92,6 +92,10 @@ export class JobPostingEntity extends CommonEntity {
   hasNormalFilter: boolean;
   @Column({ nullable: true, default: false })
   isAdminCreated: boolean;
+  @Column({ nullable: true })
+  email: string;
+  @Column({ nullable: true })
+  phone: string;
   @Column({ type: 'text', array: true, nullable: true, default: () => "ARRAY[]::text[]" })
   requiredattachements: string[];
   @OneToMany(

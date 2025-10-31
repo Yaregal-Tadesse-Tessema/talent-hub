@@ -75,6 +75,10 @@ export class JobPostingResponse {
   applicationCount: number;
   @ApiProperty()
   jobPostRequirement: string[];
+  @ApiProperty()
+  email: string;
+  @ApiProperty()
+  phone: string;
   currentUser?: any;
   
   @ApiProperty()
@@ -144,6 +148,8 @@ export class JobPostingResponse {
     response.companyLogo = entity.companyLogo;
     response.postedDate = entity.postedDate;
     response.applicationURL = entity.applicationURL;
+    response.email = entity.email;
+    response.phone = entity.phone;
     response.experienceLevel = entity.experienceLevel;
     response.fieldOfStudy = entity.fieldOfStudy;
     response.educationLevel = entity.educationLevel;

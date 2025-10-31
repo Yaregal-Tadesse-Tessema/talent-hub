@@ -64,6 +64,10 @@ export class CreateJobPostingCommand {
   @ApiProperty()
   applicationURL: string;
   @ApiProperty()
+  email?: string; 
+  @ApiProperty()
+  phone?: string; 
+  @ApiProperty()
   experienceLevel: string;
   @ApiProperty()
   fieldOfStudy: string;
@@ -124,6 +128,8 @@ export class CreateJobPostingCommand {
     entity.companyLogo = dto?.companyLogo;
     entity.postedDate = dto?.postedDate;
     entity.applicationURL = dto?.applicationURL;
+    entity.email = dto?.email;
+    entity.phone = dto?.phone;
     entity.experienceLevel = dto?.experienceLevel;
     entity.fieldOfStudy = dto?.fieldOfStudy;
     entity.educationLevel = dto?.educationLevel;

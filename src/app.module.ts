@@ -43,6 +43,8 @@ import { PasswordResetEntity } from './modules/auth/persistances/password-reset/
 import { PositionEntity } from './modules/job-posting/job/persistencies/position.entity';
 import { IndustryEntity } from './modules/job-posting/job/persistencies/industry.entity';
 import { PaymentEntity } from './modules/payment/entities/payment.entity';
+import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
+import { OpportunityEntity } from './modules/opportunities/persistencies/opportunity.entity';
 
 @Module({
   imports: [
@@ -81,6 +83,7 @@ import { PaymentEntity } from './modules/payment/entities/payment.entity';
         PositionEntity,
         IndustryEntity,
         PaymentEntity,
+        OpportunityEntity,
       ],
       synchronize: true,
     }),
@@ -101,6 +104,7 @@ import { PaymentEntity } from './modules/payment/entities/payment.entity';
     AdministratorModule,
     IntelligenceModule,
     PaymentModule,
+    OpportunitiesModule,
   ],
   controllers: [],
   providers: [
