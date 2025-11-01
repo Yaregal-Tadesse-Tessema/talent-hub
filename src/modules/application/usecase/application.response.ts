@@ -51,6 +51,8 @@ export class ApplicationResponse {
   aiMatch: ApplicationJobMatchCommand;
   @ApiProperty()
   algorithmMatch: number;
+  @ApiProperty()
+  applicationFormData: any;
   @ApiProperty({ type: () => [JobPostingResponse] })
   jobPost: JobPostingResponse;
   @ApiProperty({ type: () => [UserResponse] })
@@ -82,6 +84,7 @@ export class ApplicationResponse {
     response.viewCount = entity?.viewCount;
     response.aiMatch = entity?.aiMatch;
     response.algorithmMatch = entity?.algorithmMatch;
+    response.applicationFormData = entity?.applicationFormData;
     if (entity?.user) {
       response.user = UserResponse.toResponse(entity.user);
     }

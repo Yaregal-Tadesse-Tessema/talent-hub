@@ -57,18 +57,21 @@ export class ApplicationEntity extends CommonEntity {
   aiMatch: ApplicationJobMatchCommand;
   @Column({ nullable: true, type: 'jsonb' })
   algorithmMatch: any;
+  @Column({ nullable: true, type: 'jsonb' })
+  applicationFormData?: any;
+
   @ManyToOne(
     () => JobPostingEntity,
     (jobPostingEntity) => jobPostingEntity.applications,
-    { onDelete:'CASCADE'}
+    { onDelete: 'CASCADE' }
   )
   @JoinColumn({ name: 'JobPostId' })
   JobPost: JobPostingEntity;
-  
+
   @ManyToOne(() => UserEntity, (userEntity) => userEntity.applications)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
-  @OneToMany(() => MessageEntity, (messageEntity) => messageEntity.application, { cascade: true})
+  @OneToMany(() => MessageEntity, (messageEntity) => messageEntity.application, { cascade: true })
   applicationMessages: MessageEntity[];
 }

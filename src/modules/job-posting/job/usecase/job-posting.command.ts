@@ -13,6 +13,9 @@ import { FileDto } from 'src/libs/Common/dtos/file.dto';
 export class CreateJobPostingCommand {
   id: string;
   @ApiProperty()
+  @IsOptional()
+  applicationFormId?: string;
+  @ApiProperty()
   @IsNotEmpty()
   title: string;
   @ApiProperty()
@@ -99,6 +102,7 @@ export class CreateJobPostingCommand {
   appliedThrough?: AppliedThroughEnums;
   @ApiProperty()
   requiredattachements?: string[];
+
   currentUser?: any;
 
   static fromDto(dto: CreateJobPostingCommand): JobPostingEntity {
@@ -107,6 +111,7 @@ export class CreateJobPostingCommand {
       return null;
     }
     entity.id = dto?.id;
+    entity.applicationFormId = dto?.applicationFormId;
     entity.title = dto.title;
     entity.description = dto.description;
     entity.position = dto?.position;

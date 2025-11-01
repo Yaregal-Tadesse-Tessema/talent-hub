@@ -15,6 +15,7 @@ import { SaveJobEntity } from './save-job-post.entity';
 import { PreScreeningQuestionEntity } from './pre-screening-question.entity';
 import { UserFavoriteJobEntity } from 'src/modules/job-posting/job/persistencies/user-favorite-job.entity';
 import { TenantEntity } from 'src/modules/tenant/persistencies/tenant.entity';
+import { FormEntity } from 'src/modules/form/persistencies/form.entity';
 
 @Entity({ name: 'job_postings' })
 export class JobPostingEntity extends CommonEntity {
@@ -24,7 +25,8 @@ export class JobPostingEntity extends CommonEntity {
   description: string;
   @Column()
   position: string;
-
+  @Column({ nullable: true })
+  applicationFormId: string;
   @Column({ nullable: true })
   industry: string;
   @Column({ default: WorkTypeEnums.ON_SITE })
@@ -135,4 +137,13 @@ export class JobPostingEntity extends CommonEntity {
   )
   @JoinColumn({ name: 'tenantId' })
   tenant: TenantEntity;
+
+  @ManyToOne(
+    () => FormEntity,
+    (formEntity) => formEntity.jobPosts,
+    { cascade: true }
+  )
+  @JoinColumn({ name: 'applicationFormId' })
+  form: FormEntity;
+
 }

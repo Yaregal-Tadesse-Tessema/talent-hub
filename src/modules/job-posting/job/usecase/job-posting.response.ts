@@ -19,6 +19,8 @@ export class JobPostingResponse {
   @ApiProperty()
   id: string;
   @ApiProperty()
+  applicationFormId: string;
+  @ApiProperty()
   title: string;
   @ApiProperty()
   description: string;
@@ -128,6 +130,7 @@ export class JobPostingResponse {
       return null;
     }
     response.id = entity.id;
+    response.applicationFormId = entity.applicationFormId;
     response.title = entity.title;
     response.description = entity.description;
     response.position = entity.position;

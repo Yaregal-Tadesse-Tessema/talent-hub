@@ -55,7 +55,9 @@ export class CreateApplicationCommand {
   aiMatch?: ApplicationJobMatchCommand;
   @ApiProperty()
   algorithmMatch?: number;
-
+  @ApiProperty()
+  @IsOptional()
+  applicationFormData?: any;
   @ApiProperty()
   userInfo?: any;
   static fromDto(dto: CreateApplicationCommand): ApplicationEntity {
@@ -81,6 +83,7 @@ export class CreateApplicationCommand {
     entity.viewCount = dto?.viewCount;
     entity.aiMatch = dto?.aiMatch;
     entity.algorithmMatch = dto?.algorithmMatch;
+    entity.applicationFormData = dto?.applicationFormData;
     return entity;
   }
   static fromDtos(dto: CreateApplicationCommand[]): ApplicationEntity[] {

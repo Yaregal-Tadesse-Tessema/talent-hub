@@ -45,6 +45,8 @@ import { IndustryEntity } from './modules/job-posting/job/persistencies/industry
 import { PaymentEntity } from './modules/payment/entities/payment.entity';
 import { OpportunitiesModule } from './modules/opportunities/opportunities.module';
 import { OpportunityEntity } from './modules/opportunities/persistencies/opportunity.entity';
+import { FormModule } from './modules/form/form.module';
+import { FormEntity } from './modules/form/persistencies/form.entity';
 
 @Module({
   imports: [
@@ -84,6 +86,7 @@ import { OpportunityEntity } from './modules/opportunities/persistencies/opportu
         IndustryEntity,
         PaymentEntity,
         OpportunityEntity,
+        FormEntity,
       ],
       synchronize: true,
     }),
@@ -105,6 +108,7 @@ import { OpportunityEntity } from './modules/opportunities/persistencies/opportu
     IntelligenceModule,
     PaymentModule,
     OpportunitiesModule,
+    FormModule,
   ],
   controllers: [],
   providers: [
