@@ -2,6 +2,7 @@
 import {
   BadGatewayException,
   BadRequestException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
@@ -29,6 +30,8 @@ import { UserAlertConfiguration } from 'src/modules/user/usecase/user.command';
 import { EmailService } from 'src/modules/notification/usecase/email.usecase.command';
 import { AfroMessageService } from 'src/modules/sms/afro-message.service';
 import { REQUEST } from '@nestjs/core';
+import { TelegramBotService } from 'src/modules/telegram/usecase/telegram-bot.service';
+import { TelegramBootService } from 'src/modules/telegram/usecase/telegram-boot-service';
 @Injectable()
 export class JobPostingService {
   constructor(
@@ -39,6 +42,8 @@ export class JobPostingService {
     @InjectRepository(UserEntity)
     private readonly userRepo: Repository<UserEntity>,
     private readonly emailService: EmailService,
+    @Inject(forwardRef(() => TelegramBotService))
+    private readonly telegramBotService: TelegramBootService,
     private readonly afroMessageService: AfroMessageService,
     @Inject(REQUEST) private request: Request,
   ) { }
@@ -418,12 +423,12 @@ export class JobPostingService {
       if (!userId || !command) return;
       const message = this.constructJobPostMessage(command);
       if (!message) return;
-      // const result = await this.telegramBotService.sendMessage(
-      //   userId,
-      //   message,
-      //   JobPostId,
-      // );
-      // console.log(result);
+      const result = await this.telegramBotService.sendMessage(
+        userId,
+        message,
+        JobPostId,
+      );
+      console.log(result);
       return true;
     } catch (error) {
       return false

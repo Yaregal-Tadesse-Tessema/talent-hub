@@ -131,7 +131,7 @@ export class UserService {
   async uploadResumeByUserId(file: Express.Multer.File, userId: string) {
     const user = await this.userRepository.findOne(userId);
     if (!user)
-      throw new BadRequestException(`User with id ${userId} doesn't exist`);
+      return null;
     if (user?.resume) {
       const resumeAlreadyUsed =
         await this.applicationRepository.getOneByCriteria({

@@ -47,6 +47,8 @@ import { OpportunitiesModule } from './modules/opportunities/opportunities.modul
 import { OpportunityEntity } from './modules/opportunities/persistencies/opportunity.entity';
 import { FormModule } from './modules/form/form.module';
 import { FormEntity } from './modules/form/persistencies/form.entity';
+import { TasksModule } from './modules/tasks/tasks.module';
+import { ApprovalTaskEntity } from './modules/tasks/persistencies/approval-task.entity';
 
 @Module({
   imports: [
@@ -87,6 +89,7 @@ import { FormEntity } from './modules/form/persistencies/form.entity';
         PaymentEntity,
         OpportunityEntity,
         FormEntity,
+        ApprovalTaskEntity,
       ],
       synchronize: true,
     }),
@@ -109,6 +112,7 @@ import { FormEntity } from './modules/form/persistencies/form.entity';
     PaymentModule,
     OpportunitiesModule,
     FormModule,
+    TasksModule,
   ],
   controllers: [],
   providers: [

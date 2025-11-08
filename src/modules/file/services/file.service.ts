@@ -76,7 +76,7 @@ export class FileService {
       if (!resultData) throw new HttpException('File upload failed', 500);
       // Set the file to be publicly accessible
       // Generate the public URL to access the file
-      const publicUrl = `http://${process.env.MINIO_HOST}:9000/${this.bucketName}/${fileId}`;
+      const publicUrl = `https://${process.env.MINIO_HOST}/${this.bucketName}/${fileId}`;
       // Prepare the response DTO
       const response: FileDto = {
         filename: fileId,
